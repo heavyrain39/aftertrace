@@ -15975,13 +15975,18 @@ class Environment {
       metalness: 0
     }));
     __publicField(this, "scheduleJumpGap", (distanceAhead, length) => {
-      const landingDrop = [0, 1.5, 3][Math.floor(Math.random() * 3)];
+      const landingDrop = [0, 4, 8][Math.floor(Math.random() * 3)];
       this.jumpGap = {
         start: this.distance + distanceAhead,
         end: this.distance + distanceAhead + length,
         startLevel: this.roadLevelOffset,
         landingDrop
       };
+    });
+    __publicField(this, "isInsideJumpGap", (z = 0) => {
+      if (!this.jumpGap) return false;
+      const sample = this.distance - z;
+      return sample > this.jumpGap.start && sample < this.jumpGap.end;
     });
     __publicField(this, "getRoadOffset", (z) => {
       const rawOffset = this.getRoadCenter(this.distance - z) - this.getRoadCenter(this.distance);
@@ -17920,6 +17925,8 @@ class ObstacleManager {
   }
   update(delta, speed, playerX, canSmash, allowRepair, allowDoubleScore, allowWeapon, previousPlayerX = playerX, scoreMultiplier = 1, playerAirborne = false, playerZ = 0, previousPlayerZ = playerZ, showScorePopups = true) {
     const events = [];
+    const fullWidthGapRampRow = this.entities.filter((entity) => entity.kind === "gapRamp").length === 3;
+    let fullWidthGapRampCrossed = false;
     for (let index = this.entities.length - 1; index >= 0; index--) {
       const entity = this.entities[index];
       const previousZ = entity.object.position.z;
@@ -17952,6 +17959,9 @@ class ObstacleManager {
       const rotor = entity.object.getObjectByName("obstacle_rotor");
       if (rotor) rotor.rotation.y += delta * 1.7;
       const collisionRadius = entity.kind === "obstacle" ? 0.6 : entity.kind === "ramp" || entity.kind === "gapRamp" ? 0.72 : 0.82;
+      if (fullWidthGapRampRow && entity.kind === "gapRamp" && this.crossesPlayerDepth(previousZ, currentZ, previousPlayerZ, playerZ)) {
+        fullWidthGapRampCrossed = true;
+      }
       if (!entity.collided && this.intersectsPlayer(entity.lane, previousZ, currentZ, previousPlayerX, playerX, collisionRadius, previousPlayerZ, playerZ)) {
         if (entity.kind === "obstacle" && playerAirborne) continue;
         entity.collided = true;
@@ -17967,6 +17977,12 @@ class ObstacleManager {
       }
       if (entity.object.position.z > 10) this.removeEntity(index);
     }
+    if (fullWidthGapRampCrossed && !events.includes("gapRamp") && Math.abs(playerX - this.roadOffset(playerZ)) <= this.laneWidth * 1.55) {
+      events.push("gapRamp");
+      for (let index = this.entities.length - 1; index >= 0; index--) {
+        if (this.entities[index].kind === "gapRamp") this.removeEntity(index);
+      }
+    }
     events.push(...this.updateProjectiles(delta, scoreMultiplier));
     this.updateShards(delta, speed);
     this.updateBursts(delta, speed);
@@ -17978,6 +17994,12 @@ class ObstacleManager {
       }
     }
     return events;
+  }
+  crossesPlayerDepth(previousZ, currentZ, previousPlayerZ = 0, playerZ = 0) {
+    const collisionDepth = 1.08;
+    const previousRelativeZ = previousZ - previousPlayerZ;
+    const currentRelativeZ = currentZ - playerZ;
+    return previousRelativeZ <= collisionDepth && currentRelativeZ >= -collisionDepth;
   }
   intersectsPlayer(lane, previousZ, currentZ, previousPlayerX, playerX, radius, previousPlayerZ = 0, playerZ = 0) {
     const collisionDepth = 1.08;
@@ -22576,7 +22598,7 @@ class FinishAfterimageEffect {
                 float breakup = 0.94 + 0.06 * sin(
                     gl_FragCoord.x * 0.19 + gl_FragCoord.y * 0.13 + vEchoSeed * 17.0
                 );
-                float alpha = vEchoLife * (0.021 + fresnel * 0.15) * scan * breakup;
+                float alpha = vEchoLife * (0.021 + fresnel * 0.15) * scan * breakup * 0.5;
                 vec3 edgeColor = vec3(0.74, 0.98, 1.0);
                 vec3 coreColor = vec3(0.28, 0.82, 0.94);
                 vec3 color = mix(coreColor, edgeColor, 0.38 + fresnel * 0.62);
@@ -23088,6 +23110,9 @@ class Player {
       blending: THREE.AdditiveBlending
     }));
     __publicField(this, "repairTime", 0);
+    __publicField(this, "gapFallActive", false);
+    __publicField(this, "gapFallElapsed", 0);
+    __publicField(this, "gapFallStartY", 0.42);
     __publicField(this, "jumpActive", false);
     __publicField(this, "jumpHeight", 0);
     __publicField(this, "jumpClearance", 0);
@@ -23283,7 +23308,6 @@ class Player {
     for (let index = 0; index < 7; index++) {
       const line = new THREE.Mesh(new THREE.BoxGeometry(2.05, 0.012, 0.025), this.repairScanMaterial);
       line.position.y = 0.18 + index * 0.085;
-      line.position.z = (index - 3) * 0.075;
       this.repairScan.add(line);
     }
     this.mesh.add(this.repairScan);
@@ -23394,14 +23418,15 @@ class Player {
   }
   update(delta, roadHeading = 0, roadElevation = 0, propulsionPower = 0) {
     this.elapsedTime += delta;
+    if (this.gapFallActive) this.gapFallElapsed += delta;
     this.landedThisFrame = false;
     const targetRoadX = this.targetX + this.clearRoadOffset;
     const spring = (targetRoadX - this.mesh.position.x) * 92;
     this.lateralVelocity += spring * delta;
     this.lateralVelocity *= Math.exp(-13 * delta);
     this.mesh.position.x += this.lateralVelocity * delta;
-    const targetRoll = THREE.MathUtils.clamp(-this.lateralVelocity * 0.1, -0.42, 0.42);
-    const targetYaw = -roadHeading - this.lateralVelocity * 0.03;
+    const targetRoll = this.gapFallActive ? 0.58 : THREE.MathUtils.clamp(-this.lateralVelocity * 0.1, -0.42, 0.42);
+    const targetYaw = this.gapFallActive ? -roadHeading - 0.28 : -roadHeading - this.lateralVelocity * 0.03;
     const railFlex = THREE.MathUtils.clamp(this.lateralVelocity * 0.012, -0.024, 0.024);
     if (this.jumpActive) {
       this.jumpAirTime += delta;
@@ -23440,7 +23465,12 @@ class Player {
     const clearLift = this.clearExitProgress * this.clearExitProgress * (3 - 2 * this.clearExitProgress) * 1.1;
     const flightElevation = this.jumpActive ? this.jumpLaunchRoadElevation + this.jumpHeight : roadElevation;
     const targetHeight = 0.42 + flightElevation + clearLift + Math.min(0.22, Math.abs(this.lateralVelocity) * 0.022);
-    this.mesh.position.y = THREE.MathUtils.damp(this.mesh.position.y, targetHeight, 10, delta);
+    if (this.gapFallActive) {
+      const fallDistance = this.gapFallElapsed * 0.9 + this.gapFallElapsed * this.gapFallElapsed * 10.5;
+      this.mesh.position.y = this.gapFallStartY - fallDistance;
+    } else {
+      this.mesh.position.y = THREE.MathUtils.damp(this.mesh.position.y, targetHeight, 10, delta);
+    }
     this.mesh.rotation.z = THREE.MathUtils.lerp(this.mesh.rotation.z, targetRoll, 15 * delta);
     this.mesh.rotation.y = THREE.MathUtils.damp(this.mesh.rotation.y, targetYaw, 9, delta);
     this.leftRail.rotation.y = THREE.MathUtils.lerp(
@@ -23476,8 +23506,13 @@ class Player {
     }
     const ascentRatio = this.jumpInitialVelocity > 0 ? THREE.MathUtils.clamp(this.jumpVelocity / this.jumpInitialVelocity, 0, 1) : 0;
     const airbornePitch = this.jumpLaunchPitch * THREE.MathUtils.lerp(0.82, 1, ascentRatio);
-    const targetPitch = this.jumpActive ? airbornePitch : this.landingReboundOffset * 0.34;
-    this.mesh.rotation.x = THREE.MathUtils.damp(this.mesh.rotation.x, targetPitch, this.jumpActive ? 7.5 : 12.5, delta);
+    const targetPitch = this.gapFallActive ? -0.48 : this.jumpActive ? airbornePitch : this.landingReboundOffset * 0.34;
+    this.mesh.rotation.x = THREE.MathUtils.damp(
+      this.mesh.rotation.x,
+      targetPitch,
+      this.gapFallActive ? 4.5 : this.jumpActive ? 7.5 : 12.5,
+      delta
+    );
     this.vehicleRoot.position.y = Math.sin(this.elapsedTime * 3.4) * 0.018 + this.landingReboundOffset;
     const pulse = 0.82 + Math.sin(this.elapsedTime * (this.boosted ? 15 : 9)) * 0.18;
     for (const material of this.thrusterMaterials) {
@@ -23718,7 +23753,7 @@ class Player {
     return THREE.MathUtils.clamp(Math.abs(this.lateralVelocity) / 8, 0, 1);
   }
   jump(boosted = false, entrySpeedRatio = 1, extended = false, launchRoadElevation = 0) {
-    if (this.jumpActive) return false;
+    if (this.jumpActive || this.gapFallActive) return false;
     this.jumpActive = true;
     this.jumpHeight = 0.02;
     this.jumpClearance = 0.02;
@@ -23738,6 +23773,18 @@ class Player {
   }
   isJumpActive() {
     return this.jumpActive;
+  }
+  beginGapFall() {
+    if (this.gapFallActive) return;
+    this.gapFallActive = true;
+    this.gapFallElapsed = 0;
+    this.gapFallStartY = this.mesh.position.y;
+    this.jumpActive = false;
+    this.jumpHeight = 0;
+    this.jumpClearance = 0;
+    this.jumpVelocity = 0;
+    this.landingReboundTime = 0;
+    this.landingReboundOffset = 0;
   }
   getJumpHeight() {
     return Math.max(0, this.jumpClearance);
@@ -23776,7 +23823,6 @@ class Player {
     const fade = THREE.MathUtils.smoothstep(progress, CLEAR_EXIT_FADE_START, CLEAR_EXIT_EFFECTS_END);
     this.mesh.position.z = -eased * CLEAR_EXIT_FORWARD_DISTANCE;
     this.clearRoadOffset = roadOffset(this.mesh.position.z);
-    this.mesh.position.x = this.targetX + this.clearRoadOffset;
     this.mesh.scale.setScalar(THREE.MathUtils.lerp(1, 0.08, fade));
     this.mesh.visible = progress < CLEAR_EXIT_VISIBLE_END;
   }
@@ -23800,6 +23846,9 @@ class Player {
     this.mesh.visible = true;
     this.mesh.rotation.set(0, 0, 0);
     this.repairTime = 0;
+    this.gapFallActive = false;
+    this.gapFallElapsed = 0;
+    this.gapFallStartY = 0.42;
     this.jumpHeight = 0;
     this.jumpClearance = 0;
     this.jumpLaunchRoadElevation = 0;
@@ -24535,6 +24584,7 @@ const INITIAL_GAME_SNAPSHOT = {
 };
 const AIRTIME_SCORE_PER_SECOND = 1500;
 const RAMP_SPEED_MULTIPLIER = 1.5;
+const GAP_FALL_DURATION = 0.9;
 const FINISH_ROUTE_PREPARE_SECONDS = 4.5;
 const FINISH_ROUTE_PREVIEW_DISTANCE = 132;
 const SPEED_DISTORTION_SHADER = {
@@ -24642,6 +24692,7 @@ class Game {
     __publicField(this, "clearExitStartSpeed", 55);
     __publicField(this, "boostLaunchTime", 0);
     __publicField(this, "rampLaunchSpeed", 0);
+    __publicField(this, "gapFallTime", 0);
     __publicField(this, "clearEngineTailTime", 0);
     __publicField(this, "clearEngineTailSpeed", 0);
     __publicField(this, "clearHoldDuration", 1);
@@ -24738,7 +24789,30 @@ class Game {
       const previousPlayerZ = this.player.getZ();
       let playerUpdated = false;
       const active = this.status === "running";
-      if (active) {
+      if (active && this.gapFallTime > 0) {
+        this.gapFallTime = Math.max(0, this.gapFallTime - delta);
+        this.currentSpeed = THREE.MathUtils.damp(this.currentSpeed, 18, 2.8, delta);
+        this.player.setInvulnerable(false);
+        this.player.setBoosted(false);
+        this.player.update(
+          delta,
+          this.environment.getRoadHeading(0),
+          this.environment.getRoadElevation(0),
+          0.05
+        );
+        playerUpdated = true;
+        this.obstacleManager.update(
+          delta,
+          this.currentSpeed,
+          this.player.getX(),
+          false,
+          false,
+          false,
+          false,
+          previousPlayerX
+        );
+        if (this.gapFallTime <= 0) this.finish("gameover");
+      } else if (active) {
         this.elapsed += delta;
         const travel = this.currentSpeed * delta;
         const drivePoints = travel * 3;
@@ -24803,6 +24877,9 @@ class Game {
         const scoreMultiplier = this.scoreMultiplierTime > 0 ? 2 : 1;
         for (const event of this.obstacleManager.update(delta, this.currentSpeed, this.player.getX(), this.overdriveTime > 0, this.hp < this.maxHp, this.scoreMultiplierTime <= 0, this.weaponTime <= 0, previousPlayerX, scoreMultiplier, this.player.isAirborne())) {
           this.handleEvent(event);
+        }
+        if (this.environment.isInsideJumpGap(this.player.getZ()) && !this.player.isJumpActive()) {
+          this.beginGapFall();
         }
         const finishTimeRemaining = Math.max(0, this.duration - this.elapsed);
         if (finishTimeRemaining <= FINISH_ROUTE_PREPARE_SECONDS) {
@@ -25183,6 +25260,7 @@ class Game {
     this.heldPointerDirection = 0;
     this.heldPointerTimer = 0;
     this.speedRecoveryTime = 0;
+    this.gapFallTime = 0;
     this.status = status;
     if (status === "cleared") {
       this.clearEngineTailTime = this.clearEngineTailDuration;
@@ -25198,6 +25276,19 @@ class Game {
     this.message = status === "cleared" ? "STAGE CLEAR" : "RUN TERMINATED";
     this.messageTime = Number.POSITIVE_INFINITY;
     this.publishSnapshot();
+  }
+  beginGapFall() {
+    if (this.status !== "running" || this.gapFallTime > 0) return;
+    this.gapFallTime = GAP_FALL_DURATION;
+    this.rampLaunchSpeed = 0;
+    this.overdriveTime = 0;
+    this.weaponTime = 0;
+    this.player.setBoosted(false);
+    this.player.beginGapFall();
+    this.obstacleManager.setSpawning(false);
+    this.message = "FALLING";
+    this.messageTime = Number.POSITIVE_INFINITY;
+    this.cameraShakeTime = Math.max(this.cameraShakeTime, 0.12);
   }
   beginClearExit() {
     if (this.status !== "running") return;
@@ -25268,6 +25359,7 @@ class Game {
       cameraRoadElevation: 0,
       boostLaunchTime: 0,
       rampLaunchSpeed: 0,
+      gapFallTime: 0,
       clearEngineTailTime: 0,
       clearEngineTailSpeed: 0
     });
@@ -25315,6 +25407,7 @@ class Game {
       cameraRoadElevation: 0,
       boostLaunchTime: 0,
       rampLaunchSpeed: 0,
+      gapFallTime: 0,
       clearEngineTailTime: 0,
       clearEngineTailSpeed: 0
     });
