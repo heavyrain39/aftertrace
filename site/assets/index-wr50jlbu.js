@@ -2,7 +2,7 @@ var __defProp = Object.defineProperty;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
 import * as THREE from "../three.module.min.js";
-import { Mesh, OrthographicCamera, BufferGeometry, Float32BufferAttribute, ShaderMaterial, UniformsUtils, Vector2, WebGLRenderTarget, HalfFloatType, NoBlending, Timer, RawShaderMaterial, ColorManagement, SRGBTransfer, LinearToneMapping, ReinhardToneMapping, CineonToneMapping, ACESFilmicToneMapping, AgXToneMapping, NeutralToneMapping, CustomToneMapping, Color, Vector3, AdditiveBlending, MeshBasicMaterial, TrianglesDrawMode, TriangleFanDrawMode, TriangleStripDrawMode, Loader, LoaderUtils, FileLoader, MeshPhysicalMaterial, LinearSRGBColorSpace, SRGBColorSpace, SpotLight, PointLight, DirectionalLight, Matrix4, Quaternion, InstancedMesh, InstancedBufferAttribute, Object3D, TextureLoader, ImageBitmapLoader, BufferAttribute, InterleavedBuffer, InterleavedBufferAttribute, LinearMipmapLinearFilter, NearestMipmapLinearFilter, LinearMipmapNearestFilter, NearestMipmapNearestFilter, LinearFilter, NearestFilter, RepeatWrapping, MirroredRepeatWrapping, ClampToEdgeWrapping, PointsMaterial, Material, LineBasicMaterial, MeshStandardMaterial, DoubleSide, PropertyBinding, SkinnedMesh, LineSegments, Line, LineLoop, Points, Group, PerspectiveCamera, MathUtils, Skeleton, AnimationClip, Bone, InterpolateDiscrete, InterpolateLinear, Texture, VectorKeyframeTrack, NumberKeyframeTrack, QuaternionKeyframeTrack, FrontSide, Interpolant, Box3, Sphere } from "../three.module.min.js";
+import { Mesh, OrthographicCamera, BufferGeometry, Float32BufferAttribute, ShaderMaterial, UniformsUtils, Vector2, WebGLRenderTarget, HalfFloatType, NoBlending, Timer, RawShaderMaterial, ColorManagement, SRGBTransfer, LinearToneMapping, ReinhardToneMapping, CineonToneMapping, ACESFilmicToneMapping, AgXToneMapping, NeutralToneMapping, CustomToneMapping, Color, Vector3, AdditiveBlending, MeshBasicMaterial, BufferAttribute, TrianglesDrawMode, TriangleFanDrawMode, TriangleStripDrawMode, Loader, LoaderUtils, FileLoader, MeshPhysicalMaterial, LinearSRGBColorSpace, SRGBColorSpace, SpotLight, PointLight, DirectionalLight, Matrix4, Quaternion, InstancedMesh, InstancedBufferAttribute, Object3D, TextureLoader, ImageBitmapLoader, InterleavedBuffer, InterleavedBufferAttribute, LinearMipmapLinearFilter, NearestMipmapLinearFilter, LinearMipmapNearestFilter, NearestMipmapNearestFilter, LinearFilter, NearestFilter, RepeatWrapping, MirroredRepeatWrapping, ClampToEdgeWrapping, PointsMaterial, Material, LineBasicMaterial, MeshStandardMaterial, DoubleSide, PropertyBinding, SkinnedMesh, LineSegments, Line, LineLoop, Points, Group, PerspectiveCamera, MathUtils, Skeleton, AnimationClip, Bone, InterpolateDiscrete, InterpolateLinear, Texture, VectorKeyframeTrack, NumberKeyframeTrack, QuaternionKeyframeTrack, FrontSide, Interpolant, Box3, Sphere } from "../three.module.min.js";
 (function polyfill() {
   const relList = document.createElement("link").relList;
   if (relList && relList.supports && relList.supports("modulepreload")) {
@@ -12985,35 +12985,68 @@ const PATTERNS = [
       { interval: 0.86, obstacles: [-1, 1] },
       { interval: 1.08, obstacles: [1] }
     ]
+  },
+  {
+    id: "desert-memory",
+    rows: [
+      { interval: 0.94, obstacles: [0, 1] },
+      { interval: 0.9, obstacles: [1] },
+      { interval: 0.9, obstacles: [-1, 1], reward: { lane: 0, kind: "adaptive" } },
+      { interval: 0.9, obstacles: [-1] },
+      { interval: 1.04, obstacles: [-1, 0] }
+    ]
+  },
+  {
+    id: "dust-corridor",
+    rows: [
+      { interval: 0.9, obstacles: [-1, 0] },
+      { interval: 0.86, obstacles: [-1, 0] },
+      { interval: 0.9, obstacles: [-1, 1] },
+      { interval: 0.86, obstacles: [-1, 1], reward: { lane: 0, kind: "weapon" } },
+      { interval: 0.9, obstacles: [0, 1] },
+      { interval: 1.06, obstacles: [0, 1] }
+    ]
   }
 ];
 const STAGE_DEFINITIONS = [
-  { stage: 1, duration: 60, cruiseSpeed: 58, overdriveSpeed: 84, rowCadence: 1.68, patternGap: 1.55, pickupBudget: 8, threeStarScore: 2e4, biome: "city", theme: "day", allowedWeather: ["clear", "overcast", "rain", "snow"], patternIds: ["single-check", "open-gate"] },
-  { stage: 2, duration: 60, cruiseSpeed: 59, overdriveSpeed: 85, rowCadence: 1.66, patternGap: 1.5, pickupBudget: 8, threeStarScore: 21500, biome: "city", theme: "day", allowedWeather: ["clear", "overcast", "rain", "snow"], patternIds: ["single-check", "open-gate", "soft-slalom"] },
-  { stage: 3, duration: 60, cruiseSpeed: 60, overdriveSpeed: 86, rowCadence: 1.64, patternGap: 1.45, pickupBudget: 9, threeStarScore: 23500, biome: "city", theme: "day", allowedWeather: ["clear", "overcast", "rain", "snow"], patternIds: ["open-gate", "soft-slalom", "reward-detour"] },
-  { stage: 4, duration: 60, cruiseSpeed: 61, overdriveSpeed: 88, rowCadence: 1.62, patternGap: 1.4, pickupBudget: 9, threeStarScore: 25500, biome: "city", theme: "day", allowedWeather: ["clear", "overcast", "rain", "snow"], patternIds: ["soft-slalom", "reward-detour", "switchback"] },
-  { stage: 5, duration: 60, cruiseSpeed: 63, overdriveSpeed: 90, rowCadence: 1.6, patternGap: 1.35, pickupBudget: 10, threeStarScore: 28e3, biome: "city", theme: "day", allowedWeather: ["clear", "overcast", "rain", "snow"], patternIds: ["reward-detour", "switchback", "weapon-line"] },
-  { stage: 6, duration: 60, cruiseSpeed: 63, overdriveSpeed: 90, rowCadence: 1.62, patternGap: 1.45, pickupBudget: 9, threeStarScore: 29e3, biome: "city", theme: "night", allowedWeather: ["clear", "overcast", "rain", "snow"], patternIds: ["open-gate", "soft-slalom", "weapon-line"] },
-  { stage: 7, duration: 60, cruiseSpeed: 65, overdriveSpeed: 93, rowCadence: 1.56, patternGap: 1.3, pickupBudget: 10, threeStarScore: 32e3, biome: "city", theme: "night", allowedWeather: ["clear", "overcast", "rain", "snow"], patternIds: ["reward-detour", "switchback", "resource-chain"] },
-  { stage: 8, duration: 60, cruiseSpeed: 67, overdriveSpeed: 96, rowCadence: 1.52, patternGap: 1.25, pickupBudget: 10, threeStarScore: 35e3, biome: "city", theme: "night", allowedWeather: ["clear", "overcast", "rain", "snow"], patternIds: ["switchback", "risk-reward", "long-weave"] },
-  { stage: 9, duration: 60, cruiseSpeed: 69, overdriveSpeed: 99, rowCadence: 1.48, patternGap: 1.2, pickupBudget: 11, threeStarScore: 38500, biome: "city", theme: "night", allowedWeather: ["clear", "overcast", "rain", "snow"], patternIds: ["weapon-line", "risk-reward", "long-weave", "resource-chain"] },
-  { stage: 10, duration: 60, cruiseSpeed: 71, overdriveSpeed: 102, rowCadence: 1.44, patternGap: 1.15, pickupBudget: 12, threeStarScore: 42e3, biome: "city", theme: "night", allowedWeather: ["clear", "overcast", "rain", "snow"], patternIds: ["switchback", "long-weave", "resource-chain", "finale-run"] },
-  { stage: 11, duration: 60, cruiseSpeed: 63, overdriveSpeed: 90, rowCadence: 1.62, patternGap: 1.45, pickupBudget: 9, threeStarScore: 29e3, biome: "factory", theme: "sunset", allowedWeather: ["clear", "overcast", "rain"], patternIds: ["open-gate", "soft-slalom", "weapon-line"] },
-  { stage: 12, duration: 60, cruiseSpeed: 65, overdriveSpeed: 93, rowCadence: 1.56, patternGap: 1.3, pickupBudget: 10, threeStarScore: 32e3, biome: "factory", theme: "sunset", allowedWeather: ["clear", "overcast", "rain"], patternIds: ["reward-detour", "switchback", "resource-chain"] },
-  { stage: 13, duration: 60, cruiseSpeed: 67, overdriveSpeed: 96, rowCadence: 1.52, patternGap: 1.25, pickupBudget: 10, threeStarScore: 35e3, biome: "factory", theme: "sunset", allowedWeather: ["clear", "overcast", "rain"], patternIds: ["switchback", "risk-reward", "long-weave"] },
-  { stage: 14, duration: 60, cruiseSpeed: 69, overdriveSpeed: 99, rowCadence: 1.48, patternGap: 1.2, pickupBudget: 11, threeStarScore: 38500, biome: "factory", theme: "sunset", allowedWeather: ["clear", "overcast", "rain"], patternIds: ["weapon-line", "risk-reward", "long-weave", "resource-chain"] },
-  { stage: 15, duration: 60, cruiseSpeed: 71, overdriveSpeed: 102, rowCadence: 1.44, patternGap: 1.15, pickupBudget: 12, threeStarScore: 42e3, biome: "factory", theme: "sunset", allowedWeather: ["clear", "overcast", "rain"], patternIds: ["switchback", "long-weave", "resource-chain", "finale-run"] },
-  { stage: 16, duration: 60, cruiseSpeed: 63, overdriveSpeed: 90, rowCadence: 1.62, patternGap: 1.45, pickupBudget: 9, threeStarScore: 29e3, biome: "factory", theme: "night", allowedWeather: ["clear", "overcast", "rain"], patternIds: ["open-gate", "soft-slalom", "weapon-line"] },
-  { stage: 17, duration: 60, cruiseSpeed: 65, overdriveSpeed: 93, rowCadence: 1.56, patternGap: 1.3, pickupBudget: 10, threeStarScore: 32e3, biome: "factory", theme: "night", allowedWeather: ["clear", "overcast", "rain"], patternIds: ["reward-detour", "switchback", "resource-chain"] },
-  { stage: 18, duration: 60, cruiseSpeed: 67, overdriveSpeed: 96, rowCadence: 1.52, patternGap: 1.25, pickupBudget: 10, threeStarScore: 35e3, biome: "factory", theme: "night", allowedWeather: ["clear", "overcast", "rain"], patternIds: ["switchback", "risk-reward", "long-weave"] },
-  { stage: 19, duration: 60, cruiseSpeed: 69, overdriveSpeed: 99, rowCadence: 1.48, patternGap: 1.2, pickupBudget: 11, threeStarScore: 38500, biome: "factory", theme: "night", allowedWeather: ["clear", "overcast", "rain"], patternIds: ["weapon-line", "risk-reward", "long-weave", "resource-chain"] },
-  { stage: 20, duration: 60, cruiseSpeed: 71, overdriveSpeed: 102, rowCadence: 1.44, patternGap: 1.15, pickupBudget: 12, threeStarScore: 42e3, biome: "factory", theme: "night", allowedWeather: ["clear", "overcast", "rain"], patternIds: ["switchback", "long-weave", "resource-chain", "finale-run"] }
+  { stage: 1, duration: 60, cruiseSpeed: 71, overdriveSpeed: 102, rowCadence: 1.44, patternGap: 1.15, pickupBudget: 12, threeStarScore: 42e3, biome: "city", theme: "day", allowedWeather: ["clear", "overcast", "rain", "snow"], patternIds: ["switchback", "long-weave", "resource-chain", "finale-run"] },
+  { stage: 2, duration: 60, cruiseSpeed: 72, overdriveSpeed: 103, rowCadence: 1.42, patternGap: 1.12, pickupBudget: 12, threeStarScore: 43500, biome: "city", theme: "day", allowedWeather: ["clear", "overcast", "rain", "snow"], patternIds: ["risk-reward", "long-weave", "resource-chain", "finale-run"] },
+  { stage: 3, duration: 60, cruiseSpeed: 73, overdriveSpeed: 105, rowCadence: 1.4, patternGap: 1.1, pickupBudget: 13, threeStarScore: 45e3, biome: "city", theme: "day", allowedWeather: ["clear", "overcast", "rain", "snow"], patternIds: ["weapon-line", "risk-reward", "long-weave", "resource-chain", "finale-run"] },
+  { stage: 4, duration: 60, cruiseSpeed: 74, overdriveSpeed: 106, rowCadence: 1.38, patternGap: 1.08, pickupBudget: 13, threeStarScore: 47e3, biome: "city", theme: "day", allowedWeather: ["clear", "overcast", "rain", "snow"], patternIds: ["switchback", "long-weave", "resource-chain", "finale-run"] },
+  { stage: 5, duration: 60, cruiseSpeed: 75, overdriveSpeed: 108, rowCadence: 1.36, patternGap: 1.05, pickupBudget: 14, threeStarScore: 49e3, biome: "city", theme: "day", allowedWeather: ["clear", "overcast", "rain", "snow"], patternIds: ["weapon-line", "risk-reward", "long-weave", "resource-chain", "finale-run"] },
+  { stage: 6, duration: 60, cruiseSpeed: 76, overdriveSpeed: 109, rowCadence: 1.34, patternGap: 1.04, pickupBudget: 13, threeStarScore: 50500, biome: "city", theme: "night", allowedWeather: ["clear", "overcast", "rain", "snow"], patternIds: ["switchback", "risk-reward", "long-weave", "resource-chain"] },
+  { stage: 7, duration: 60, cruiseSpeed: 77, overdriveSpeed: 111, rowCadence: 1.33, patternGap: 1.02, pickupBudget: 14, threeStarScore: 52500, biome: "city", theme: "night", allowedWeather: ["clear", "overcast", "rain", "snow"], patternIds: ["weapon-line", "long-weave", "resource-chain", "finale-run"] },
+  { stage: 8, duration: 60, cruiseSpeed: 78, overdriveSpeed: 112, rowCadence: 1.31, patternGap: 1, pickupBudget: 14, threeStarScore: 54500, biome: "city", theme: "night", allowedWeather: ["clear", "overcast", "rain", "snow"], patternIds: ["switchback", "risk-reward", "long-weave", "finale-run"] },
+  { stage: 9, duration: 60, cruiseSpeed: 79, overdriveSpeed: 114, rowCadence: 1.29, patternGap: 0.98, pickupBudget: 15, threeStarScore: 56500, biome: "city", theme: "night", allowedWeather: ["clear", "overcast", "rain", "snow"], patternIds: ["weapon-line", "risk-reward", "long-weave", "resource-chain", "finale-run"] },
+  { stage: 10, duration: 60, cruiseSpeed: 80, overdriveSpeed: 116, rowCadence: 1.27, patternGap: 0.96, pickupBudget: 15, threeStarScore: 59e3, biome: "city", theme: "night", allowedWeather: ["clear", "overcast", "rain", "snow"], patternIds: ["switchback", "risk-reward", "long-weave", "resource-chain", "finale-run"] },
+  { stage: 11, duration: 60, cruiseSpeed: 76, overdriveSpeed: 109, rowCadence: 1.34, patternGap: 1.04, pickupBudget: 13, threeStarScore: 50500, biome: "factory", theme: "sunset", allowedWeather: ["clear", "overcast", "rain"], patternIds: ["switchback", "risk-reward", "long-weave", "resource-chain"] },
+  { stage: 12, duration: 60, cruiseSpeed: 77, overdriveSpeed: 111, rowCadence: 1.33, patternGap: 1.02, pickupBudget: 14, threeStarScore: 52500, biome: "factory", theme: "sunset", allowedWeather: ["clear", "overcast", "rain"], patternIds: ["weapon-line", "long-weave", "resource-chain", "finale-run"] },
+  { stage: 13, duration: 60, cruiseSpeed: 78, overdriveSpeed: 112, rowCadence: 1.31, patternGap: 1, pickupBudget: 14, threeStarScore: 54500, biome: "factory", theme: "sunset", allowedWeather: ["clear", "overcast", "rain"], patternIds: ["switchback", "risk-reward", "long-weave", "finale-run"] },
+  { stage: 14, duration: 60, cruiseSpeed: 79, overdriveSpeed: 114, rowCadence: 1.29, patternGap: 0.98, pickupBudget: 15, threeStarScore: 56500, biome: "factory", theme: "sunset", allowedWeather: ["clear", "overcast", "rain"], patternIds: ["weapon-line", "risk-reward", "long-weave", "resource-chain", "finale-run"] },
+  { stage: 15, duration: 60, cruiseSpeed: 80, overdriveSpeed: 116, rowCadence: 1.27, patternGap: 0.96, pickupBudget: 15, threeStarScore: 59e3, biome: "factory", theme: "sunset", allowedWeather: ["clear", "overcast", "rain"], patternIds: ["switchback", "risk-reward", "long-weave", "resource-chain", "finale-run"] },
+  { stage: 16, duration: 60, cruiseSpeed: 80, overdriveSpeed: 116, rowCadence: 1.27, patternGap: 0.96, pickupBudget: 15, threeStarScore: 59e3, biome: "factory", theme: "night", allowedWeather: ["clear", "overcast", "rain"], patternIds: ["switchback", "risk-reward", "long-weave", "resource-chain"] },
+  { stage: 17, duration: 60, cruiseSpeed: 81, overdriveSpeed: 118, rowCadence: 1.25, patternGap: 0.94, pickupBudget: 15, threeStarScore: 61500, biome: "factory", theme: "night", allowedWeather: ["clear", "overcast", "rain"], patternIds: ["weapon-line", "long-weave", "resource-chain", "finale-run"] },
+  { stage: 18, duration: 60, cruiseSpeed: 82, overdriveSpeed: 120, rowCadence: 1.23, patternGap: 0.92, pickupBudget: 16, threeStarScore: 64e3, biome: "factory", theme: "night", allowedWeather: ["clear", "overcast", "rain"], patternIds: ["switchback", "risk-reward", "long-weave", "finale-run"] },
+  { stage: 19, duration: 60, cruiseSpeed: 83, overdriveSpeed: 122, rowCadence: 1.21, patternGap: 0.9, pickupBudget: 16, threeStarScore: 66500, biome: "factory", theme: "night", allowedWeather: ["clear", "overcast", "rain"], patternIds: ["weapon-line", "risk-reward", "long-weave", "resource-chain", "finale-run"] },
+  { stage: 20, duration: 60, cruiseSpeed: 84, overdriveSpeed: 124, rowCadence: 1.19, patternGap: 0.88, pickupBudget: 16, threeStarScore: 69e3, biome: "factory", theme: "night", allowedWeather: ["clear", "overcast", "rain"], patternIds: ["switchback", "risk-reward", "long-weave", "resource-chain", "finale-run"] },
+  { stage: 21, duration: 60, cruiseSpeed: 82, overdriveSpeed: 121, rowCadence: 1.22, patternGap: 0.92, pickupBudget: 15, threeStarScore: 68e3, biome: "desert", theme: "day", allowedWeather: ["clear", "sandstorm"], patternIds: ["long-weave", "resource-chain", "finale-run", "desert-memory"] },
+  { stage: 22, duration: 60, cruiseSpeed: 83, overdriveSpeed: 122, rowCadence: 1.2, patternGap: 0.9, pickupBudget: 15, threeStarScore: 7e4, biome: "desert", theme: "day", allowedWeather: ["clear", "sandstorm"], patternIds: ["risk-reward", "long-weave", "resource-chain", "desert-memory"] },
+  { stage: 23, duration: 60, cruiseSpeed: 83, overdriveSpeed: 123, rowCadence: 1.19, patternGap: 0.89, pickupBudget: 16, threeStarScore: 72e3, biome: "desert", theme: "day", allowedWeather: ["clear", "sandstorm"], patternIds: ["weapon-line", "long-weave", "finale-run", "desert-memory", "dust-corridor"] },
+  { stage: 24, duration: 60, cruiseSpeed: 84, overdriveSpeed: 124, rowCadence: 1.18, patternGap: 0.87, pickupBudget: 16, threeStarScore: 74500, biome: "desert", theme: "day", allowedWeather: ["clear", "sandstorm"], patternIds: ["risk-reward", "resource-chain", "finale-run", "desert-memory", "dust-corridor"] },
+  { stage: 25, duration: 60, cruiseSpeed: 85, overdriveSpeed: 125, rowCadence: 1.16, patternGap: 0.86, pickupBudget: 16, threeStarScore: 77e3, biome: "desert", theme: "day", allowedWeather: ["clear", "sandstorm"], patternIds: ["long-weave", "resource-chain", "finale-run", "desert-memory", "dust-corridor"] },
+  { stage: 26, duration: 60, cruiseSpeed: 83, overdriveSpeed: 123, rowCadence: 1.19, patternGap: 0.89, pickupBudget: 15, threeStarScore: 73500, biome: "desert", theme: "night", allowedWeather: ["clear", "sandstorm"], patternIds: ["risk-reward", "long-weave", "resource-chain", "desert-memory"] },
+  { stage: 27, duration: 60, cruiseSpeed: 84, overdriveSpeed: 124, rowCadence: 1.18, patternGap: 0.87, pickupBudget: 16, threeStarScore: 76e3, biome: "desert", theme: "night", allowedWeather: ["clear", "sandstorm"], patternIds: ["weapon-line", "long-weave", "finale-run", "desert-memory", "dust-corridor"] },
+  { stage: 28, duration: 60, cruiseSpeed: 85, overdriveSpeed: 126, rowCadence: 1.16, patternGap: 0.85, pickupBudget: 16, threeStarScore: 78500, biome: "desert", theme: "night", allowedWeather: ["clear", "sandstorm"], patternIds: ["risk-reward", "resource-chain", "finale-run", "desert-memory", "dust-corridor"] },
+  { stage: 29, duration: 60, cruiseSpeed: 86, overdriveSpeed: 127, rowCadence: 1.14, patternGap: 0.84, pickupBudget: 17, threeStarScore: 81e3, biome: "desert", theme: "night", allowedWeather: ["clear", "sandstorm"], patternIds: ["long-weave", "resource-chain", "finale-run", "desert-memory", "dust-corridor"] },
+  { stage: 30, duration: 60, cruiseSpeed: 87, overdriveSpeed: 129, rowCadence: 1.12, patternGap: 0.82, pickupBudget: 17, threeStarScore: 84e3, biome: "desert", theme: "night", allowedWeather: ["clear", "sandstorm"], patternIds: ["weapon-line", "risk-reward", "finale-run", "desert-memory", "dust-corridor"] }
 ];
 const STAGE_BACKGROUNDS = [
   { name: "DAY CITY", startStage: 1, endStage: 5 },
   { name: "NIGHT CITY", startStage: 6, endStage: 10 },
   { name: "SUNSET FACTORY", startStage: 11, endStage: 15 },
-  { name: "NIGHT FACTORY", startStage: 16, endStage: 20 }
+  { name: "NIGHT FACTORY", startStage: 16, endStage: 20 },
+  { name: "DAY RED DESERT", startStage: 21, endStage: 25 },
+  { name: "NIGHT RED DESERT", startStage: 26, endStage: 30 }
 ];
 for (const pattern of PATTERNS) {
   for (const row of pattern.rows) {
@@ -13175,7 +13208,7 @@ function CollectionPanel({ profile, onBack }) {
     /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: `${PANEL_BUTTON_CLASS} mt-4`, onClick: onBack, children: "BACK TO MENU" })
   ] });
 }
-const BUTTON_CLASS = "menu-button group relative w-full px-4 py-3 text-center font-mono text-[12px] font-black tracking-[0.18em] transition duration-100 hover:text-[#f7f3ec]";
+const BUTTON_CLASS = "menu-button group relative w-full px-3 py-3 text-center font-mono text-[13px] font-black tracking-[0.14em] transition duration-100 hover:text-[#f7f3ec]";
 function MainMenu({ savedRun, profile, preview, settings, onContinue, onStart, onRouteMap, onResetProgress, onSettingsChange }) {
   const [view, setView] = reactExports.useState("main");
   const canContinue = Boolean(savedRun) || profile.unlockedStage > 1;
@@ -13187,7 +13220,7 @@ function MainMenu({ savedRun, profile, preview, settings, onContinue, onStart, o
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("main", { className: "main-menu pointer-events-none absolute inset-0 z-10 flex h-full w-full flex-col overflow-hidden p-5 text-[#25282d]", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute inset-x-0 top-0 h-[430px] bg-gradient-to-b from-[#f1eee8]/95 via-[#f1eee8]/55 to-transparent" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute right-5 top-5 font-mono text-[8px] font-black tracking-[0.16em] text-[#25282d]/55", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute inset-x-4 top-5 text-right font-mono text-[10px] font-black tracking-[0.1em] text-[#25282d]/60", children: [
       backgroundName,
       " // ",
       weatherLabel,
@@ -13195,8 +13228,8 @@ function MainMenu({ savedRun, profile, preview, settings, onContinue, onStart, o
       preview.stage.toString().padStart(2, "0")
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "main-menu-header relative translate-y-[40px] pt-2 text-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "w-full whitespace-nowrap text-center text-[clamp(44px,12vw,80px)] font-black italic leading-[0.9] tracking-[-0.035em]", children: "AFTERTRACE" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-4 font-mono text-[9px] font-bold tracking-[0.22em] text-[#25282d]/58", children: "A / D · TAP OR HOLD LEFT / RIGHT" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "w-full whitespace-nowrap text-center text-[clamp(38px,10.5vw,80px)] font-black italic leading-[0.9] tracking-[-0.04em]", children: "AFTERTRACE" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-4 font-mono text-[10px] font-bold tracking-[0.14em] text-[#25282d]/65", children: "A / D · TAP OR HOLD LEFT / RIGHT" })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: `main-menu-actions pointer-events-auto relative mt-auto mb-8 w-full self-center ${view === "collection" ? "max-w-[680px]" : "max-w-[540px]"}`, children: [
       view === "main" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
@@ -13213,7 +13246,7 @@ function MainMenu({ savedRun, profile, preview, settings, onContinue, onStart, o
         ),
         canContinue && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: `${BUTTON_CLASS} menu-button--cyan`, onClick: onContinue, children: [
           "CONTINUE",
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "absolute right-4 top-1/2 -translate-y-1/2 text-[9px] tracking-[0.08em] text-[#25282d]/55 group-hover:text-[#f7f3ec]/65", children: savedRun ? `STAGE ${savedRun.stage.toString().padStart(2, "0")}` : `STAGE ${profile.unlockedStage.toString().padStart(2, "0")}` })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "absolute right-3 top-1/2 -translate-y-1/2 text-[10px] tracking-[0.05em] text-[#25282d]/60 group-hover:text-[#f7f3ec]/70", children: savedRun ? `STAGE ${savedRun.stage.toString().padStart(2, "0")}` : `STAGE ${profile.unlockedStage.toString().padStart(2, "0")}` })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: BUTTON_CLASS, onClick: requestStart, children: "NEW GAME" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: BUTTON_CLASS, onClick: onRouteMap, children: "ROUTE MAP" }),
@@ -13238,9 +13271,9 @@ function MainMenu({ savedRun, profile, preview, settings, onContinue, onStart, o
       ] }),
       view === "collection" && /* @__PURE__ */ jsxRuntimeExports.jsx(CollectionPanel, { profile, onBack: () => setView("main") }),
       view === "confirm" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { role: "dialog", "aria-modal": "true", "aria-labelledby": "overwrite-title", className: "menu-panel border-2 border-[#25282d] bg-[#f7f3ed] p-5 shadow-[7px_7px_0_#ff3f78] max-w-[360px] mx-auto w-full animate-fade-in", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-[8px] font-black tracking-[0.22em] text-[#ff3f78]", children: "SAVE DATA WARNING" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-[10px] font-black tracking-[0.16em] text-[#ff3f78]", children: "SAVE DATA WARNING" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { id: "overwrite-title", className: "mt-3 text-2xl font-black italic leading-none", children: "OVERWRITE RUN?" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "my-5 font-mono text-[10px] leading-relaxed text-[#25282d]/70", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "my-5 font-mono text-[11px] leading-relaxed text-[#25282d]/72", children: [
           "STARTING A NEW GAME FROM STAGE 01 WILL ERASE THE CURRENT STAGE ",
           savedRun == null ? void 0 : savedRun.stage.toString().padStart(2, "0"),
           " RUN."
@@ -13251,9 +13284,9 @@ function MainMenu({ savedRun, profile, preview, settings, onContinue, onStart, o
         ] })
       ] }),
       view === "reset" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { role: "dialog", "aria-modal": "true", "aria-labelledby": "reset-title", className: "menu-panel border-2 border-[#25282d] bg-[#f7f3ed] p-5 shadow-[7px_7px_0_#ff3f78] max-w-[360px] mx-auto w-full animate-fade-in", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-[8px] font-black tracking-[0.22em] text-[#ff3f78]", children: "PERMANENT RESET" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-[10px] font-black tracking-[0.16em] text-[#ff3f78]", children: "PERMANENT RESET" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { id: "reset-title", className: "mt-3 text-2xl font-black italic leading-none", children: "RESET ALL PROGRESS?" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "my-5 font-mono text-[10px] leading-relaxed text-[#25282d]/70", children: "ALL STARS, BEST SCORES, UNLOCKED STAGES, AND THE CURRENT RUN WILL BE REMOVED. AUDIO SETTINGS WILL REMAIN." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "my-5 font-mono text-[11px] leading-relaxed text-[#25282d]/72", children: "ALL STARS, BEST SCORES, UNLOCKED STAGES, AND THE CURRENT RUN WILL BE REMOVED. AUDIO SETTINGS WILL REMAIN." }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: BUTTON_CLASS, onClick: () => setView("settings"), children: "CANCEL" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: `${BUTTON_CLASS} menu-button--danger text-[#d91e5c]`, onClick: () => {
@@ -13292,28 +13325,50 @@ function VolumeControl({ icon, label, value, onChange }) {
   ] });
 }
 const ROUTE_NODES = [
-  [42, 392],
-  [104, 361],
-  [162, 385],
-  [219, 362],
-  [272, 381],
-  [316, 333],
-  [268, 293],
-  [204, 307],
-  [145, 296],
-  [76, 312],
-  [44, 266],
-  [96, 229],
-  [162, 244],
-  [226, 223],
-  [290, 246],
-  [319, 185],
-  [249, 152],
-  [176, 177],
-  [113, 179],
-  [51, 138]
+  [42, 572],
+  [97, 509],
+  [158, 545],
+  [223, 523],
+  [279, 554],
+  [309, 502],
+  [267, 453],
+  [204, 471],
+  [148, 450],
+  [86, 439],
+  [55, 401],
+  [109, 359],
+  [169, 389],
+  [231, 359],
+  [294, 383],
+  [307, 322],
+  [253, 276],
+  [187, 301],
+  [112, 303],
+  [66, 257],
+  [114, 219],
+  [178, 245],
+  [238, 216],
+  [302, 237],
+  [319, 184],
+  [278, 142],
+  [216, 163],
+  [151, 137],
+  [92, 157],
+  [54, 104]
 ];
-const ROUTE_PATH = "M42 392 C58 384 74 363 104 361 C134 359 133 385 162 385 C191 385 192 363 219 362 C247 361 248 388 272 381 C296 374 317 355 316 333 C315 311 296 300 268 293 C240 287 235 306 204 307 C173 308 177 295 145 296 C113 297 101 320 76 312 C51 305 39 287 44 266 C49 245 67 235 96 229 C126 224 130 246 162 244 C195 243 194 223 226 223 C258 224 267 256 290 246 C313 237 329 209 319 185 C309 162 285 154 249 152 C213 150 210 170 176 177 C142 184 144 189 113 179 C82 169 67 148 51 138";
+function buildRoutePath(nodes) {
+  if (nodes.length === 0) return "";
+  const parts = [`M${nodes[0][0]} ${nodes[0][1]}`];
+  for (let index = 1; index < nodes.length; index++) {
+    const [previousX, previousY] = nodes[index - 1];
+    const [x, y] = nodes[index];
+    parts.push(`Q${previousX} ${previousY} ${(previousX + x) / 2} ${(previousY + y) / 2}`);
+  }
+  const [lastX, lastY] = nodes[nodes.length - 1];
+  parts.push(`T${lastX} ${lastY}`);
+  return parts.join(" ");
+}
+const ROUTE_PATH = buildRoutePath(ROUTE_NODES);
 function StageRoute({ profile, clearedStage, earnedStars = 0, onSelect, onMenu }) {
   const selectionMode = clearedStage === void 0;
   const totalStars = profile.stars.reduce((total, value) => total + value, 0);
@@ -13329,14 +13384,14 @@ function StageRoute({ profile, clearedStage, earnedStars = 0, onSelect, onMenu }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("main", { className: "route-screen pointer-events-auto absolute inset-0 z-40 flex flex-col overflow-hidden bg-[#f1eee8]/96 p-5 text-[#25282d]", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "flex items-start justify-between border-b border-[#25282d] pb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "font-mono text-[8px] font-black tracking-[0.22em] text-[#25282d]/55", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "font-mono text-[10px] font-black tracking-[0.16em] text-[#25282d]/60", children: [
           "AREA // ",
           selectedBackground.name
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "mt-1 text-3xl font-black italic tracking-[-0.055em]", children: "ROUTE MAP" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-right font-mono", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[8px] font-black tracking-[0.18em] text-[#25282d]/55", children: "TOTAL STARS" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[10px] font-black tracking-[0.14em] text-[#25282d]/60", children: "TOTAL STARS" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xl font-black tabular-nums", children: [
           totalStars.toString().padStart(2, "0"),
           " / ",
@@ -13344,7 +13399,7 @@ function StageRoute({ profile, clearedStage, earnedStars = 0, onSelect, onMenu }
         ] })
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("section", { className: "relative min-h-0 flex-1", "aria-label": `Stage route from 1 to ${STAGE_COUNT}`, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { className: "h-full w-full", viewBox: "0 0 360 430", role: "img", "aria-label": selectionMode ? `Select an unlocked stage from 1 to ${profile.unlockedStage}.` : `Stage ${clearedStage} cleared with ${earnedStars} stars. Stage ${nextStage} is next.`, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("section", { className: "relative min-h-0 flex-1", "aria-label": `Stage route from 1 to ${STAGE_COUNT}`, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { className: "h-full w-full", viewBox: "0 70 360 540", role: "img", "aria-label": selectionMode ? `Select an unlocked stage from 1 to ${profile.unlockedStage}.` : `Stage ${clearedStage} cleared with ${earnedStars} stars. Stage ${nextStage} is next.`, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: ROUTE_PATH, fill: "none", stroke: "rgba(37,40,45,0.18)", strokeWidth: "8" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: ROUTE_PATH, fill: "none", stroke: "#25282d", strokeWidth: "1.5", strokeDasharray: "4 6" }),
       ROUTE_NODES.map(([x, y], index) => {
@@ -13369,14 +13424,14 @@ function StageRoute({ profile, clearedStage, earnedStars = 0, onSelect, onMenu }
               if (event.key === "Enter" || event.key === " ") selectStage(stage, locked);
             },
             children: [
-              current && /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { className: "route-selection-ring", cx: x, cy: y, r: "17", fill: "none", stroke: "#20cfe1", strokeWidth: "1.25", strokeDasharray: "3 4" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: x, cy: y, r: "11", fill, stroke: strokeColor, strokeWidth: "1.4" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("text", { x, y: y + 3.2, textAnchor: "middle", fill: textColor, fontFamily: "DM Mono, monospace", fontSize: "7.5", fontWeight: "900", children: stage.toString().padStart(2, "0") }),
-              completed && /* @__PURE__ */ jsxRuntimeExports.jsxs("text", { x, y: y + 22, textAnchor: "middle", fill: "#25282d", fontSize: "6.5", letterSpacing: "0.7", children: [
+              current && /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { className: "route-selection-ring", cx: x, cy: y, r: "18.5", fill: "none", stroke: "#20cfe1", strokeWidth: "1.4", strokeDasharray: "3 4" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: x, cy: y, r: "12.5", fill, stroke: strokeColor, strokeWidth: "1.5" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("text", { x, y: y + 3.5, textAnchor: "middle", fill: textColor, fontFamily: "DM Mono, monospace", fontSize: "8.5", fontWeight: "900", children: stage.toString().padStart(2, "0") }),
+              completed && /* @__PURE__ */ jsxRuntimeExports.jsxs("text", { x, y: y + 24, textAnchor: "middle", fill: "#25282d", fontSize: "7.5", letterSpacing: "0.55", children: [
                 "★".repeat(profile.stars[index]),
                 "☆".repeat(3 - profile.stars[index])
               ] }),
-              current && /* @__PURE__ */ jsxRuntimeExports.jsx("text", { x, y: y - 19, textAnchor: "middle", fill: "#087e8d", fontFamily: "DM Mono, monospace", fontSize: "6", fontWeight: "900", letterSpacing: "0.8", children: "SELECTED" })
+              current && /* @__PURE__ */ jsxRuntimeExports.jsx("text", { x, y: y - 21, textAnchor: "middle", fill: "#087e8d", fontFamily: "DM Mono, monospace", fontSize: "7.5", fontWeight: "900", letterSpacing: "0.55", children: "SELECTED" })
             ]
           },
           stage
@@ -13386,7 +13441,7 @@ function StageRoute({ profile, clearedStage, earnedStars = 0, onSelect, onMenu }
     selectionMode ? /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "route-decision w-full max-w-[560px] self-center border-t border-[#25282d] pt-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4 flex items-end justify-between gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "font-mono text-[8px] font-black tracking-[0.2em] text-[#25282d]/55", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "font-mono text-[10px] font-black tracking-[0.14em] text-[#25282d]/60", children: [
             "STAGE ",
             selectedStage.toString().padStart(2, "0"),
             " SELECTED"
@@ -13398,15 +13453,15 @@ function StageRoute({ profile, clearedStage, earnedStars = 0, onSelect, onMenu }
             "★".repeat(profile.stars[selectedStage - 1]),
             "☆".repeat(3 - profile.stars[selectedStage - 1])
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 text-[7px] font-black tracking-[0.12em] text-[#25282d]/55", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 text-[9px] font-black tracking-[0.1em] text-[#25282d]/60", children: [
             "BEST ",
             profile.bestScores[selectedStage - 1].toString().padStart(6, "0")
           ] })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "menu-button relative px-3 py-3 font-mono text-[10px] font-black tracking-[0.16em]", onClick: onMenu, children: "MENU" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "menu-button menu-button--cyan relative px-3 py-3 font-mono text-[10px] font-black tracking-[0.14em]", onClick: () => onSelect == null ? void 0 : onSelect(selectedStage), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "menu-button relative px-3 py-3.5 font-mono text-[12px] font-black tracking-[0.14em]", onClick: onMenu, children: "MENU" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "menu-button menu-button--cyan relative px-3 py-3.5 font-mono text-[12px] font-black tracking-[0.1em]", onClick: () => onSelect == null ? void 0 : onSelect(selectedStage), children: [
           "PLAY STAGE ",
           selectedStage.toString().padStart(2, "0")
         ] })
@@ -13414,22 +13469,22 @@ function StageRoute({ profile, clearedStage, earnedStars = 0, onSelect, onMenu }
     ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "route-decision w-full max-w-[560px] self-center border-t border-[#25282d] pt-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4 flex items-end justify-between gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-[8px] font-black tracking-[0.2em] text-[#25282d]/55", children: chapterComplete ? "ROUTE COMPLETE" : `STAGE ${selectedStage.toString().padStart(2, "0")} SELECTED` }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-[10px] font-black tracking-[0.14em] text-[#25282d]/60", children: chapterComplete ? "ROUTE COMPLETE" : `STAGE ${selectedStage.toString().padStart(2, "0")} SELECTED` }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "mt-1 text-2xl font-black italic leading-none tracking-[-0.04em]", children: chapterComplete ? selectedBackground.name : "KEEP MOVING?" }),
-          !chapterComplete && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 font-mono text-[7px] font-black tracking-[0.16em] text-[#25282d]/45", children: [
+          !chapterComplete && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 font-mono text-[9px] font-black tracking-[0.1em] text-[#25282d]/55", children: [
             "AREA // ",
             selectedBackground.name
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "font-mono text-[9px] font-black tracking-[0.1em] text-[#ff3f78]", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "font-mono text-[11px] font-black tracking-[0.08em] text-[#ff3f78]", children: [
           "+",
           earnedStars,
           " ★"
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "menu-button relative px-3 py-3 font-mono text-[10px] font-black tracking-[0.16em]", onClick: onMenu, children: "MENU" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "menu-button menu-button--cyan relative px-3 py-3 font-mono text-[10px] font-black tracking-[0.14em]", onClick: () => onSelect == null ? void 0 : onSelect(selectedStage), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "menu-button relative px-3 py-3.5 font-mono text-[12px] font-black tracking-[0.14em]", onClick: onMenu, children: "MENU" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "menu-button menu-button--cyan relative px-3 py-3.5 font-mono text-[12px] font-black tracking-[0.1em]", onClick: () => onSelect == null ? void 0 : onSelect(selectedStage), children: [
           "PLAY STAGE ",
           selectedStage.toString().padStart(2, "0")
         ] })
@@ -13508,17 +13563,17 @@ function ResultPanel({ snapshot, previousBestStars, previousBestScore, onExit, o
   }, [completeReveal, isCleared]);
   if (!isCleared) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "result-panel gameover-result-panel pointer-events-auto absolute inset-x-5 top-1/2 z-20 -translate-y-1/2 border-2 border-[#24272c] bg-[#fdfaf6]/96 p-5 text-center text-[#24272c] shadow-[7px_7px_0_#090a0d]", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "font-mono text-[9px] font-black tracking-[0.28em]", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "font-mono text-[11px] font-black tracking-[0.2em]", children: [
         "STAGE ",
         snapshot.stage.toString().padStart(2, "0"),
         " RESULT"
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 text-3xl font-black italic tracking-[-0.05em]", children: "RUN TERMINATED" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-5 font-mono text-[8px] font-black tracking-[0.24em] text-[#24272c]/45", children: "SCORE" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-5 font-mono text-[10px] font-black tracking-[0.18em] text-[#24272c]/55", children: "SCORE" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-1 text-4xl font-black italic leading-none tabular-nums", children: formatScore(snapshot.score) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-5 grid grid-cols-2 gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "menu-button relative px-2 py-3 font-mono text-[9px] font-black tracking-[0.14em]", onClick: onExit, children: "MENU" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "menu-button menu-button--cyan relative px-2 py-3 font-mono text-[9px] font-black tracking-[0.12em]", onClick: onRetry, children: "RETRY" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "menu-button relative px-2 py-3.5 font-mono text-[12px] font-black tracking-[0.12em]", onClick: onExit, children: "MENU" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "menu-button menu-button--cyan relative px-2 py-3.5 font-mono text-[12px] font-black tracking-[0.1em]", onClick: onRetry, children: "RETRY" })
       ] })
     ] });
   }
@@ -13546,7 +13601,7 @@ function ResultPanel({ snapshot, previousBestStars, previousBestScore, onExit, o
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-main-grid", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-celebration", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "font-mono text-[9px] font-black tracking-[0.28em]", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "font-mono text-[10px] font-black tracking-[0.2em]", children: [
               "STAGE ",
               snapshot.stage.toString().padStart(2, "0"),
               " COMPLETE"
@@ -13710,14 +13765,13 @@ function UIOverlay({ snapshot, previousBestStars, previousBestScore, onExit, onR
   const isGoCue = snapshot.message === "GO!";
   const isClearing = snapshot.status === "clearing";
   const isNight = snapshot.theme !== "day";
-  const weatherLabel = snapshot.weather === "overcast" ? "CLOUDY" : snapshot.weather.toUpperCase();
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `hud pointer-events-none absolute inset-0 z-10 flex flex-col justify-between p-4 ${isNight ? "hud--night text-[#eef7f5]" : "text-[#24272c]"}`, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `absolute inset-0 bg-[#ff2f72] transition-opacity duration-100 ${snapshot.damageFlash ? "opacity-20" : "opacity-0"}` }),
     isGameOver && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "gameover-blackout absolute inset-0" }),
     !isGameOver && /* @__PURE__ */ jsxRuntimeExports.jsx(
       "button",
       {
-        className: "hud-menu-button pointer-events-auto absolute left-1/2 top-4 z-20 -translate-x-1/2 border border-transparent bg-transparent px-2 py-1 font-mono text-[8px] font-black tracking-[0.18em] transition-colors hover:border-[#24272c] hover:bg-[#24272c] hover:text-[#f1eee8] focus-visible:border-[#24272c] focus-visible:bg-[#24272c] focus-visible:text-[#f1eee8] focus-visible:outline-none",
+        className: "hud-menu-button pointer-events-auto absolute left-1/2 top-[10px] z-20 -translate-x-1/2 border border-transparent bg-transparent px-3 py-1.5 font-mono text-[10px] font-black tracking-[0.14em] transition-colors hover:border-[#24272c] hover:bg-[#24272c] hover:text-[#f1eee8] focus-visible:border-[#24272c] focus-visible:bg-[#24272c] focus-visible:text-[#f1eee8] focus-visible:outline-none",
         onClick: onExit,
         children: "MENU"
       }
@@ -13730,13 +13784,12 @@ function UIOverlay({ snapshot, previousBestStars, previousBestScore, onExit, onR
         },
         index
       )) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-right font-mono", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-[8px] font-bold tracking-[0.16em]", children: [
-          weatherLabel,
-          " // STAGE ",
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "-mt-0.5 text-right font-mono", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-[10px] font-bold leading-none tracking-[0.1em]", children: [
+          "STAGE ",
           snapshot.stage.toString().padStart(2, "0")
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-3xl font-black leading-none tabular-nums", children: remaining.toString().padStart(2, "0") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-1 text-3xl font-black leading-none tabular-nums", children: remaining.toString().padStart(2, "0") })
       ] })
     ] }),
     snapshot.status === "countdown" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `font-display absolute inset-x-3 top-[18%] text-center text-[96px] font-black italic leading-none tracking-[-0.08em] ${isNight ? "text-[#eef7f5]" : "text-[#24272c]"}`, children: snapshot.message }),
@@ -13750,7 +13803,7 @@ function UIOverlay({ snapshot, previousBestStars, previousBestScore, onExit, onR
       `${snapshot.status}-${snapshot.message}`
     ),
     snapshot.airtimeActive && !isTerminal && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "airtime-counter absolute bottom-[104px] right-4 text-right font-mono text-[#20cfe1]", "aria-hidden": "true", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-[8px] font-black tracking-[0.2em]", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-[10px] font-black tracking-[0.14em]", children: [
         "AIRTIME ",
         snapshot.currentAirtime.toFixed(2),
         "s",
@@ -13791,18 +13844,18 @@ function UIOverlay({ snapshot, previousBestStars, previousBestScore, onExit, onR
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hud-progress-track mb-2 h-[3px] w-full bg-[#24272c]/15", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-full bg-[#20cfe1] transition-[width] duration-100", style: { width: `${progress}%` } }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-end justify-between pb-1", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-[9px] font-bold tracking-[0.18em]", children: "SPEED" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-[10px] font-bold tracking-[0.14em]", children: "SPEED" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-2xl font-black italic leading-none", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(TickingNumber, { target: isTerminal ? 0 : snapshot.speed * 3.6, oneByOne: true, snapToTarget: snapshot.status === "countdown", fastDropToZero: isTerminal, className: "hud-number-tick hud-number-tick--speed" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-1 text-[9px] not-italic", children: "KM/H" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-1 text-[10px] not-italic", children: "KM/H" })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-right", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `hud-effect mb-1 inline-block px-2 py-0.5 font-mono text-[9px] font-black tracking-[0.12em] ${isBoostFire ? "bg-[#76e4eb] text-[#24272c]" : isBoosted ? "bg-[#20cfe1] text-[#24272c]" : isTwinFire ? "bg-[#b8f5ff] text-[#24272c]" : snapshot.effect === "REPAIR" ? "bg-[#39d98a] text-[#24272c]" : isDoubleScore ? "bg-[#f4b942] text-[#24272c]" : "hud-effect--idle bg-[#24272c] text-[#fdfaf6]"}`, children: snapshot.effect }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `hud-effect mb-1 inline-block px-2 py-0.5 font-mono text-[10px] font-black tracking-[0.1em] ${isBoostFire ? "bg-[#76e4eb] text-[#24272c]" : isBoosted ? "bg-[#20cfe1] text-[#24272c]" : isTwinFire ? "bg-[#b8f5ff] text-[#24272c]" : snapshot.effect === "REPAIR" ? "bg-[#39d98a] text-[#24272c]" : isDoubleScore ? "bg-[#f4b942] text-[#24272c]" : "hud-effect--idle bg-[#24272c] text-[#fdfaf6]"}`, children: snapshot.effect }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-3xl font-black italic leading-none tabular-nums", children: /* @__PURE__ */ jsxRuntimeExports.jsx(TickingNumber, { target: snapshot.score, padStart: snapshot.score < 1e5 ? 5 : 6, className: "hud-number-tick hud-number-tick--score" }) })
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hud-dim mt-2 flex justify-between px-1 font-mono text-[10px] font-black tracking-[0.22em] text-[#24272c]/55", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hud-dim mt-2 flex justify-between px-1 font-mono text-[12px] font-black tracking-[0.18em] text-[#24272c]/60", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "A" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "D" })
       ] })
@@ -14869,6 +14922,417 @@ UnrealBloomPass.BlurDirectionY = new Vector2(0, 1);
 const LANE_WIDTH = 2.36;
 const ROAD_WIDTH = 8.05;
 const ROAD_DIVIDER_OFFSET = LANE_WIDTH / 2;
+const D = "dune-shelf";
+const R = "rock-shelf";
+const C$1 = "cactus-wash";
+const S = "survey-remnant";
+const G = "canyon-gate";
+const DESERT_LAYOUTS = [
+  [
+    [D, R],
+    [C$1, D],
+    [R, null],
+    [D, C$1],
+    [S, R],
+    [D, null],
+    [R, C$1],
+    [D, R],
+    [C$1, D],
+    [R, null],
+    [D, S],
+    [G, G],
+    [C$1, D],
+    [R, C$1],
+    [D, null],
+    [S, R],
+    [D, C$1],
+    [R, D],
+    [C$1, null],
+    [D, R],
+    [R, C$1],
+    [D, S],
+    [C$1, D],
+    [R, D]
+  ],
+  [
+    [R, D],
+    [D, C$1],
+    [null, R],
+    [C$1, D],
+    [R, S],
+    [null, D],
+    [C$1, R],
+    [R, D],
+    [D, C$1],
+    [null, R],
+    [S, D],
+    [D, C$1],
+    [R, D],
+    [C$1, R],
+    [null, D],
+    [R, S],
+    [C$1, D],
+    [D, R],
+    [null, C$1],
+    [R, D],
+    [C$1, R],
+    [S, D],
+    [G, G],
+    [D, R]
+  ],
+  [
+    [C$1, R],
+    [D, null],
+    [R, D],
+    [S, C$1],
+    [D, R],
+    [C$1, D],
+    [R, null],
+    [D, C$1],
+    [R, D],
+    [C$1, S],
+    [D, R],
+    [null, D],
+    [R, C$1],
+    [D, R],
+    [C$1, null],
+    [G, G],
+    [R, D],
+    [D, C$1],
+    [S, R],
+    [C$1, D],
+    [R, null],
+    [D, C$1],
+    [R, S],
+    [D, R]
+  ]
+];
+function getDesertLayoutIndex(stage) {
+  return Math.abs(Math.floor(stage) - 21) % DESERT_LAYOUTS.length;
+}
+function getDesertLayout(stage) {
+  return DESERT_LAYOUTS[getDesertLayoutIndex(stage)];
+}
+class DesertEnvironmentKit {
+  constructor() {
+    __publicField(this, "geometries", /* @__PURE__ */ new Map());
+    __publicField(this, "sand", new THREE.MeshStandardMaterial({ color: 11096885, roughness: 1, metalness: 0 }));
+    __publicField(this, "sandLight", new THREE.MeshStandardMaterial({ color: 12149055, roughness: 1, metalness: 0 }));
+    __publicField(this, "gravel", new THREE.MeshStandardMaterial({ color: 8142637, roughness: 1, metalness: 0 }));
+    __publicField(this, "rock", new THREE.MeshStandardMaterial({ color: 9519151, roughness: 0.98, metalness: 0 }));
+    __publicField(this, "rockLight", new THREE.MeshStandardMaterial({ color: 11095605, roughness: 0.98, metalness: 0 }));
+    __publicField(this, "rockDark", new THREE.MeshStandardMaterial({ color: 7878443, roughness: 1, metalness: 0 }));
+    __publicField(this, "cactus", new THREE.MeshStandardMaterial({ color: 4745035, roughness: 0.92, metalness: 0 }));
+    __publicField(this, "cactusRib", new THREE.MeshStandardMaterial({ color: 7242336, roughness: 0.9, metalness: 0 }));
+    __publicField(this, "weatheredMetal", new THREE.MeshStandardMaterial({ color: 7170658, roughness: 0.82, metalness: 0.38 }));
+    __publicField(this, "darkMetal", new THREE.MeshStandardMaterial({ color: 3422005, roughness: 0.72, metalness: 0.5 }));
+    __publicField(this, "fadedPanel", new THREE.MeshStandardMaterial({ color: 7239536, roughness: 0.68, metalness: 0.28 }));
+    __publicField(this, "marker", new THREE.MeshStandardMaterial({ color: 11963209, roughness: 0.86, metalness: 0.08 }));
+    __publicField(this, "lamp", new THREE.MeshBasicMaterial({ color: 15251306, toneMapped: false }));
+  }
+  setTheme(theme) {
+    const night = theme === "night";
+    this.sand.color.setHex(night ? 4860199 : 11096885);
+    this.sandLight.color.setHex(night ? 5779501 : 12149055);
+    this.gravel.color.setHex(night ? 3482406 : 8142637);
+    this.rock.color.setHex(night ? 5188396 : 9519151);
+    this.rockLight.color.setHex(night ? 6107184 : 11095605);
+    this.rockDark.color.setHex(night ? 4204330 : 7878443);
+    this.cactus.color.setHex(night ? 3163452 : 4745035);
+    this.cactusRib.color.setHex(night ? 4873291 : 7242336);
+    this.weatheredMetal.color.setHex(night ? 5593171 : 7170658);
+    this.fadedPanel.color.setHex(night ? 5069657 : 7239536);
+    this.marker.color.setHex(night ? 9201213 : 11963209);
+    this.lamp.color.setHex(night ? 16763256 : 15251306);
+  }
+  createModule(kind, side, row, layoutVariant) {
+    const group = new THREE.Group();
+    group.name = `desert_${kind}_${row}_${side}`;
+    const destructibles = [];
+    this.createBase(group, side, row, layoutVariant);
+    if (kind === "dune-shelf") this.createDuneShelf(group, side, row, layoutVariant);
+    if (kind === "rock-shelf") this.createRockShelf(group, side, row, layoutVariant);
+    if (kind === "cactus-wash") this.createCactusWash(group, side, row, layoutVariant, destructibles);
+    if (kind === "survey-remnant") this.createSurveyRemnant(group, side, row, layoutVariant, destructibles);
+    if (kind === "canyon-gate") this.createCanyonGate(group, side, row, layoutVariant);
+    return { group, destructibles };
+  }
+  createBase(group, side, row, layoutVariant) {
+    const roadEdge = ROAD_WIDTH / 2 + 0.2;
+    const depth = 31;
+    this.addBox(group, depth, 0.16, 9.45, this.sand, side * (roadEdge + depth / 2), -0.13, 0);
+    this.addBox(group, 2.6, 0.08, 9.3, this.gravel, side * (roadEdge + 1.3), -0.025, 0);
+    const washOffset = 3.2 + (row + layoutVariant + (side > 0 ? 1 : 0)) % 3 * 0.55;
+    const wash = this.addBox(group, 0.72, 0.04, 8.9, this.rockDark, side * (roadEdge + washOffset), -0.08, 0);
+    wash.rotation.y = side * (0.025 + row % 3 * 0.012);
+  }
+  createDuneShelf(group, side, row, layoutVariant) {
+    const variant = (row + layoutVariant + (side > 0 ? 1 : 0)) % 3;
+    const specs = [
+      // The nearest dune begins beyond the gravel service strip instead of spilling over it.
+      { lateral: 12.9, z: -2.4, width: 10.8, height: 1.55, depth: 7.6, lean: 0.18 },
+      { lateral: 17.8, z: 1.7, width: 13.2, height: 2.5, depth: 8.4, lean: -0.22 },
+      { lateral: 25.2, z: -1.3, width: 10.4, height: 3.1, depth: 7.8, lean: 0.12 }
+    ];
+    for (const [index, spec] of specs.entries()) {
+      const mesh = new THREE.Mesh(
+        this.dune(spec.width, spec.height, spec.depth, spec.lean),
+        (index + variant) % 2 === 0 ? this.sandLight : this.sand
+      );
+      mesh.position.set(side * spec.lateral, -0.04, spec.z + (variant - 1) * 0.55);
+      mesh.rotation.y = side * (index % 2 === 0 ? -0.08 : 0.06);
+      mesh.userData.sharedGeometry = true;
+      group.add(mesh);
+    }
+    this.createRockCluster(group, side, 8.9 + variant * 0.5, 2.8 - variant, 0.7, variant);
+  }
+  createRockShelf(group, side, row, layoutVariant) {
+    const variant = (row * 2 + layoutVariant + (side > 0 ? 1 : 0)) % 3;
+    this.createRockCluster(group, side, 8.9, -2.3 + variant * 1.7, 1.25, variant);
+    this.createRockCluster(group, side, 15.2, 2.1 - variant * 0.6, 2.35, variant + 1);
+    this.createMesa(group, side, 24.5, -1.4 + variant, 5.8 + variant * 0.75, 5.4, variant);
+  }
+  createCactusWash(group, side, row, layoutVariant, destructibles) {
+    const variant = (row + layoutVariant) % 3;
+    const cactusA = this.createCactus(side, 8.1 + variant * 0.5, -2.25, 2.7 + variant * 0.28, variant);
+    group.add(cactusA);
+    destructibles.push(cactusA);
+    const cactusB = this.createCactus(side, 11.2, 2.2 - variant * 0.45, 1.85 + variant * 0.2, variant + 1);
+    group.add(cactusB);
+    destructibles.push(cactusB);
+    this.createRockCluster(group, side, 15.8, -0.4, 0.9, variant + 2);
+    const dune = new THREE.Mesh(this.dune(14, 2.15, 8.6, side * 0.15), this.sandLight);
+    dune.position.set(side * 23, -0.04, 0.6);
+    dune.userData.sharedGeometry = true;
+    group.add(dune);
+  }
+  createSurveyRemnant(group, side, row, layoutVariant, destructibles) {
+    const variant = (row + layoutVariant + (side > 0 ? 1 : 0)) % 3;
+    const remnant = new THREE.Group();
+    remnant.name = "desert_survey_remnant";
+    const x = side * (9.6 + variant * 0.55);
+    this.addBox(remnant, 3.1, 0.32, 2.25, this.darkMetal, x, 0.02, 0.3);
+    this.addCylinder(remnant, 0.72, 2.45, this.weatheredMetal, x, 0.6, 0.25, "z", 12);
+    this.addCylinder(remnant, 0.73, 0.06, this.darkMetal, x, 0.6, -1.005, "z", 12);
+    this.addCylinder(remnant, 0.73, 0.06, this.darkMetal, x, 0.6, 1.505, "z", 12);
+    for (const xOffset of [-1.12, 1.12]) {
+      for (const zOffset of [-0.76, 0.76]) {
+        this.addBox(remnant, 0.38, 0.14, 0.38, this.weatheredMetal, x + xOffset, -0.12, 0.3 + zOffset);
+      }
+    }
+    this.addCylinder(remnant, 0.09, 1.72, this.darkMetal, x + side * 1.42, 0.94, 0.07, "z", 8);
+    for (const z of [-0.58, 0.72]) {
+      const frame = this.addBox(remnant, 1.95, 0.12, 0.12, this.darkMetal, x + side * 1.55, 0.92, z);
+      frame.rotation.z = side * -0.18;
+      const panel = this.addBox(remnant, 1.75, 0.08, 0.98, this.fadedPanel, x + side * 2.35, 1.02, z);
+      panel.rotation.z = side * -0.18;
+      const longSeam = this.addBox(remnant, 1.62, 0.025, 0.035, this.darkMetal, x + side * 2.35, 1.07, z);
+      longSeam.rotation.z = side * -0.18;
+      const crossSeam = this.addBox(remnant, 0.035, 0.025, 0.88, this.darkMetal, x + side * 2.35, 1.07, z);
+      crossSeam.rotation.z = side * -0.18;
+    }
+    const mast = this.addCylinder(remnant, 0.08, 2.7, this.darkMetal, x - side * 1.25, 1.35, -0.35, "y", 8);
+    mast.rotation.z = side * 0.19;
+    this.addBox(remnant, 0.42, 0.18, 0.3, this.lamp, x - side * 1.5, 2.62, -0.35);
+    remnant.userData.destructible = true;
+    remnant.userData.destroyed = false;
+    group.add(remnant);
+    destructibles.push(remnant);
+    this.createRockCluster(group, side, 17.4, -2 + variant, 1.05, variant);
+    this.createMesa(group, side, 25.5, 1.4, 5.1, 4.8, variant + 1);
+  }
+  createCanyonGate(group, side, row, layoutVariant) {
+    const variant = (row + layoutVariant) % 3;
+    this.createMesa(group, side, 14.3, 0, 8.2 + variant * 0.6, 7.1, variant);
+    this.createMesa(group, side, 23.2, -1.2 + variant, 12.6 + variant * 0.7, 9.2, variant + 1);
+    this.createRockCluster(group, side, 8.9, 2.7, 1.15, variant + 2);
+  }
+  createCactus(side, lateral, z, height, variant) {
+    const cactus = new THREE.Group();
+    cactus.name = "desert_cactus";
+    const x = side * lateral;
+    this.addTaperedCylinder(cactus, 0.18, 0.25, height, this.cactus, x, height / 2, z, 8);
+    this.addTaperedCylinder(cactus, 0.045, 0.065, height * 0.94, this.cactusRib, x - side * 0.16, height * 0.5, z, 7);
+    const crown = new THREE.Mesh(this.sphere(0.182, 9, 7), this.cactus);
+    crown.position.set(x, height, z);
+    crown.scale.y = 1.08;
+    crown.userData.sharedGeometry = true;
+    cactus.add(crown);
+    const firstSide = variant % 2 === 0 ? side : -side;
+    this.addCactusArm(cactus, x, z, height, firstSide, 0.43 + variant % 3 * 0.035, 0.26);
+    if (variant % 2 === 1) {
+      this.addCactusArm(cactus, x, z, height, firstSide === 1 ? -1 : 1, 0.63, 0.22);
+    }
+    cactus.userData.destructible = true;
+    cactus.userData.destroyed = false;
+    return cactus;
+  }
+  addCactusArm(cactus, x, z, height, direction, heightRatio, liftRatio) {
+    const baseY = height * heightRatio;
+    const reach = THREE.MathUtils.clamp(height * 0.22, 0.48, 0.68);
+    const lift = height * liftRatio;
+    const end = new THREE.Vector3(x + direction * reach, baseY + lift, z);
+    const curve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(x + direction * 0.04, baseY, z),
+      new THREE.Vector3(x + direction * reach * 0.38, baseY + height * 0.015, z),
+      new THREE.Vector3(x + direction * reach * 0.78, baseY + lift * 0.22, z),
+      new THREE.Vector3(x + direction * reach, baseY + lift * 0.62, z),
+      end
+    ], false, "catmullrom", 0.42);
+    const arm = new THREE.Mesh(new THREE.TubeGeometry(curve, 12, 0.13, 8, false), this.cactus);
+    cactus.add(arm);
+    const cap = new THREE.Mesh(this.sphere(0.132, 8, 6), this.cactus);
+    cap.position.copy(end);
+    cap.userData.sharedGeometry = true;
+    cactus.add(cap);
+  }
+  createRockCluster(group, side, lateral, z, scale, variant) {
+    const cluster = new THREE.Group();
+    cluster.name = "desert_layered_rock";
+    const x = side * lateral;
+    const layers = [
+      { y: 0.22, radiusTop: 1.15, radiusBottom: 1.3, height: 0.44, material: this.rockDark },
+      { y: 0.61, radiusTop: 0.88, radiusBottom: 1.02, height: 0.42, material: this.rock },
+      { y: 0.98, radiusTop: 0.58, radiusBottom: 0.74, height: 0.36, material: this.rockLight }
+    ];
+    const rotation = variant * 0.34;
+    const depthScale = scale * (0.74 + variant % 2 * 0.06);
+    for (const [index, layer] of layers.entries()) {
+      const mesh = new THREE.Mesh(
+        this.taperedCylinder(layer.radiusTop, layer.radiusBottom, layer.height, 7 + variant % 2),
+        layer.material
+      );
+      mesh.position.set(x + side * index * 0.035 * scale, layer.y * scale, z);
+      mesh.scale.set(scale, scale, depthScale);
+      mesh.rotation.y = rotation;
+      mesh.userData.sharedGeometry = true;
+      cluster.add(mesh);
+    }
+    group.add(cluster);
+  }
+  createMesa(group, side, lateral, z, height, radius, variant) {
+    const x = side * lateral;
+    const specs = [
+      { y: height * 0.18, h: height * 0.36, top: radius * 0.88, bottom: radius, material: this.rockDark },
+      { y: height * 0.47, h: height * 0.25, top: radius * 0.7, bottom: radius * 0.8, material: this.rock },
+      { y: height * 0.7, h: height * 0.22, top: radius * 0.54, bottom: radius * 0.63, material: this.rockLight },
+      { y: height * 0.9, h: height * 0.18, top: radius * 0.41, bottom: radius * 0.48, material: this.rock }
+    ];
+    const centerOffsets = [0, radius * 0.025, radius * 0.04, radius * 0.05];
+    const rotation = variant * 0.27;
+    const depthScale = 0.68 + variant % 3 * 0.07;
+    for (const [index, spec] of specs.entries()) {
+      const mesh = new THREE.Mesh(this.taperedCylinder(spec.top, spec.bottom, spec.h, 8), spec.material);
+      mesh.position.set(
+        x + side * centerOffsets[index],
+        spec.y,
+        z - centerOffsets[index] * 0.42
+      );
+      mesh.scale.z = depthScale;
+      mesh.rotation.y = rotation;
+      mesh.userData.sharedGeometry = true;
+      group.add(mesh);
+    }
+  }
+  dune(width, height, depth, lean) {
+    const key = `dune:${width}:${height}:${depth}:${lean}`;
+    return this.geometry(key, () => {
+      const columns = 8;
+      const rows = 5;
+      const positions = [];
+      const indices = [];
+      for (let zIndex = 0; zIndex <= rows; zIndex++) {
+        const zProgress = zIndex / rows;
+        for (let xIndex = 0; xIndex <= columns; xIndex++) {
+          const xProgress = xIndex / columns;
+          const x = (xProgress - 0.5) * width;
+          const z = (zProgress - 0.5) * depth;
+          const ridge = Math.pow(Math.sin(Math.PI * xProgress), 1.15);
+          const endFade = Math.pow(Math.sin(Math.PI * zProgress), 0.72);
+          const crestShift = lean * (zProgress - 0.5) * width;
+          const y = Math.max(0, ridge * endFade * height - Math.abs(x - crestShift) * 0.018);
+          positions.push(x, y, z);
+        }
+      }
+      for (let zIndex = 0; zIndex < rows; zIndex++) {
+        for (let xIndex = 0; xIndex < columns; xIndex++) {
+          const a = zIndex * (columns + 1) + xIndex;
+          const b = a + 1;
+          const c = a + columns + 1;
+          const d = c + 1;
+          indices.push(a, c, b, b, c, d);
+        }
+      }
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+      geometry.setIndex(indices);
+      geometry.computeVertexNormals();
+      return geometry;
+    });
+  }
+  addBox(group, width, height, depth, material, x, y, z) {
+    const mesh = new THREE.Mesh(this.box(width, height, depth), material);
+    mesh.position.set(x, y, z);
+    mesh.userData.sharedGeometry = true;
+    group.add(mesh);
+    return mesh;
+  }
+  addCylinder(group, radius, length, material, x, y, z, axis, segments) {
+    const mesh = new THREE.Mesh(this.cylinder(radius, length, segments), material);
+    mesh.position.set(x, y, z);
+    if (axis === "x") mesh.rotation.z = Math.PI / 2;
+    if (axis === "z") mesh.rotation.x = Math.PI / 2;
+    mesh.userData.sharedGeometry = true;
+    group.add(mesh);
+    return mesh;
+  }
+  addTaperedCylinder(group, radiusTop, radiusBottom, height, material, x, y, z, segments) {
+    const mesh = new THREE.Mesh(this.taperedCylinder(radiusTop, radiusBottom, height, segments), material);
+    mesh.position.set(x, y, z);
+    mesh.userData.sharedGeometry = true;
+    group.add(mesh);
+    return mesh;
+  }
+  box(width, height, depth) {
+    return this.geometry(`box:${width}:${height}:${depth}`, () => new THREE.BoxGeometry(width, height, depth));
+  }
+  cylinder(radius, length, segments) {
+    return this.geometry(`cylinder:${radius}:${length}:${segments}`, () => new THREE.CylinderGeometry(radius, radius, length, segments));
+  }
+  taperedCylinder(radiusTop, radiusBottom, height, segments) {
+    return this.geometry(`taper:${radiusTop}:${radiusBottom}:${height}:${segments}`, () => new THREE.CylinderGeometry(radiusTop, radiusBottom, height, segments));
+  }
+  sphere(radius, widthSegments, heightSegments) {
+    return this.geometry(`sphere:${radius}:${widthSegments}:${heightSegments}`, () => new THREE.SphereGeometry(radius, widthSegments, heightSegments));
+  }
+  geometry(key, create) {
+    let geometry = this.geometries.get(key);
+    if (!geometry) {
+      geometry = create();
+      this.geometries.set(key, geometry);
+    }
+    return geometry;
+  }
+  dispose() {
+    for (const geometry of this.geometries.values()) geometry.dispose();
+    this.geometries.clear();
+    for (const material of [
+      this.sand,
+      this.sandLight,
+      this.gravel,
+      this.rock,
+      this.rockLight,
+      this.rockDark,
+      this.cactus,
+      this.cactusRib,
+      this.weatheredMetal,
+      this.darkMetal,
+      this.fadedPanel,
+      this.marker,
+      this.lamp
+    ]) material.dispose();
+  }
+}
 const P = "pipe-transfer";
 const T = "tank-farm";
 const A = "assembly-yard";
@@ -15377,9 +15841,12 @@ class FactoryEnvironmentKit {
 }
 const RAIN_STREAK_COUNT = 220;
 const SNOW_PARTICLE_COUNT = 220;
-const RAIN_RIPPLE_COUNT = 56;
+const SANDSTORM_PARTICLE_COUNT = 240;
+const RAIN_RIPPLE_COUNT = 72;
+const RAIN_RIPPLE_RATE = 34;
 const STREETLIGHT_COUNT = 16;
 const STAR_COUNT = 160;
+const DESERT_MOON_OFFSET = new THREE.Vector3(-28, 15, -86);
 const MAX_ROAD_HEADING = 0.115;
 const FORWARD_VISIBILITY_SCALE = 1.14;
 const FINISH_STRAIGHT_LENGTH = 96;
@@ -15418,6 +15885,7 @@ class Environment {
     __publicField(this, "roadsideProps", []);
     __publicField(this, "destructibleProps", []);
     __publicField(this, "stars");
+    __publicField(this, "moon");
     __publicField(this, "rain");
     __publicField(this, "rainPositions", new Float32Array(RAIN_STREAK_COUNT * 6));
     __publicField(this, "snow");
@@ -15429,19 +15897,26 @@ class Environment {
     __publicField(this, "snowForwardSpeeds", new Float32Array(SNOW_PARTICLE_COUNT));
     __publicField(this, "snowSizes", new Float32Array(SNOW_PARTICLE_COUNT));
     __publicField(this, "snowTexture");
+    __publicField(this, "sandstorm");
+    __publicField(this, "sandstormPositions", new Float32Array(SANDSTORM_PARTICLE_COUNT * 3));
+    __publicField(this, "sandstormSpeeds", new Float32Array(SANDSTORM_PARTICLE_COUNT));
+    __publicField(this, "sandstormTexture", this.createSandstormTexture());
     __publicField(this, "rainRipples", []);
     __publicField(this, "rainRippleCursor", 0);
     __publicField(this, "rainRippleAccumulator", 0);
     __publicField(this, "rainRippleOpacity", 0.42);
+    __publicField(this, "rainRippleTexture", this.createRainRippleTexture());
     __publicField(this, "biome", "city");
     __publicField(this, "stage", 1);
     __publicField(this, "factoryLayoutIndex", -1);
+    __publicField(this, "desertLayoutIndex", -1);
     __publicField(this, "theme", "day");
     __publicField(this, "currentWeather", "clear");
     __publicField(this, "streetLights", []);
     __publicField(this, "streetLightPools", []);
     __publicField(this, "streetLightPoolTexture", this.createStreetLightPoolTexture());
     __publicField(this, "starTexture", this.createStarTexture());
+    __publicField(this, "moonTexture", this.createMoonTexture());
     __publicField(this, "jumpGapWallTexture", this.createJumpGapWallTexture());
     __publicField(this, "distance", 0);
     __publicField(this, "weatherElapsed", 0);
@@ -15453,6 +15928,7 @@ class Environment {
     __publicField(this, "lastRoadPatternId", "");
     __publicField(this, "finishRoute", null);
     __publicField(this, "jumpGap", null);
+    __publicField(this, "roadLevelOffset", 0);
     __publicField(this, "jumpGapVisual");
     __publicField(this, "segmentLength", 2);
     __publicField(this, "segmentCount", 72);
@@ -15461,9 +15937,15 @@ class Environment {
     __publicField(this, "roadsideSpacing", 9.6);
     __publicField(this, "roadWidth", ROAD_WIDTH);
     __publicField(this, "factoryKit", new FactoryEnvironmentKit());
+    __publicField(this, "desertKit", new DesertEnvironmentKit());
     __publicField(this, "bodyMaterial", new THREE.MeshStandardMaterial({ color: 14341838, roughness: 0.86 }));
     __publicField(this, "darkMaterial", new THREE.MeshStandardMaterial({ color: 2829875, roughness: 0.72 }));
     __publicField(this, "cyanMaterial", new THREE.MeshBasicMaterial({ color: 2084834 }));
+    __publicField(this, "laneDividerMaterial", new THREE.MeshBasicMaterial({
+      color: 5683908,
+      transparent: true,
+      opacity: 0.72
+    }));
     __publicField(this, "orangeMaterial", new THREE.MeshBasicMaterial({ color: 16742938 }));
     __publicField(this, "magentaMaterial", new THREE.MeshBasicMaterial({ color: 16727928 }));
     __publicField(this, "glassMaterial", new THREE.MeshBasicMaterial({ color: 9353665, transparent: true, opacity: 0.28, depthWrite: false }));
@@ -15486,10 +15968,23 @@ class Environment {
       roughness: 0.72,
       metalness: 0.38
     }));
+    __publicField(this, "gapDesertMaterial", new THREE.MeshStandardMaterial({
+      color: 9387821,
+      roughness: 1,
+      metalness: 0
+    }));
+    __publicField(this, "gapDesertBandMaterial", new THREE.MeshStandardMaterial({
+      color: 11687223,
+      roughness: 0.98,
+      metalness: 0
+    }));
     __publicField(this, "scheduleJumpGap", (distanceAhead, length) => {
+      const landingDrop = [0, 1.5, 3][Math.floor(Math.random() * 3)];
       this.jumpGap = {
         start: this.distance + distanceAhead,
-        end: this.distance + distanceAhead + length
+        end: this.distance + distanceAhead + length,
+        startLevel: this.roadLevelOffset,
+        landingDrop
       };
     });
     __publicField(this, "getRoadOffset", (z) => {
@@ -15503,7 +15998,10 @@ class Environment {
     });
     __publicField(this, "getRoadElevation", (z) => {
       const sample = this.distance - z;
-      return Math.sin(sample * 0.018) * 0.82 + Math.sin(sample * 7e-3 + 1.2) * 0.42;
+      const baseElevation = Math.sin(sample * 0.018) * 0.82 + Math.sin(sample * 7e-3 + 1.2) * 0.42;
+      if (!this.jumpGap || sample <= this.jumpGap.start) return baseElevation + this.roadLevelOffset;
+      const descent = THREE.MathUtils.smoothstep(sample, this.jumpGap.start, this.jumpGap.end);
+      return baseElevation + this.jumpGap.startLevel - this.jumpGap.landingDrop * descent;
     });
     __publicField(this, "getRoadSlope", (z) => {
       const halfStep = 0.5;
@@ -15560,16 +16058,19 @@ class Environment {
     }
     this.createRoadsideField();
     this.stars = this.createStars();
+    this.moon = this.createMoon();
     this.rain = this.createRain();
     this.snowTexture = this.createSnowTexture();
     this.snow = this.createSnow();
-    scene.add(this.stars, this.rain, this.snow);
+    this.sandstorm = this.createSandstorm();
+    scene.add(this.stars, this.moon, this.rain, this.snow, this.sandstorm);
     this.createRainRipples();
     this.setWeather("clear");
   }
   resetRoadRoute() {
     this.finishRoute = null;
     this.jumpGap = null;
+    this.roadLevelOffset = 0;
     this.jumpGapVisual.root.visible = false;
     this.roadPatternSegments = [];
     this.roadPatternBag = [];
@@ -15757,7 +16258,7 @@ class Environment {
     if (hasDividerDash) {
       const dashGeometry = new THREE.BoxGeometry(0.09, 0.018, 1.44);
       for (const x of [-ROAD_DIVIDER_OFFSET, ROAD_DIVIDER_OFFSET]) {
-        const dash = new THREE.Mesh(dashGeometry, this.cyanMaterial);
+        const dash = new THREE.Mesh(dashGeometry, this.laneDividerMaterial);
         dash.position.set(x, 0.016, 0);
         group.add(dash);
         roadDeckParts.push(dash);
@@ -15984,8 +16485,63 @@ class Environment {
     const group = new THREE.Group();
     const cityLayer = this.createJumpGapWallLayer(false);
     const factoryLayer = this.createJumpGapWallLayer(true);
-    group.add(cityLayer, factoryLayer);
-    return { group, cityLayer, factoryLayer };
+    const desertLayer = this.createDesertJumpGapWallLayer();
+    group.add(cityLayer, factoryLayer, desertLayer);
+    return { group, cityLayer, factoryLayer, desertLayer };
+  }
+  createDesertJumpGapWallLayer() {
+    const group = new THREE.Group();
+    group.name = "jump_gap_desert_wall";
+    this.addJumpGapBox(
+      group,
+      [JUMP_GAP_VISUAL_WIDTH, JUMP_GAP_WALL_HEIGHT, 2.6],
+      this.gapDesertMaterial,
+      [0, -48, 0]
+    );
+    this.addJumpGapBox(
+      group,
+      [JUMP_GAP_VISUAL_WIDTH + 3.6, 1.1, 4.8],
+      this.gapDesertBandMaterial,
+      [0, -0.48, 0]
+    );
+    const strataLevels = [-7, -15, -25, -37, -51, -68, -86];
+    this.addJumpGapBoxInstances(
+      group,
+      [JUMP_GAP_VISUAL_WIDTH - 3, 0.72, 3.5],
+      this.gapDesertBandMaterial,
+      strataLevels.map((y, index) => ({
+        position: [index % 2 === 0 ? -1.6 : 1.4, y, 0.45],
+        rotationZ: index % 3 === 0 ? -0.012 : 9e-3
+      }))
+    );
+    this.addJumpGapBoxInstances(
+      group,
+      [7.6, 18, 4.4],
+      this.gapDesertMaterial,
+      [-58, -43, -27, -10, 8, 25, 42, 58].map((x, index) => ({
+        position: [x, -18 - index % 3 * 2.2, 0.8],
+        rotationZ: (index % 2 === 0 ? -1 : 1) * 0.035
+      }))
+    );
+    this.addJumpGapBoxInstances(
+      group,
+      [10.5, 26, 5.4],
+      this.gapDesertMaterial,
+      [-52, -31, -8, 16, 39, 57].map((x, index) => ({
+        position: [x, -51 - index % 2 * 3.2, 1.1],
+        rotationZ: (index % 2 === 0 ? -1 : 1) * 0.05
+      }))
+    );
+    this.addJumpGapBoxInstances(
+      group,
+      [18, 2.4, 8.2],
+      this.gapDesertBandMaterial,
+      [-55, -32, -8, 18, 44].map((x, index) => ({
+        position: [x, -78 - index % 2 * 4.2, 1.2],
+        rotationZ: (index % 2 === 0 ? -1 : 1) * 0.08
+      }))
+    );
+    return group;
   }
   createJumpGapVisual() {
     const root = new THREE.Group();
@@ -16008,6 +16564,7 @@ class Environment {
     face.group.rotation.y = -this.getRoadHeading(z);
     face.cityLayer.visible = this.biome === "city";
     face.factoryLayer.visible = this.biome === "factory";
+    face.desertLayer.visible = this.biome === "desert";
   }
   updateJumpGapVisual() {
     const visual = this.jumpGapVisual;
@@ -16055,6 +16612,10 @@ class Environment {
       this.createFactoryRoadsideField();
       return;
     }
+    if (this.biome === "desert") {
+      this.createDesertRoadsideField();
+      return;
+    }
     this.createCityRoadsideField();
   }
   createCityRoadsideField() {
@@ -16087,6 +16648,21 @@ class Environment {
       }
     }
     this.createFactoryFloodlightField();
+  }
+  createDesertRoadsideField() {
+    const layout = getDesertLayout(this.stage);
+    for (let row = 0; row < this.roadsideRowCount; row++) {
+      for (const side of [-1, 1]) {
+        const sideIndex = side === 1 ? 1 : 0;
+        const type = layout[row][sideIndex];
+        if (type === null) continue;
+        const built = this.desertKit.createModule(type, side, row, this.desertLayoutIndex);
+        built.group.position.z = -8 - row * this.roadsideSpacing;
+        this.roadsideProps.push({ group: built.group, side, shoulder: 0 });
+        this.destructibleProps.push(...built.destructibles);
+        this.scene.add(built.group);
+      }
+    }
   }
   createStreetlightField() {
     const cityLength = this.roadsideRowCount * this.roadsideSpacing;
@@ -16174,10 +16750,12 @@ class Environment {
   }
   setStageEnvironment(biome, stage) {
     const nextFactoryLayout = biome === "factory" ? getFactoryLayoutIndex(stage) : -1;
-    const rebuild = biome !== this.biome || nextFactoryLayout !== this.factoryLayoutIndex;
+    const nextDesertLayout = biome === "desert" ? getDesertLayoutIndex(stage) : -1;
+    const rebuild = biome !== this.biome || nextFactoryLayout !== this.factoryLayoutIndex || nextDesertLayout !== this.desertLayoutIndex;
     this.biome = biome;
     this.stage = stage;
     this.factoryLayoutIndex = nextFactoryLayout;
+    this.desertLayoutIndex = nextDesertLayout;
     if (!rebuild) return;
     this.clearRoadsideField();
     this.createRoadsideField();
@@ -16285,41 +16863,114 @@ class Environment {
   }
   createCityBuilding(side, depth, height, width, variant) {
     const group = new THREE.Group();
-    const body = new THREE.Mesh(new THREE.BoxGeometry(depth, height, width), this.bodyMaterial);
-    body.position.y = height / 2;
-    body.add(new THREE.LineSegments(new THREE.EdgesGeometry(body.geometry, 24), this.edgeMaterial));
-    group.add(body);
-    const facadeX = -side * (depth / 2 + 0.025);
-    const floorCount = Math.max(2, Math.floor(height / 1.15));
-    const windowColumns = width > 4 ? 4 : 3;
-    for (let floor = 1; floor < floorCount; floor++) {
+    const addBox = (sizeX, sizeY, sizeZ, material, x, y, z, outlined = false) => {
+      const geometry = new THREE.BoxGeometry(sizeX, sizeY, sizeZ);
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.position.set(x, y, z);
+      group.add(mesh);
+      if (outlined) {
+        mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(geometry, 24), this.edgeMaterial));
+      }
+      return mesh;
+    };
+    const style = Math.abs(variant) % 4;
+    const podiumHeight = THREE.MathUtils.clamp(height * 0.18, 0.88, 1.42);
+    const shaftDepth = depth * (0.78 + style % 3 * 0.035);
+    const shaftWidth = width * (0.82 + style * 0.018);
+    const shaftX = -side * (depth - shaftDepth) * (style === 1 ? 0.18 : 0.32);
+    const shaftBottom = podiumHeight - 0.08;
+    const shaftHeight = height - shaftBottom;
+    const podiumFacadeX = -side * (depth / 2 + 0.026);
+    const facadeX = shaftX - side * (shaftDepth / 2 + 0.026);
+    addBox(depth + 0.18, 0.18, width + 0.22, this.darkMaterial, 0, 0.09, 0);
+    addBox(depth, podiumHeight, width, this.bodyMaterial, 0, podiumHeight / 2 + 0.14, 0, true);
+    addBox(
+      shaftDepth,
+      shaftHeight,
+      shaftWidth,
+      this.bodyMaterial,
+      shaftX,
+      shaftBottom + shaftHeight / 2,
+      0,
+      true
+    );
+    addBox(
+      0.045,
+      shaftHeight * 0.79,
+      shaftWidth * 0.76,
+      this.darkMaterial,
+      facadeX,
+      shaftBottom + shaftHeight * 0.52,
+      0
+    );
+    const windowColumns = shaftWidth > 4 ? 4 : 3;
+    const floorCount = Math.max(3, Math.floor((shaftHeight - 0.5) / 0.86));
+    const windowCount = floorCount * windowColumns;
+    const windowGeometry = new THREE.BoxGeometry(0.038, 0.22, Math.min(0.52, shaftWidth / (windowColumns + 1) * 0.62));
+    const windows = new THREE.InstancedMesh(windowGeometry, this.windowMaterial, windowCount);
+    const windowMatrix = new THREE.Matrix4();
+    for (let floor = 0; floor < floorCount; floor++) {
+      const y = shaftBottom + 0.66 + floor * Math.max(0.68, (shaftHeight - 1.15) / Math.max(1, floorCount - 1));
       for (let column = 0; column < windowColumns; column++) {
-        const window2 = new THREE.Mesh(
-          new THREE.BoxGeometry(0.035, 0.19, 0.5),
-          this.windowMaterial
-        );
-        window2.position.set(
-          facadeX,
-          floor * height / floorCount,
-          (column - (windowColumns - 1) / 2) * (width - 0.75) / windowColumns
-        );
-        group.add(window2);
+        const z = (column - (windowColumns - 1) / 2) * shaftWidth * 0.72 / Math.max(1, windowColumns - 1);
+        windowMatrix.makeTranslation(facadeX - side * 0.028, y, z);
+        windows.setMatrixAt(floor * windowColumns + column, windowMatrix);
       }
     }
-    const crown = new THREE.Mesh(
-      new THREE.BoxGeometry(depth * 0.72, 0.22, width * 0.72),
-      variant % 3 === 0 ? this.darkMaterial : this.bodyMaterial
-    );
-    crown.position.y = height + 0.11;
-    group.add(crown);
-    const plantCount = variant % 2 === 0 ? 2 : 1;
-    for (let index = 0; index < plantCount; index++) {
-      const plant = new THREE.Mesh(
-        new THREE.BoxGeometry(0.62, 0.42 + index * 0.18, 0.72),
-        this.darkMaterial
+    windows.instanceMatrix.needsUpdate = true;
+    group.add(windows);
+    for (let column = 0; column <= windowColumns; column++) {
+      const z = (column - windowColumns / 2) * shaftWidth * 0.76 / windowColumns;
+      addBox(0.075, shaftHeight * 0.82, 0.065, this.bodyMaterial, facadeX - side * 0.052, shaftBottom + shaftHeight * 0.52, z);
+    }
+    for (let floor = 2; floor < floorCount; floor += 3) {
+      const y = shaftBottom + 0.66 + floor * Math.max(0.68, (shaftHeight - 1.15) / Math.max(1, floorCount - 1));
+      addBox(0.11, 0.065, shaftWidth * 0.84, this.bodyMaterial, facadeX - side * 0.055, y - 0.21, 0);
+    }
+    const entryZ = style % 2 === 0 ? -shaftWidth * 0.2 : shaftWidth * 0.2;
+    addBox(0.05, 0.76, 0.66, this.darkMaterial, podiumFacadeX, 0.54, entryZ);
+    addBox(0.38, 0.09, 1.18, this.darkMaterial, podiumFacadeX - side * 0.17, 0.98, entryZ);
+    for (const zOffset of [-0.48, 0.48]) {
+      addBox(0.09, 0.86, 0.09, this.darkMaterial, podiumFacadeX - side * 0.3, 0.48, entryZ + zOffset);
+    }
+    addBox(0.045, 0.42, width * 0.24, this.darkMaterial, podiumFacadeX, 0.48, -entryZ);
+    const serviceZ = (style < 2 ? -1 : 1) * (shaftWidth / 2 + 0.026);
+    addBox(shaftDepth * 0.46, shaftHeight * 0.72, 0.05, this.darkMaterial, shaftX + side * shaftDepth * 0.12, shaftBottom + shaftHeight * 0.49, serviceZ);
+    for (let band = 0; band < 3; band++) {
+      addBox(
+        shaftDepth * 0.5,
+        0.07,
+        0.075,
+        this.bodyMaterial,
+        shaftX + side * shaftDepth * 0.12,
+        shaftBottom + shaftHeight * (0.28 + band * 0.2),
+        serviceZ + Math.sign(serviceZ) * 0.022
       );
-      plant.position.set((index - 0.5) * 0.82, height + 0.42, (index - 0.5) * 0.6);
-      group.add(plant);
+    }
+    const roofY = height + 0.13;
+    addBox(0.12, 0.28, shaftWidth + 0.14, this.darkMaterial, shaftX - shaftDepth / 2, roofY, 0);
+    addBox(0.12, 0.28, shaftWidth + 0.14, this.darkMaterial, shaftX + shaftDepth / 2, roofY, 0);
+    addBox(shaftDepth, 0.28, 0.12, this.darkMaterial, shaftX, roofY, -shaftWidth / 2);
+    addBox(shaftDepth, 0.28, 0.12, this.darkMaterial, shaftX, roofY, shaftWidth / 2);
+    const headhouseWidth = shaftWidth * (style === 3 ? 0.52 : 0.36);
+    addBox(shaftDepth * 0.38, 0.48 + style * 0.06, headhouseWidth, this.bodyMaterial, shaftX + side * shaftDepth * 0.14, height + 0.3, 0, true);
+    const plantCount = style === 0 || style === 3 ? 2 : 1;
+    for (let index = 0; index < plantCount; index++) {
+      const z = (index - (plantCount - 1) / 2) * 0.86;
+      addBox(0.68, 0.38 + index * 0.08, 0.62, this.darkMaterial, shaftX - side * shaftDepth * 0.2, height + 0.34, z);
+      for (const slat of [-0.18, 0, 0.18]) {
+        addBox(0.035, 0.22, 0.06, this.bodyMaterial, shaftX - side * (shaftDepth * 0.2 + 0.35), height + 0.34, z + slat);
+      }
+    }
+    if (style === 0 || style === 2) {
+      const antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.055, 0.95, 8), this.darkMaterial);
+      antenna.position.set(shaftX + side * shaftDepth * 0.18, height + 0.86, shaftWidth * 0.18);
+      group.add(antenna);
+      const collar = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.025, 6, 12), this.darkMaterial);
+      collar.position.copy(antenna.position);
+      collar.position.y += 0.32;
+      collar.rotation.x = Math.PI / 2;
+      group.add(collar);
     }
     return group;
   }
@@ -16553,18 +17204,108 @@ class Environment {
     texture.colorSpace = THREE.SRGBColorSpace;
     return texture;
   }
+  createMoon() {
+    const moon = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: this.moonTexture,
+      color: 14477554,
+      transparent: true,
+      opacity: 0.92,
+      depthWrite: false,
+      depthTest: true,
+      fog: false,
+      toneMapped: false
+    }));
+    moon.name = "desert_moon";
+    moon.scale.set(9.5, 9.5, 1);
+    moon.renderOrder = -1;
+    return moon;
+  }
+  createMoonTexture() {
+    const canvas = document.createElement("canvas");
+    canvas.width = 256;
+    canvas.height = 256;
+    const context = canvas.getContext("2d");
+    if (context) {
+      const glow = context.createRadialGradient(128, 128, 42, 128, 128, 122);
+      glow.addColorStop(0, "rgba(205, 225, 242, 0.34)");
+      glow.addColorStop(0.48, "rgba(175, 207, 232, 0.12)");
+      glow.addColorStop(1, "rgba(150, 190, 225, 0)");
+      context.fillStyle = glow;
+      context.fillRect(0, 0, 256, 256);
+      const disc = context.createRadialGradient(112, 105, 8, 128, 128, 49);
+      disc.addColorStop(0, "rgba(250, 250, 238, 1)");
+      disc.addColorStop(0.72, "rgba(218, 228, 229, 1)");
+      disc.addColorStop(1, "rgba(176, 196, 207, 0.96)");
+      context.fillStyle = disc;
+      context.beginPath();
+      context.arc(128, 128, 49, 0, Math.PI * 2);
+      context.fill();
+      context.fillStyle = "rgba(126, 151, 163, 0.16)";
+      for (const [x, y, radius] of [[110, 111, 8], [145, 99, 5], [151, 137, 9], [119, 151, 5]]) {
+        context.beginPath();
+        context.arc(x, y, radius, 0, Math.PI * 2);
+        context.fill();
+      }
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    return texture;
+  }
   createRain() {
     for (let index = 0; index < RAIN_STREAK_COUNT; index++) this.resetRainStreak(index, false);
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute("position", new THREE.BufferAttribute(this.rainPositions, 3));
     const material = new THREE.LineBasicMaterial({
-      color: 10472408,
+      color: 8828096,
       transparent: true,
-      opacity: 0.8,
+      opacity: 0.56,
       depthWrite: false,
-      blending: THREE.AdditiveBlending
+      blending: THREE.NormalBlending
     });
     return new THREE.LineSegments(geometry, material);
+  }
+  createSandstormTexture() {
+    const canvas = document.createElement("canvas");
+    canvas.width = 64;
+    canvas.height = 64;
+    const context = canvas.getContext("2d");
+    if (context) {
+      const gradient = context.createRadialGradient(32, 32, 2, 32, 32, 31);
+      gradient.addColorStop(0, "rgba(255,224,180,0.58)");
+      gradient.addColorStop(0.35, "rgba(232,155,101,0.2)");
+      gradient.addColorStop(1, "rgba(170,83,51,0)");
+      context.fillStyle = gradient;
+      context.fillRect(0, 0, 64, 64);
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    return texture;
+  }
+  resetSandstormParticle(index, fromSide) {
+    const offset = index * 3;
+    this.sandstormPositions[offset] = fromSide ? -18 - Math.random() * 8 : (Math.random() - 0.5) * 38;
+    this.sandstormPositions[offset + 1] = 0.15 + Math.random() * 10.5;
+    this.sandstormPositions[offset + 2] = -66 + Math.random() * 78;
+    this.sandstormSpeeds[index] = 5.5 + Math.random() * 8;
+  }
+  createSandstorm() {
+    const geometry = new THREE.BufferGeometry();
+    for (let index = 0; index < SANDSTORM_PARTICLE_COUNT; index++) this.resetSandstormParticle(index, false);
+    geometry.setAttribute("position", new THREE.BufferAttribute(this.sandstormPositions, 3));
+    const material = new THREE.PointsMaterial({
+      color: 14785127,
+      map: this.sandstormTexture,
+      size: 0.52,
+      sizeAttenuation: true,
+      transparent: true,
+      opacity: 0.32,
+      depthWrite: false,
+      blending: THREE.NormalBlending,
+      fog: true
+    });
+    const particles = new THREE.Points(geometry, material);
+    particles.frustumCulled = false;
+    return particles;
   }
   resetRainStreak(index, fromTop) {
     const offset = index * 6;
@@ -16668,22 +17409,54 @@ class Environment {
     this.snowForwardSpeeds[index] = 2.5 + Math.random() * 1.8;
     this.snowSizes[index] = 0.38 + Math.random() * 0.3;
   }
+  createRainRippleTexture() {
+    const size = 128;
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const context = canvas.getContext("2d");
+    if (context) {
+      const image = context.createImageData(size, size);
+      for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+          const dx = (x + 0.5 - size / 2) / size;
+          const dy = (y + 0.5 - size / 2) / size;
+          const radius = Math.sqrt(dx * dx + dy * dy);
+          const inner = Math.exp(-Math.pow((radius - 0.245) / 0.028, 2));
+          const outer = Math.exp(-Math.pow((radius - 0.43) / 0.034, 2));
+          const alpha = Math.min(1, inner * 0.58 + outer * 0.46);
+          const offset = (y * size + x) * 4;
+          image.data[offset] = 255;
+          image.data[offset + 1] = 255;
+          image.data[offset + 2] = 255;
+          image.data[offset + 3] = Math.round(alpha * 255);
+        }
+      }
+      context.putImageData(image, 0, 0);
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.generateMipmaps = false;
+    return texture;
+  }
   createRainRipples() {
     for (let index = 0; index < RAIN_RIPPLE_COUNT; index++) {
       const group = new THREE.Group();
       const material = new THREE.MeshBasicMaterial({
-        color: 12119541,
+        color: 8227471,
+        map: this.rainRippleTexture,
         transparent: true,
         opacity: 0,
         depthWrite: false,
-        blending: THREE.AdditiveBlending,
-        side: THREE.DoubleSide
+        blending: THREE.NormalBlending,
+        side: THREE.DoubleSide,
+        toneMapped: false
       });
-      for (const [inner, outer] of [[0.13, 0.148], [0.25, 0.268]]) {
-        const ring = new THREE.Mesh(new THREE.RingGeometry(inner, outer, 24), material);
-        ring.rotation.x = -Math.PI / 2;
-        group.add(ring);
-      }
+      const ring = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), material);
+      ring.rotation.x = -Math.PI / 2;
+      group.add(ring);
       group.position.y = 0.024;
       group.visible = false;
       this.scene.add(group);
@@ -16697,6 +17470,12 @@ class Environment {
     const side = Math.random() < 0.5 ? -1 : 1;
     ripple.lateral = onRoad ? (Math.random() - 0.5) * (this.roadWidth - 0.45) : side * (this.roadWidth / 2 + 0.45 + Math.random() * 3.2);
     ripple.group.position.z = -31 + Math.random() * 37;
+    const sample = this.distance - ripple.group.position.z;
+    if (this.jumpGap && sample >= this.jumpGap.start && sample <= this.jumpGap.end) {
+      ripple.life = 0;
+      ripple.group.visible = false;
+      return;
+    }
     ripple.group.position.x = this.getRoadOffset(ripple.group.position.z) + ripple.lateral;
     ripple.group.scale.setScalar(0.35);
     ripple.group.visible = true;
@@ -16707,7 +17486,22 @@ class Environment {
     this.theme = theme;
     const night = theme === "night";
     const factory = this.biome === "factory";
-    if (factory) {
+    const desert = this.biome === "desert";
+    if (desert) {
+      this.bodyMaterial.color.setHex(night ? 4928562 : 10180932);
+      this.darkMaterial.color.setHex(night ? 2696747 : 4797743);
+      this.pavementMaterial.color.setHex(night ? 3812140 : 9260860);
+      this.serviceRoadMaterial.color.setHex(night ? 3221290 : 7356980);
+      this.roadSurfaceMaterial.color.setHex(night ? 2697261 : 6640460);
+      this.edgeMaterial.color.setHex(night ? 10322031 : 4470063);
+      this.edgeMaterial.opacity = night ? 0.58 : 0.7;
+      this.cyanMaterial.color.setHex(night ? 5627105 : 3981249);
+      this.laneDividerMaterial.color.setHex(night ? 14265688 : 14728553);
+      this.laneDividerMaterial.opacity = night ? 0.86 : 0.82;
+      this.desertKit.setTheme(theme);
+      this.gapDesertMaterial.color.setHex(night ? 5319467 : 9387821);
+      this.gapDesertBandMaterial.color.setHex(night ? 7222320 : 11687223);
+    } else if (factory) {
       this.bodyMaterial.color.setHex(night ? 5857629 : 9144447);
       this.darkMaterial.color.setHex(night ? 2304809 : 3487539);
       this.pavementMaterial.color.setHex(night ? 4278084 : 6842724);
@@ -16716,19 +17510,23 @@ class Environment {
       this.edgeMaterial.color.setHex(night ? 9147020 : 3619124);
       this.edgeMaterial.opacity = night ? 0.52 : 0.68;
       this.cyanMaterial.color.setHex(night ? 5627105 : 3981249);
+      this.laneDividerMaterial.color.setHex(night ? 14200141 : 13803839);
+      this.laneDividerMaterial.opacity = night ? 0.84 : 0.78;
       this.factoryKit.setTheme(theme);
     } else {
-      this.bodyMaterial.color.setHex(night ? 6451578 : 14341838);
-      this.darkMaterial.color.setHex(night ? 2569276 : 2829875);
-      this.pavementMaterial.color.setHex(night ? 4543323 : 13092545);
-      this.serviceRoadMaterial.color.setHex(night ? 3424842 : 8751239);
-      this.roadSurfaceMaterial.color.setHex(night ? 2832706 : 15263199);
-      this.windowMaterial.color.setHex(night ? 7986409 : 7314853);
+      this.bodyMaterial.color.setHex(night ? 6451578 : 14804195);
+      this.darkMaterial.color.setHex(night ? 2569276 : 3159610);
+      this.pavementMaterial.color.setHex(night ? 4543323 : 13751764);
+      this.serviceRoadMaterial.color.setHex(night ? 3424842 : 9871007);
+      this.roadSurfaceMaterial.color.setHex(night ? 2832706 : 15264488);
+      this.windowMaterial.color.setHex(night ? 7986409 : 7511461);
       this.windowMaterial.opacity = night ? 0.78 : 0.52;
-      this.glassMaterial.color.setHex(night ? 5220792 : 9353665);
+      this.glassMaterial.color.setHex(night ? 5220792 : 9550014);
       this.edgeMaterial.color.setHex(night ? 8295325 : 3422012);
-      this.edgeMaterial.opacity = night ? 0.56 : 0.76;
+      this.edgeMaterial.opacity = night ? 0.56 : 0.66;
       this.cyanMaterial.color.setHex(night ? 4646898 : 2084834);
+      this.laneDividerMaterial.color.setHex(night ? 5560286 : 5683908);
+      this.laneDividerMaterial.opacity = night ? 0.88 : 0.72;
     }
     this.updateStreetlightIllumination();
     const lit = night || factory && theme === "sunset";
@@ -16738,32 +17536,51 @@ class Environment {
     }
     const starsMaterial = this.stars.material;
     starsMaterial.uniforms.opacity.value = night ? 0.86 : 0;
-    this.rainRippleOpacity = night ? 0.82 : 0.78;
+    const rippleColor = factory ? night ? 11060157 : 12956576 : desert ? 10841430 : night ? 12048093 : 8227471;
+    for (const ripple of this.rainRipples) ripple.material.color.setHex(rippleColor);
+    this.rainRippleOpacity = desert ? 0 : factory ? night ? 0.46 : 0.38 : night ? 0.5 : 0.34;
     this.setWeather(this.currentWeather);
   }
   setWeather(weather) {
     this.currentWeather = weather;
     const factory = this.biome === "factory";
-    const profiles = factory ? this.theme === "night" ? {
+    const desert = this.biome === "desert";
+    const profiles = desert ? this.theme === "night" ? {
+      clear: { background: 1514280, fogNear: 34, fogFar: 112 },
+      sandstorm: { background: 2564913, fogNear: 30, fogFar: 104 },
+      overcast: { background: 3090478, fogNear: 24, fogFar: 80 },
+      rain: { background: 3090478, fogNear: 24, fogFar: 80 },
+      snow: { background: 3090478, fogNear: 24, fogFar: 80 }
+    } : {
+      clear: { background: 14190944, fogNear: 33, fogFar: 112 },
+      sandstorm: { background: 13531222, fogNear: 29, fogFar: 106 },
+      overcast: { background: 11364941, fogNear: 26, fogFar: 86 },
+      rain: { background: 11364941, fogNear: 26, fogFar: 86 },
+      snow: { background: 11364941, fogNear: 26, fogFar: 86 }
+    } : factory ? this.theme === "night" ? {
       clear: { background: 1515037, fogNear: 27, fogFar: 94 },
       overcast: { background: 2370345, fogNear: 23, fogFar: 84 },
       rain: { background: 1516321, fogNear: 20, fogFar: 78 },
-      snow: { background: 2370345, fogNear: 23, fogFar: 84 }
+      snow: { background: 2370345, fogNear: 23, fogFar: 84 },
+      sandstorm: { background: 2370345, fogNear: 23, fogFar: 84 }
     } : {
       clear: { background: 11956039, fogNear: 30, fogFar: 98 },
       overcast: { background: 9205094, fogNear: 26, fogFar: 88 },
       rain: { background: 6774361, fogNear: 21, fogFar: 78 },
-      snow: { background: 9205094, fogNear: 26, fogFar: 88 }
+      snow: { background: 9205094, fogNear: 26, fogFar: 88 },
+      sandstorm: { background: 9205094, fogNear: 26, fogFar: 88 }
     } : this.theme === "night" ? {
       clear: { background: 1320496, fogNear: 36, fogFar: 112 },
       overcast: { background: 2241083, fogNear: 23, fogFar: 86 },
       rain: { background: 1649461, fogNear: 21, fogFar: 82 },
-      snow: { background: 3294028, fogNear: 23, fogFar: 86 }
+      snow: { background: 3294028, fogNear: 23, fogFar: 86 },
+      sandstorm: { background: 2241083, fogNear: 23, fogFar: 86 }
     } : {
-      clear: { background: 15855336, fogNear: 30, fogFar: 98 },
-      overcast: { background: 12239302, fogNear: 27, fogFar: 88 },
-      rain: { background: 9609128, fogNear: 22, fogFar: 78 },
-      snow: { background: 13357524, fogNear: 24, fogFar: 84 }
+      clear: { background: 15725298, fogNear: 31, fogFar: 100 },
+      overcast: { background: 12174280, fogNear: 27, fogFar: 88 },
+      rain: { background: 10069934, fogNear: 22, fogFar: 78 },
+      snow: { background: 14081246, fogNear: 24, fogFar: 84 },
+      sandstorm: { background: 12174280, fogNear: 27, fogFar: 88 }
     };
     const profile = profiles[weather];
     this.scene.background = new THREE.Color(profile.background);
@@ -16774,10 +17591,15 @@ class Environment {
     );
     this.rain.visible = weather === "rain";
     this.snow.visible = weather === "snow";
+    this.sandstorm.visible = weather === "sandstorm";
     this.stars.visible = this.theme === "night" && weather === "clear";
+    this.moon.visible = desert && this.theme === "night" && weather === "clear";
     const rainMaterial = this.rain.material;
-    rainMaterial.color.setHex(factory ? this.theme === "night" ? 12179667 : 13943212 : this.theme === "night" ? 13170175 : 11066341);
-    rainMaterial.opacity = 0.8;
+    rainMaterial.color.setHex(factory ? this.theme === "night" ? 9550002 : 11902860 : this.theme === "night" ? 11066341 : 8829637);
+    rainMaterial.opacity = 0.56;
+    const sandstormMaterial = this.sandstorm.material;
+    sandstormMaterial.color.setHex(this.theme === "night" ? 12151889 : 14785127);
+    sandstormMaterial.opacity = this.theme === "night" ? 0.1 : 0.13;
     if (weather !== "rain") {
       this.rainRippleAccumulator = 0;
       for (const ripple of this.rainRipples) {
@@ -16799,7 +17621,10 @@ class Environment {
       segment.rotation.y = -this.getRoadHeading(segment.position.z);
       this.updateRoadGapPresentation(segment);
     }
-    if (this.jumpGap && this.distance > this.jumpGap.end + this.rearRoadExtent) this.jumpGap = null;
+    if (this.jumpGap && this.distance > this.jumpGap.end + this.rearRoadExtent) {
+      this.roadLevelOffset = this.jumpGap.startLevel - this.jumpGap.landingDrop;
+      this.jumpGap = null;
+    }
     this.updateJumpGapVisual();
     const propWrap = this.roadsideRowCount * this.roadsideSpacing;
     for (const prop of this.roadsideProps) {
@@ -16836,7 +17661,7 @@ class Environment {
         if (this.rainPositions[offset + 4] < -0.5 || this.rainPositions[offset + 2] > 6.5) this.resetRainStreak(index, true);
       }
       this.rain.geometry.getAttribute("position").needsUpdate = true;
-      this.rainRippleAccumulator += delta * 26;
+      this.rainRippleAccumulator += delta * RAIN_RIPPLE_RATE;
       while (this.rainRippleAccumulator >= 1) {
         this.spawnRainRipple();
         this.rainRippleAccumulator -= 1;
@@ -16845,10 +17670,16 @@ class Environment {
         if (ripple.life <= 0) continue;
         ripple.life -= delta;
         ripple.group.position.z += speed * delta;
+        const rippleSample = this.distance - ripple.group.position.z;
+        if (this.jumpGap && rippleSample >= this.jumpGap.start && rippleSample <= this.jumpGap.end) {
+          ripple.life = 0;
+          ripple.group.visible = false;
+          continue;
+        }
         ripple.group.position.x = this.getRoadOffset(ripple.group.position.z) + ripple.lateral;
         ripple.group.position.y = this.getRoadElevation(ripple.group.position.z) + 0.024;
         const progress = 1 - Math.max(0, ripple.life) / ripple.maxLife;
-        ripple.group.scale.setScalar(0.35 + progress * 2.15);
+        ripple.group.scale.setScalar(0.24 + progress * 1.38);
         const appearance = Math.min(1, progress / 0.12);
         const fade = Math.pow(1 - progress, 2.2);
         ripple.material.opacity = appearance * fade * this.rainRippleOpacity;
@@ -16868,6 +17699,17 @@ class Environment {
       this.snow.geometry.getAttribute("position").needsUpdate = true;
       this.snow.geometry.getAttribute("snowRotation").needsUpdate = true;
       this.snow.geometry.getAttribute("snowSize").needsUpdate = true;
+    }
+    if (this.sandstorm.visible) {
+      for (let index = 0; index < SANDSTORM_PARTICLE_COUNT; index++) {
+        const offset = index * 3;
+        const depth = THREE.MathUtils.clamp((this.sandstormPositions[offset + 2] + 66) / 78, 0, 1);
+        this.sandstormPositions[offset] += delta * (this.sandstormSpeeds[index] + Math.sin(this.weatherElapsed * 1.4 + index * 0.31) * 1.8);
+        this.sandstormPositions[offset + 1] += Math.sin(this.weatherElapsed * 2.1 + index) * delta * 0.22;
+        this.sandstormPositions[offset + 2] += delta * (speed * (0.26 + depth * 0.08) + 4.2);
+        if (this.sandstormPositions[offset] > 20 || this.sandstormPositions[offset + 2] > 12 || this.sandstormPositions[offset + 1] < 0) this.resetSandstormParticle(index, true);
+      }
+      this.sandstorm.geometry.getAttribute("position").needsUpdate = true;
     }
   }
   updateStreetlightIllumination() {
@@ -16917,6 +17759,7 @@ class Environment {
   }
   anchorSky(position) {
     this.stars.position.copy(position);
+    this.moon.position.copy(position).add(DESERT_MOON_OFFSET);
     const starsMaterial = this.stars.material;
     starsMaterial.uniforms.pointScale.value = Math.min(window.innerHeight, 1200) * Math.min(window.devicePixelRatio, 2) * 0.72;
   }
@@ -16934,10 +17777,15 @@ class Environment {
     this.disposeObject(this.stars);
     this.stars.material.dispose();
     this.starTexture.dispose();
+    this.moon.removeFromParent();
+    this.moon.material.dispose();
+    this.moonTexture.dispose();
     this.rain.material.dispose();
     this.snow.material.dispose();
+    this.sandstorm.material.dispose();
     this.disposeObject(this.rain);
     this.disposeObject(this.snow);
+    this.disposeObject(this.sandstorm);
     for (const ripple of this.rainRipples) {
       ripple.material.dispose();
       this.disposeObject(ripple.group);
@@ -16945,6 +17793,7 @@ class Environment {
     this.bodyMaterial.dispose();
     this.darkMaterial.dispose();
     this.cyanMaterial.dispose();
+    this.laneDividerMaterial.dispose();
     this.orangeMaterial.dispose();
     this.magentaMaterial.dispose();
     this.glassMaterial.dispose();
@@ -16957,10 +17806,15 @@ class Environment {
     this.gapCliffMaterial.dispose();
     this.gapConcreteMaterial.dispose();
     this.gapMetalMaterial.dispose();
+    this.gapDesertMaterial.dispose();
+    this.gapDesertBandMaterial.dispose();
     this.jumpGapWallTexture.dispose();
     this.snowTexture.dispose();
+    this.sandstormTexture.dispose();
+    this.rainRippleTexture.dispose();
     this.streetLightPoolTexture.dispose();
     this.factoryKit.dispose();
+    this.desertKit.dispose();
   }
 }
 const PROJECTILE_OBSTACLE_HIT_RADIUS = 1.05;
@@ -17020,7 +17874,7 @@ class ObstacleManager {
   }
   warmUp(renderer, camera) {
     const entries = [];
-    for (const biome of ["city", "factory"]) {
+    for (const biome of ["city", "factory", "desert"]) {
       for (let variant = 0; variant < 5; variant++) {
         entries.push({ key: `obstacle:${biome}:${variant}`, object: this.instantiateTemplate(this.getObstacleTemplate(variant, biome)) });
       }
@@ -17364,7 +18218,7 @@ class ObstacleManager {
     return instance;
   }
   getObstacleTemplate(variant, biome = this.stageDefinition.biome) {
-    const style = biome === "factory" ? "factory" : "city";
+    const style = biome;
     const key = `${style}:${variant}`;
     let template = this.obstacleTemplates.get(key);
     if (!template) {
@@ -17446,6 +18300,7 @@ class ObstacleManager {
   }
   buildObstacle(variant, biome) {
     if (biome === "factory") return this.buildFactoryObstacle(variant);
+    if (biome === "desert") return this.buildDesertObstacle(variant);
     const group = new THREE.Group();
     const palette = {
       graphite: 3160638,
@@ -17634,6 +18489,201 @@ class ObstacleManager {
       antennaTip.position.set(0.29, 0.64, 0.02);
       turret.add(antennaTip);
       group.add(turret);
+    }
+    group.scale.setScalar(1.3);
+    return group;
+  }
+  buildDesertObstacle(variant) {
+    const group = new THREE.Group();
+    const material = (color, roughness = 0.82, metalness = 0.08) => new THREE.MeshStandardMaterial({
+      color,
+      roughness,
+      metalness
+    });
+    const sandstone = material(9322284, 0.96, 0);
+    const sandstoneLight = material(11951417, 0.98, 0);
+    const oxidizedSteel = material(7686970, 0.88, 0.28);
+    const darkSteel = material(3159098, 0.6, 0.58);
+    const fadedOchre = material(11958834, 0.84, 0.12);
+    const fadedBlue = material(4811634, 0.72, 0.18);
+    const glass = material(7972005, 0.28, 0.24);
+    const lamp = new THREE.MeshBasicMaterial({ color: 15769928, toneMapped: false });
+    if (variant === 0) {
+      group.name = "desert_rockfall_cage";
+      const base = this.solidObstacle(new THREE.BoxGeometry(1.2, 0.14, 0.82), darkSteel);
+      base.position.y = -0.47;
+      group.add(base);
+      for (const x of [-0.52, 0.52]) {
+        const post = this.solidObstacle(new THREE.BoxGeometry(0.1, 0.94, 0.1), oxidizedSteel);
+        post.position.set(x, -0.02, 0);
+        post.rotation.z = x < 0 ? -0.06 : 0.06;
+        group.add(post);
+      }
+      for (const y of [-0.28, 0.12, 0.48]) {
+        const rail = this.solidObstacle(new THREE.BoxGeometry(1.08, 0.07, 0.08), oxidizedSteel);
+        rail.position.set(0, y, 0.35);
+        group.add(rail);
+      }
+      const rockSpecs = [
+        [-0.35, -0.16, 0.29, 0.14],
+        [0.02, -0.12, 0.34, -0.22],
+        [0.36, -0.2, 0.25, 0.08],
+        [0.17, 0.18, 0.23, 0.37]
+      ];
+      for (const [x, y, scale, rotation] of rockSpecs) {
+        const rock = this.solidObstacle(new THREE.DodecahedronGeometry(scale, 0), x < 0 ? sandstone : sandstoneLight);
+        rock.position.set(x, y, 0.03);
+        rock.rotation.set(rotation * 0.4, rotation, rotation * 0.7);
+        rock.scale.set(1.18, 0.82, 0.92);
+        group.add(rock);
+      }
+    } else if (variant === 1) {
+      group.name = "desert_half_buried_pipeline";
+      for (const x of [-0.42, 0.42]) {
+        const saddle = this.solidObstacle(new THREE.BoxGeometry(0.18, 0.46, 0.72), sandstone);
+        saddle.position.set(x, -0.28, 0);
+        saddle.rotation.z = x < 0 ? -0.08 : 0.08;
+        group.add(saddle);
+      }
+      const pipe = this.solidObstacle(new THREE.CylinderGeometry(0.27, 0.27, 1.18, 16), fadedOchre);
+      pipe.rotation.z = Math.PI / 2;
+      pipe.position.y = -0.02;
+      group.add(pipe);
+      for (const x of [-0.61, 0.61]) {
+        const flange = this.solidObstacle(new THREE.CylinderGeometry(0.35, 0.35, 0.1, 16), oxidizedSteel);
+        flange.rotation.z = Math.PI / 2;
+        flange.position.set(x, -0.02, 0);
+        group.add(flange);
+        for (const z of [-0.23, 0.23]) {
+          const bolt = this.solidObstacle(new THREE.CylinderGeometry(0.026, 0.026, 0.12, 7), darkSteel);
+          bolt.rotation.z = Math.PI / 2;
+          bolt.position.set(x * 1.05, -0.02, z);
+          group.add(bolt);
+        }
+      }
+      const riser = this.solidObstacle(new THREE.CylinderGeometry(0.11, 0.14, 0.52, 12), oxidizedSteel);
+      riser.position.set(0.2, 0.41, 0);
+      group.add(riser);
+      const valve = this.solidObstacle(new THREE.TorusGeometry(0.2, 0.035, 7, 16), darkSteel);
+      valve.position.set(0.2, 0.69, 0);
+      valve.rotation.x = Math.PI / 2;
+      group.add(valve);
+      for (const angle of [0, Math.PI / 2]) {
+        const spoke = this.solidObstacle(new THREE.BoxGeometry(0.34, 0.035, 0.035), darkSteel);
+        spoke.position.copy(valve.position);
+        spoke.rotation.z = angle;
+        group.add(spoke);
+      }
+    } else if (variant === 2) {
+      group.name = "desert_survey_sled";
+      const sled = this.solidObstacle(new THREE.BoxGeometry(1.16, 0.16, 0.84), darkSteel);
+      sled.position.y = -0.45;
+      group.add(sled);
+      for (const x of [-0.48, 0.48]) {
+        const runner = this.solidObstacle(new THREE.BoxGeometry(0.1, 0.18, 1), oxidizedSteel);
+        runner.position.set(x, -0.48, 0);
+        runner.rotation.z = x < 0 ? -0.04 : 0.04;
+        group.add(runner);
+      }
+      for (const x of [-0.31, 0.31]) {
+        const support = this.solidObstacle(new THREE.BoxGeometry(0.06, 0.48, 0.08), fadedOchre);
+        support.position.set(x, -0.14, -0.05);
+        support.rotation.z = x < 0 ? -0.18 : 0.18;
+        group.add(support);
+        const panel = this.solidObstacle(new THREE.BoxGeometry(0.54, 0.42, 0.055), fadedBlue);
+        panel.position.set(x, 0.11, 0.04);
+        panel.rotation.z = x < 0 ? -0.18 : 0.18;
+        panel.rotation.x = -0.24;
+        group.add(panel);
+        for (const strip of [-0.12, 0.12]) {
+          const cell = this.solidObstacle(new THREE.BoxGeometry(0.025, 0.35, 0.012), glass);
+          cell.position.set(x + strip, 0.11 + (x < 0 ? -strip * 0.18 : strip * 0.18), 0.073);
+          cell.rotation.copy(panel.rotation);
+          group.add(cell);
+        }
+      }
+      const mast = this.solidObstacle(new THREE.CylinderGeometry(0.035, 0.05, 0.74, 8), darkSteel);
+      mast.position.set(0, 0.38, -0.24);
+      group.add(mast);
+      const sensor = this.solidObstacle(new THREE.BoxGeometry(0.3, 0.16, 0.2), fadedOchre);
+      sensor.position.set(0, 0.76, -0.24);
+      group.add(sensor);
+      const lens = this.solidObstacle(new THREE.CylinderGeometry(0.06, 0.06, 0.06, 10), glass);
+      lens.rotation.x = Math.PI / 2;
+      lens.position.set(0, 0.76, -0.36);
+      group.add(lens);
+    } else if (variant === 3) {
+      group.name = "desert_collapsed_route_marker";
+      const footing = this.solidObstacle(new THREE.BoxGeometry(1.2, 0.18, 0.78), sandstone);
+      footing.position.y = -0.45;
+      group.add(footing);
+      for (const x of [-0.48, 0.48]) {
+        const post = this.solidObstacle(new THREE.BoxGeometry(0.14, 0.98, 0.14), oxidizedSteel);
+        post.position.set(x, 0, 0);
+        post.rotation.z = x < 0 ? -0.15 : 0.1;
+        group.add(post);
+        const foot = this.solidObstacle(new THREE.BoxGeometry(0.34, 0.1, 0.5), darkSteel);
+        foot.position.set(x, -0.48, 0);
+        group.add(foot);
+      }
+      const crossbar = this.solidObstacle(new THREE.BoxGeometry(1.06, 0.12, 0.14), fadedOchre);
+      crossbar.position.set(0, 0.43, 0);
+      crossbar.rotation.z = -0.04;
+      group.add(crossbar);
+      for (const x of [-0.28, 0.24]) {
+        const markerPanel = this.solidObstacle(new THREE.BoxGeometry(0.39, 0.28, 0.07), x < 0 ? fadedBlue : fadedOchre);
+        markerPanel.position.set(x, 0.18 + x * -0.16, 0.04);
+        markerPanel.rotation.z = x < 0 ? 0.1 : -0.13;
+        group.add(markerPanel);
+      }
+      const beaconBase = this.solidObstacle(new THREE.CylinderGeometry(0.1, 0.13, 0.11, 10), darkSteel);
+      beaconBase.position.set(-0.48, 0.58, 0);
+      group.add(beaconBase);
+      const beacon = this.solidObstacle(new THREE.SphereGeometry(0.075, 9, 6), lamp);
+      beacon.position.set(-0.48, 0.68, 0);
+      group.add(beacon);
+    } else {
+      group.name = "desert_abandoned_rover";
+      const chassis = this.solidObstacle(new THREE.BoxGeometry(1.1, 0.28, 0.72), oxidizedSteel);
+      chassis.position.y = -0.18;
+      chassis.rotation.z = -0.06;
+      group.add(chassis);
+      for (const x of [-0.52, 0.52]) {
+        for (const z of [-0.3, 0.3]) {
+          const wheel = this.solidObstacle(new THREE.CylinderGeometry(0.2, 0.2, 0.14, 12), darkSteel);
+          wheel.rotation.z = Math.PI / 2;
+          wheel.position.set(x, -0.34 + x * 0.05, z);
+          group.add(wheel);
+          const hub = this.solidObstacle(new THREE.CylinderGeometry(0.07, 0.07, 0.16, 9), fadedOchre);
+          hub.rotation.z = Math.PI / 2;
+          hub.position.copy(wheel.position);
+          group.add(hub);
+        }
+      }
+      const cabin = this.solidObstacle(new THREE.BoxGeometry(0.58, 0.42, 0.58), fadedOchre);
+      cabin.position.set(-0.19, 0.16, -0.02);
+      cabin.rotation.z = -0.06;
+      group.add(cabin);
+      const windshield = this.solidObstacle(new THREE.BoxGeometry(0.38, 0.18, 0.025), glass);
+      windshield.position.set(-0.19, 0.23, 0.285);
+      windshield.rotation.z = -0.06;
+      group.add(windshield);
+      const cargo = this.solidObstacle(new THREE.CylinderGeometry(0.17, 0.17, 0.54, 12), fadedBlue);
+      cargo.rotation.x = Math.PI / 2;
+      cargo.position.set(0.34, 0.15, -0.08);
+      group.add(cargo);
+      for (const z of [-0.31, 0.15]) {
+        const cargoBand = this.solidObstacle(new THREE.TorusGeometry(0.18, 0.025, 6, 12), darkSteel);
+        cargoBand.position.set(0.34, 0.15, z);
+        group.add(cargoBand);
+      }
+      const antenna = this.solidObstacle(new THREE.CylinderGeometry(0.014, 0.024, 0.52, 7), darkSteel);
+      antenna.position.set(-0.35, 0.62, -0.18);
+      antenna.rotation.z = 0.18;
+      group.add(antenna);
+      const antennaTip = this.solidObstacle(new THREE.SphereGeometry(0.04, 7, 5), lamp);
+      antennaTip.position.set(-0.4, 0.87, -0.18);
+      group.add(antennaTip);
     }
     group.scale.setScalar(1.3);
     return group;
@@ -18348,6 +19398,154 @@ class ObstacleManager {
     for (const texture of this.scoreTextures.values()) texture.dispose();
     this.scoreTextures.clear();
   }
+}
+function mergeGeometries(geometries, useGroups = false) {
+  const isIndexed = geometries[0].index !== null;
+  const attributesUsed = new Set(Object.keys(geometries[0].attributes));
+  const morphAttributesUsed = new Set(Object.keys(geometries[0].morphAttributes));
+  const attributes = {};
+  const morphAttributes = {};
+  const morphTargetsRelative = geometries[0].morphTargetsRelative;
+  const mergedGeometry = new BufferGeometry();
+  let offset = 0;
+  for (let i = 0; i < geometries.length; ++i) {
+    const geometry = geometries[i];
+    let attributesCount = 0;
+    if (isIndexed !== (geometry.index !== null)) {
+      console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed with geometry at index " + i + ". All geometries must have compatible attributes; make sure index attribute exists among all geometries, or in none of them.");
+      return null;
+    }
+    for (const name in geometry.attributes) {
+      if (!attributesUsed.has(name)) {
+        console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed with geometry at index " + i + '. All geometries must have compatible attributes; make sure "' + name + '" attribute exists among all geometries, or in none of them.');
+        return null;
+      }
+      if (attributes[name] === void 0) attributes[name] = [];
+      attributes[name].push(geometry.attributes[name]);
+      attributesCount++;
+    }
+    if (attributesCount !== attributesUsed.size) {
+      console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed with geometry at index " + i + ". Make sure all geometries have the same number of attributes.");
+      return null;
+    }
+    if (morphTargetsRelative !== geometry.morphTargetsRelative) {
+      console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed with geometry at index " + i + ". .morphTargetsRelative must be consistent throughout all geometries.");
+      return null;
+    }
+    for (const name in geometry.morphAttributes) {
+      if (!morphAttributesUsed.has(name)) {
+        console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed with geometry at index " + i + ".  .morphAttributes must be consistent throughout all geometries.");
+        return null;
+      }
+      if (morphAttributes[name] === void 0) morphAttributes[name] = [];
+      morphAttributes[name].push(geometry.morphAttributes[name]);
+    }
+    if (useGroups) {
+      let count;
+      if (isIndexed) {
+        count = geometry.index.count;
+      } else if (geometry.attributes.position !== void 0) {
+        count = geometry.attributes.position.count;
+      } else {
+        console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed with geometry at index " + i + ". The geometry must have either an index or a position attribute");
+        return null;
+      }
+      mergedGeometry.addGroup(offset, count, i);
+      offset += count;
+    }
+  }
+  if (isIndexed) {
+    let indexOffset = 0;
+    const mergedIndex = [];
+    for (let i = 0; i < geometries.length; ++i) {
+      const index = geometries[i].index;
+      for (let j = 0; j < index.count; ++j) {
+        mergedIndex.push(index.getX(j) + indexOffset);
+      }
+      indexOffset += geometries[i].attributes.position.count;
+    }
+    mergedGeometry.setIndex(mergedIndex);
+  }
+  for (const name in attributes) {
+    const mergedAttribute = mergeAttributes(attributes[name]);
+    if (!mergedAttribute) {
+      console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed while trying to merge the " + name + " attribute.");
+      return null;
+    }
+    mergedGeometry.setAttribute(name, mergedAttribute);
+  }
+  for (const name in morphAttributes) {
+    const numMorphTargets = morphAttributes[name][0].length;
+    if (numMorphTargets === 0) break;
+    mergedGeometry.morphAttributes = mergedGeometry.morphAttributes || {};
+    mergedGeometry.morphAttributes[name] = [];
+    for (let i = 0; i < numMorphTargets; ++i) {
+      const morphAttributesToMerge = [];
+      for (let j = 0; j < morphAttributes[name].length; ++j) {
+        morphAttributesToMerge.push(morphAttributes[name][j][i]);
+      }
+      const mergedMorphAttribute = mergeAttributes(morphAttributesToMerge);
+      if (!mergedMorphAttribute) {
+        console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed while trying to merge the " + name + " morphAttribute.");
+        return null;
+      }
+      mergedGeometry.morphAttributes[name].push(mergedMorphAttribute);
+    }
+  }
+  return mergedGeometry;
+}
+function mergeAttributes(attributes) {
+  let TypedArray;
+  let itemSize;
+  let normalized;
+  let gpuType = -1;
+  let arrayLength = 0;
+  for (let i = 0; i < attributes.length; ++i) {
+    const attribute = attributes[i];
+    if (TypedArray === void 0) TypedArray = attribute.array.constructor;
+    if (TypedArray !== attribute.array.constructor) {
+      console.error("THREE.BufferGeometryUtils: .mergeAttributes() failed. BufferAttribute.array must be of consistent array types across matching attributes.");
+      return null;
+    }
+    if (itemSize === void 0) itemSize = attribute.itemSize;
+    if (itemSize !== attribute.itemSize) {
+      console.error("THREE.BufferGeometryUtils: .mergeAttributes() failed. BufferAttribute.itemSize must be consistent across matching attributes.");
+      return null;
+    }
+    if (normalized === void 0) normalized = attribute.normalized;
+    if (normalized !== attribute.normalized) {
+      console.error("THREE.BufferGeometryUtils: .mergeAttributes() failed. BufferAttribute.normalized must be consistent across matching attributes.");
+      return null;
+    }
+    if (gpuType === -1) gpuType = attribute.gpuType;
+    if (gpuType !== attribute.gpuType) {
+      console.error("THREE.BufferGeometryUtils: .mergeAttributes() failed. BufferAttribute.gpuType must be consistent across matching attributes.");
+      return null;
+    }
+    arrayLength += attribute.count * itemSize;
+  }
+  const array = new TypedArray(arrayLength);
+  const result = new BufferAttribute(array, itemSize, normalized);
+  let offset = 0;
+  for (let i = 0; i < attributes.length; ++i) {
+    const attribute = attributes[i];
+    if (attribute.isInterleavedBufferAttribute) {
+      const tupleOffset = offset / itemSize;
+      for (let j = 0, l = attribute.count; j < l; j++) {
+        for (let c = 0; c < itemSize; c++) {
+          const value = attribute.getComponent(j, c);
+          result.setComponent(j + tupleOffset, c, value);
+        }
+      }
+    } else {
+      array.set(attribute.array, offset);
+    }
+    offset += attribute.count * itemSize;
+  }
+  if (gpuType !== void 0) {
+    result.gpuType = gpuType;
+  }
+  return result;
 }
 function toTrianglesDrawMode(geometry, drawMode) {
   if (drawMode === TrianglesDrawMode) {
@@ -21223,6 +22421,623 @@ function createTwinRailVehicle() {
     thrusterMaterials: [leftThrusterMaterial, rightThrusterMaterial]
   };
 }
+const GHOST_CAPACITY = 10;
+const GHOST_EMISSION_END = 0.9;
+const GHOST_SPACING = 3.8;
+const GHOST_MAX_INTERVAL = 0.078;
+const RIBBON_EMISSION_END = 0.95;
+const FINISH_EFFECT_DELAY = 0.2;
+const RIBBON_POINT_CAPACITY = 64;
+const RIBBON_LIFETIME = 0.96;
+const RIBBON_SAMPLE_SPACING = 1.15;
+const RIBBON_MAX_INTERVAL = 0.034;
+class FinishJetRibbon {
+  constructor(scene, outerMaterial, coreMaterial, name) {
+    __publicField(this, "points", []);
+    __publicField(this, "sampleClock", 0);
+    __publicField(this, "outerGeometry", this.createGeometry());
+    __publicField(this, "coreGeometry", this.createGeometry());
+    __publicField(this, "outerPositions", this.outerGeometry.getAttribute("position"));
+    __publicField(this, "outerColors", this.outerGeometry.getAttribute("color"));
+    __publicField(this, "corePositions", this.coreGeometry.getAttribute("position"));
+    __publicField(this, "coreColors", this.coreGeometry.getAttribute("color"));
+    __publicField(this, "outerMesh");
+    __publicField(this, "coreMesh");
+    __publicField(this, "tangent", new THREE.Vector3());
+    __publicField(this, "side", new THREE.Vector3());
+    this.outerMesh = new THREE.Mesh(this.outerGeometry, outerMaterial);
+    this.outerMesh.name = `${name}_outer`;
+    this.outerMesh.frustumCulled = false;
+    this.outerMesh.renderOrder = 6;
+    this.coreMesh = new THREE.Mesh(this.coreGeometry, coreMaterial);
+    this.coreMesh.name = `${name}_core`;
+    this.coreMesh.frustumCulled = false;
+    this.coreMesh.renderOrder = 7;
+    scene.add(this.outerMesh, this.coreMesh);
+  }
+  createGeometry() {
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute(
+      "position",
+      new THREE.BufferAttribute(new Float32Array(RIBBON_POINT_CAPACITY * 2 * 3), 3)
+    );
+    geometry.setAttribute(
+      "color",
+      new THREE.BufferAttribute(new Float32Array(RIBBON_POINT_CAPACITY * 2 * 3), 3)
+    );
+    const indices = [];
+    for (let index = 0; index < RIBBON_POINT_CAPACITY - 1; index++) {
+      const offset = index * 2;
+      indices.push(offset, offset + 1, offset + 2, offset + 1, offset + 3, offset + 2);
+    }
+    geometry.setIndex(indices);
+    geometry.setDrawRange(0, 0);
+    return geometry;
+  }
+  update(delta, source) {
+    var _a;
+    this.sampleClock += delta;
+    for (const point of this.points) point.age += delta;
+    while (((_a = this.points[0]) == null ? void 0 : _a.age) >= RIBBON_LIFETIME) this.points.shift();
+    if (source) {
+      const latest = this.points[this.points.length - 1];
+      const moved = latest ? latest.position.distanceTo(source) : Number.POSITIVE_INFINITY;
+      if (moved >= RIBBON_SAMPLE_SPACING || this.sampleClock >= RIBBON_MAX_INTERVAL) {
+        this.points.push({ position: source.clone(), age: 0 });
+        if (this.points.length > RIBBON_POINT_CAPACITY) this.points.shift();
+        this.sampleClock = 0;
+      }
+    }
+    this.updateGeometry(this.outerPositions, this.outerColors, 0.44, [1.08, 0.1, 8e-3]);
+    this.updateGeometry(this.corePositions, this.coreColors, 0.082, [1.2, 0.5, 0.09]);
+    const indexCount = Math.max(0, this.points.length - 1) * 6;
+    this.outerGeometry.setDrawRange(0, indexCount);
+    this.coreGeometry.setDrawRange(0, indexCount);
+  }
+  updateGeometry(positions, colors, baseWidth, baseColor) {
+    const lastIndex = Math.max(1, this.points.length - 1);
+    for (let index = 0; index < this.points.length; index++) {
+      const point = this.points[index];
+      const previous = this.points[Math.max(0, index - 1)].position;
+      const next = this.points[Math.min(this.points.length - 1, index + 1)].position;
+      this.tangent.copy(next).sub(previous);
+      this.tangent.y = 0;
+      if (this.tangent.lengthSq() < 1e-4) this.tangent.set(0, 0, 1);
+      this.tangent.normalize();
+      this.side.set(this.tangent.z, 0, -this.tangent.x);
+      const headProgress = index / lastIndex;
+      const lifetimeFade = THREE.MathUtils.clamp(1 - point.age / RIBBON_LIFETIME, 0, 1);
+      const trailEnvelope = Math.pow(headProgress, 0.34);
+      const intensity = Math.pow(lifetimeFade, 0.72) * trailEnvelope;
+      const halfWidth = baseWidth * (0.18 + lifetimeFade * 0.82) * (0.55 + trailEnvelope * 0.45) * 0.5;
+      for (let sideIndex = 0; sideIndex < 2; sideIndex++) {
+        const sign = sideIndex === 0 ? -1 : 1;
+        const vertexIndex = index * 2 + sideIndex;
+        positions.setXYZ(
+          vertexIndex,
+          point.position.x + this.side.x * halfWidth * sign,
+          point.position.y,
+          point.position.z + this.side.z * halfWidth * sign
+        );
+        colors.setXYZ(
+          vertexIndex,
+          baseColor[0] * intensity,
+          baseColor[1] * intensity,
+          baseColor[2] * intensity
+        );
+      }
+    }
+    positions.needsUpdate = true;
+    colors.needsUpdate = true;
+  }
+  reset() {
+    this.points.length = 0;
+    this.sampleClock = 0;
+    this.outerGeometry.setDrawRange(0, 0);
+    this.coreGeometry.setDrawRange(0, 0);
+  }
+  dispose() {
+    this.outerGeometry.dispose();
+    this.coreGeometry.dispose();
+    this.outerMesh.removeFromParent();
+    this.coreMesh.removeFromParent();
+  }
+}
+class FinishAfterimageEffect {
+  constructor(scene) {
+    __publicField(this, "ghostMaterial", new THREE.ShaderMaterial({
+      transparent: true,
+      depthWrite: false,
+      depthTest: true,
+      side: THREE.DoubleSide,
+      blending: THREE.AdditiveBlending,
+      toneMapped: false,
+      vertexShader: `
+            attribute float echoLife;
+            attribute float echoSeed;
+            varying float vEchoLife;
+            varying float vEchoSeed;
+            varying vec3 vViewNormal;
+            varying vec3 vViewDirection;
+
+            void main() {
+                vec4 viewPosition = modelViewMatrix * instanceMatrix * vec4(position, 1.0);
+                vEchoLife = echoLife;
+                vEchoSeed = echoSeed;
+                vViewNormal = normalize(normalMatrix * mat3(instanceMatrix) * normal);
+                vViewDirection = normalize(-viewPosition.xyz);
+                gl_Position = projectionMatrix * viewPosition;
+            }
+        `,
+      fragmentShader: `
+            varying float vEchoLife;
+            varying float vEchoSeed;
+            varying vec3 vViewNormal;
+            varying vec3 vViewDirection;
+
+            void main() {
+                float fresnel = pow(1.0 - abs(dot(normalize(vViewNormal), normalize(vViewDirection))), 1.42);
+                float scan = 0.86 + 0.14 * sin(gl_FragCoord.y * 0.31 + vEchoSeed * 6.28318);
+                float breakup = 0.94 + 0.06 * sin(
+                    gl_FragCoord.x * 0.19 + gl_FragCoord.y * 0.13 + vEchoSeed * 17.0
+                );
+                float alpha = vEchoLife * (0.021 + fresnel * 0.15) * scan * breakup;
+                vec3 edgeColor = vec3(0.74, 0.98, 1.0);
+                vec3 coreColor = vec3(0.28, 0.82, 0.94);
+                vec3 color = mix(coreColor, edgeColor, 0.38 + fresnel * 0.62);
+                gl_FragColor = vec4(color, alpha);
+            }
+        `
+    }));
+    __publicField(this, "outerRibbonMaterial", new THREE.MeshBasicMaterial({
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.5,
+      depthWrite: false,
+      depthTest: true,
+      side: THREE.DoubleSide,
+      blending: THREE.AdditiveBlending,
+      toneMapped: false
+    }));
+    __publicField(this, "coreRibbonMaterial", new THREE.MeshBasicMaterial({
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.58,
+      depthWrite: false,
+      depthTest: true,
+      side: THREE.DoubleSide,
+      blending: THREE.AdditiveBlending,
+      toneMapped: false
+    }));
+    __publicField(this, "ghostMesh", null);
+    __publicField(this, "ghostLifeValues", new Float32Array(GHOST_CAPACITY));
+    __publicField(this, "ghostSeedValues", new Float32Array(GHOST_CAPACITY));
+    __publicField(this, "ghostAges", new Float32Array(GHOST_CAPACITY).fill(-1));
+    __publicField(this, "ghostLifetimes", new Float32Array(GHOST_CAPACITY));
+    __publicField(this, "ghostCursor", 0);
+    __publicField(this, "ghostClock", 0);
+    __publicField(this, "emissionElapsed", 0);
+    __publicField(this, "hasGhostSample", false);
+    __publicField(this, "lastGhostPosition", new THREE.Vector3());
+    __publicField(this, "currentPosition", new THREE.Vector3());
+    __publicField(this, "hiddenMatrix", new THREE.Matrix4().makeTranslation(0, -1e4, 0));
+    __publicField(this, "inverseRootMatrix", new THREE.Matrix4());
+    __publicField(this, "localMatrix", new THREE.Matrix4());
+    __publicField(this, "ribbons");
+    this.scene = scene;
+    this.ribbons = [
+      new FinishJetRibbon(scene, this.outerRibbonMaterial, this.coreRibbonMaterial, "finish_jet_left"),
+      new FinishJetRibbon(scene, this.outerRibbonMaterial, this.coreRibbonMaterial, "finish_jet_right")
+    ];
+  }
+  begin(vehicleRoot, transformRoot) {
+    this.reset();
+    this.rebuildGhostGeometry(vehicleRoot, transformRoot);
+  }
+  rebuildGhostGeometry(vehicleRoot, transformRoot) {
+    var _a, _b;
+    (_a = this.ghostMesh) == null ? void 0 : _a.geometry.dispose();
+    (_b = this.ghostMesh) == null ? void 0 : _b.removeFromParent();
+    this.ghostMesh = null;
+    transformRoot.updateWorldMatrix(true, true);
+    vehicleRoot.updateWorldMatrix(true, true);
+    this.inverseRootMatrix.copy(transformRoot.matrixWorld).invert();
+    const sourceGeometries = [];
+    vehicleRoot.traverse((child) => {
+      if (!(child instanceof THREE.Mesh) || !child.visible) return;
+      child.updateWorldMatrix(true, false);
+      this.localMatrix.multiplyMatrices(this.inverseRootMatrix, child.matrixWorld);
+      let geometry = child.geometry.clone();
+      for (const attributeName of Object.keys(geometry.attributes)) {
+        if (attributeName !== "position" && attributeName !== "normal") {
+          geometry.deleteAttribute(attributeName);
+        }
+      }
+      geometry.morphAttributes = {};
+      geometry.clearGroups();
+      if (!geometry.getAttribute("normal")) geometry.computeVertexNormals();
+      if (geometry.index) {
+        const nonIndexed = geometry.toNonIndexed();
+        geometry.dispose();
+        geometry = nonIndexed;
+      }
+      geometry.applyMatrix4(this.localMatrix);
+      sourceGeometries.push(geometry);
+    });
+    const mergedGeometry = mergeGeometries(sourceGeometries, false);
+    for (const geometry of sourceGeometries) geometry.dispose();
+    if (!mergedGeometry) return;
+    mergedGeometry.computeBoundingSphere();
+    mergedGeometry.setAttribute(
+      "echoLife",
+      new THREE.InstancedBufferAttribute(this.ghostLifeValues, 1).setUsage(THREE.DynamicDrawUsage)
+    );
+    mergedGeometry.setAttribute(
+      "echoSeed",
+      new THREE.InstancedBufferAttribute(this.ghostSeedValues, 1).setUsage(THREE.DynamicDrawUsage)
+    );
+    this.ghostMesh = new THREE.InstancedMesh(mergedGeometry, this.ghostMaterial, GHOST_CAPACITY);
+    this.ghostMesh.name = "finish_vehicle_afterimages";
+    this.ghostMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    this.ghostMesh.frustumCulled = false;
+    this.ghostMesh.renderOrder = 5;
+    for (let index = 0; index < GHOST_CAPACITY; index++) {
+      this.ghostMesh.setMatrixAt(index, this.hiddenMatrix);
+    }
+    this.ghostMesh.instanceMatrix.needsUpdate = true;
+    this.scene.add(this.ghostMesh);
+  }
+  update(delta, active, progress, vehicleMatrix, socketPositions) {
+    this.updateGhostAges(delta);
+    const accelerationActive = active && progress > 0;
+    this.emissionElapsed = accelerationActive ? this.emissionElapsed + delta : 0;
+    const delayedEmission = accelerationActive && this.emissionElapsed >= FINISH_EFFECT_DELAY;
+    const emitRibbon = delayedEmission && progress <= RIBBON_EMISSION_END;
+    for (let index = 0; index < this.ribbons.length; index++) {
+      this.ribbons[index].update(delta, emitRibbon ? socketPositions[index] ?? null : null);
+    }
+    if (!delayedEmission || progress > GHOST_EMISSION_END) return;
+    this.ghostClock += delta;
+    this.currentPosition.setFromMatrixPosition(vehicleMatrix);
+    const distance = this.hasGhostSample ? this.currentPosition.distanceTo(this.lastGhostPosition) : Number.POSITIVE_INFINITY;
+    if (distance < GHOST_SPACING && this.ghostClock < GHOST_MAX_INTERVAL) return;
+    this.spawnGhost(vehicleMatrix, progress);
+    this.lastGhostPosition.copy(this.currentPosition);
+    this.hasGhostSample = true;
+    this.ghostClock = 0;
+  }
+  updateGhostAges(delta) {
+    if (!this.ghostMesh) return;
+    let matrixChanged = false;
+    for (let index = 0; index < GHOST_CAPACITY; index++) {
+      if (this.ghostAges[index] < 0) continue;
+      this.ghostAges[index] += delta;
+      const fade = Math.max(0, 1 - this.ghostAges[index] / this.ghostLifetimes[index]);
+      this.ghostLifeValues[index] = Math.pow(fade, 1.28);
+      if (fade <= 0) {
+        this.ghostAges[index] = -1;
+        this.ghostMesh.setMatrixAt(index, this.hiddenMatrix);
+        matrixChanged = true;
+      }
+    }
+    const lifeAttribute = this.ghostMesh.geometry.getAttribute("echoLife");
+    lifeAttribute.needsUpdate = true;
+    if (matrixChanged) this.ghostMesh.instanceMatrix.needsUpdate = true;
+  }
+  spawnGhost(matrix, progress) {
+    if (!this.ghostMesh) return;
+    const index = this.ghostCursor;
+    this.ghostAges[index] = 0;
+    this.ghostLifetimes[index] = progress >= 0.18 && progress <= 0.84 ? 0.78 : 0.64;
+    this.ghostLifeValues[index] = 1;
+    this.ghostSeedValues[index] = Math.random();
+    this.ghostMesh.setMatrixAt(index, matrix);
+    this.ghostMesh.instanceMatrix.needsUpdate = true;
+    this.ghostMesh.geometry.getAttribute("echoLife").needsUpdate = true;
+    this.ghostMesh.geometry.getAttribute("echoSeed").needsUpdate = true;
+    this.ghostCursor = (this.ghostCursor + 1) % GHOST_CAPACITY;
+  }
+  reset() {
+    this.ghostAges.fill(-1);
+    this.ghostLifeValues.fill(0);
+    this.ghostCursor = 0;
+    this.ghostClock = 0;
+    this.emissionElapsed = 0;
+    this.hasGhostSample = false;
+    if (this.ghostMesh) {
+      for (let index = 0; index < GHOST_CAPACITY; index++) {
+        this.ghostMesh.setMatrixAt(index, this.hiddenMatrix);
+      }
+      this.ghostMesh.instanceMatrix.needsUpdate = true;
+      const lifeAttribute = this.ghostMesh.geometry.getAttribute("echoLife");
+      lifeAttribute.needsUpdate = true;
+    }
+    for (const ribbon of this.ribbons) ribbon.reset();
+  }
+  dispose() {
+    var _a, _b;
+    (_a = this.ghostMesh) == null ? void 0 : _a.geometry.dispose();
+    (_b = this.ghostMesh) == null ? void 0 : _b.removeFromParent();
+    this.ghostMaterial.dispose();
+    this.outerRibbonMaterial.dispose();
+    this.coreRibbonMaterial.dispose();
+    for (const ribbon of this.ribbons) ribbon.dispose();
+  }
+}
+const PLUME_SEGMENTS = 12;
+const PLUME_PLANES = 3;
+const createJetMaterial = (baseColor, tipColor, alpha, intensity) => new THREE.ShaderMaterial({
+  uniforms: {
+    uTime: { value: 0 },
+    uPower: { value: 0 },
+    uAlpha: { value: alpha },
+    uIntensity: { value: intensity },
+    uBaseColor: { value: new THREE.Color(baseColor) },
+    uTipColor: { value: new THREE.Color(tipColor) }
+  },
+  vertexShader: `
+        varying vec2 vUv;
+
+        void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    `,
+  fragmentShader: `
+        uniform float uTime;
+        uniform float uPower;
+        uniform float uAlpha;
+        uniform float uIntensity;
+        uniform vec3 uBaseColor;
+        uniform vec3 uTipColor;
+        varying vec2 vUv;
+
+        void main() {
+            float progress = vUv.y;
+            float across = abs(vUv.x * 2.0 - 1.0);
+            float broadFlow = sin(uTime * 19.0 - progress * 15.0)
+                * sin(uTime * 11.0 + progress * 27.0);
+            float fineFlow = sin(uTime * 37.0 - progress * 43.0 + across * 7.0);
+            float edgePosition = across
+                + broadFlow * (0.09 + progress * 0.08)
+                + fineFlow * 0.035;
+            float softEdge = pow(1.0 - smoothstep(0.08, 1.18, edgePosition), 2.15);
+            float rootFade = smoothstep(0.0, 0.045, progress);
+            float tipFade = 1.0 - smoothstep(0.34, 1.0, progress);
+            float breakup = 0.66
+                + 0.2 * sin(uTime * (22.0 + uPower * 9.0) - progress * 21.0)
+                + 0.14 * sin(uTime * 41.0 - progress * 47.0 + across * 6.0);
+            float alpha = uAlpha
+                * softEdge
+                * rootFade
+                * tipFade
+                * clamp(breakup, 0.18, 1.0);
+            vec3 color = mix(uBaseColor, uTipColor, pow(progress, 0.52));
+            float heat = uIntensity * (0.96 + uPower * 0.12) * (1.04 - progress * 0.16);
+            gl_FragColor = vec4(color * heat, alpha);
+        }
+    `,
+  transparent: true,
+  depthWrite: false,
+  depthTest: true,
+  side: THREE.DoubleSide,
+  blending: THREE.AdditiveBlending,
+  toneMapped: false
+});
+const createCrossedRibbonGeometry = () => {
+  const vertexCount = PLUME_PLANES * (PLUME_SEGMENTS + 1) * 2;
+  const positions = new Float32Array(vertexCount * 3);
+  const uvs = new Float32Array(vertexCount * 2);
+  const indices = [];
+  for (let plane = 0; plane < PLUME_PLANES; plane++) {
+    const planeOffset = plane * (PLUME_SEGMENTS + 1) * 2;
+    for (let segment = 0; segment <= PLUME_SEGMENTS; segment++) {
+      const progress = segment / PLUME_SEGMENTS;
+      const vertexOffset = (planeOffset + segment * 2) * 2;
+      uvs[vertexOffset] = 0;
+      uvs[vertexOffset + 1] = progress;
+      uvs[vertexOffset + 2] = 1;
+      uvs[vertexOffset + 3] = progress;
+      if (segment >= PLUME_SEGMENTS) continue;
+      const index = planeOffset + segment * 2;
+      indices.push(index, index + 1, index + 2, index + 1, index + 3, index + 2);
+    }
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3).setUsage(THREE.DynamicDrawUsage));
+  geometry.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
+  geometry.setIndex(indices);
+  return geometry;
+};
+class CurvedJetPlume {
+  constructor(scene, outerMaterial, coreMaterial, index) {
+    __publicField(this, "outerGeometry", createCrossedRibbonGeometry());
+    __publicField(this, "coreGeometry", createCrossedRibbonGeometry());
+    __publicField(this, "outerPositions", this.outerGeometry.getAttribute("position"));
+    __publicField(this, "corePositions", this.coreGeometry.getAttribute("position"));
+    __publicField(this, "outerMesh");
+    __publicField(this, "coreMesh");
+    __publicField(this, "center", new THREE.Vector3());
+    __publicField(this, "direction", new THREE.Vector3());
+    __publicField(this, "verticalDirection", new THREE.Vector3());
+    __publicField(this, "widthDirection", new THREE.Vector3());
+    __publicField(this, "flowSeed");
+    this.outerMesh = new THREE.Mesh(this.outerGeometry, outerMaterial);
+    this.outerMesh.name = `thruster_jet_outer_${index}`;
+    this.outerMesh.frustumCulled = false;
+    this.outerMesh.renderOrder = 4;
+    this.coreMesh = new THREE.Mesh(this.coreGeometry, coreMaterial);
+    this.coreMesh.name = `thruster_jet_core_${index}`;
+    this.coreMesh.frustumCulled = false;
+    this.coreMesh.renderOrder = 5;
+    this.flowSeed = index * 2.17 + 0.73;
+    scene.add(this.outerMesh, this.coreMesh);
+  }
+  update(visible, socket, rearDirection, lagDirection, sideDirection, lateralVelocity, outerLength, coreLength, outerRadius, coreRadius, pulse, flowTime) {
+    this.outerMesh.visible = visible && Boolean(socket);
+    this.coreMesh.visible = visible && Boolean(socket);
+    if (!visible || !socket) return;
+    this.verticalDirection.crossVectors(rearDirection, sideDirection).normalize();
+    this.updateGeometry(
+      this.outerPositions,
+      socket,
+      rearDirection,
+      lagDirection,
+      sideDirection,
+      lateralVelocity,
+      outerLength,
+      outerRadius,
+      outerLength,
+      outerRadius,
+      pulse,
+      flowTime
+    );
+    this.updateGeometry(
+      this.corePositions,
+      socket,
+      rearDirection,
+      lagDirection,
+      sideDirection,
+      lateralVelocity,
+      coreLength,
+      coreRadius,
+      outerLength,
+      outerRadius,
+      pulse,
+      flowTime
+    );
+  }
+  updateGeometry(positions, socket, rearDirection, lagDirection, sideDirection, lateralVelocity, length, radius, referenceLength, referenceRadius, pulse, flowTime) {
+    for (let plane = 0; plane < PLUME_PLANES; plane++) {
+      const planeAngle = plane * Math.PI / PLUME_PLANES;
+      this.widthDirection.copy(sideDirection).multiplyScalar(Math.cos(planeAngle)).addScaledVector(this.verticalDirection, Math.sin(planeAngle)).normalize();
+      const planeOffset = plane * (PLUME_SEGMENTS + 1) * 2;
+      for (let segment = 0; segment <= PLUME_SEGMENTS; segment++) {
+        const progress = segment / PLUME_SEGMENTS;
+        const pathProgress = THREE.MathUtils.clamp(
+          progress * length / Math.max(referenceLength, 1e-3),
+          0,
+          1
+        );
+        const inertiaEnvelope = Math.pow(pathProgress, 1.65);
+        this.direction.copy(rearDirection).lerp(lagDirection, Math.pow(pathProgress, 1.32)).normalize();
+        const flowEnvelope = Math.sin(Math.PI * Math.min(pathProgress * 1.12, 1));
+        const flowWave = Math.sin(
+          flowTime * 31 - pathProgress * 21 + this.flowSeed
+        ) * Math.sin(
+          flowTime * 17 + pathProgress * 29 + this.flowSeed * 1.7
+        );
+        const verticalWave = Math.sin(
+          flowTime * 27 - pathProgress * 25 + this.flowSeed * 2.4
+        );
+        const stretch = 1 + flowWave * 0.018 * flowEnvelope;
+        this.center.copy(socket).addScaledVector(this.direction, length * progress * stretch).addScaledVector(sideDirection, -lateralVelocity * 0.035 * inertiaEnvelope).addScaledVector(sideDirection, referenceRadius * 0.08 * flowWave * flowEnvelope).addScaledVector(this.verticalDirection, referenceRadius * 0.055 * verticalWave * flowEnvelope);
+        const vaporEnvelope = 0.43 + Math.pow(Math.sin(Math.PI * progress), 0.72) * 0.55 + progress * 0.2;
+        const breathing = 0.95 + pulse * 0.035 + Math.sin(flowTime * 35 - pathProgress * 24 + this.flowSeed) * 0.075 + Math.sin(flowTime * 19 - pathProgress * 41) * 0.035;
+        const halfWidth = radius * vaporEnvelope * breathing;
+        const vertex = planeOffset + segment * 2;
+        positions.setXYZ(
+          vertex,
+          this.center.x - this.widthDirection.x * halfWidth,
+          this.center.y - this.widthDirection.y * halfWidth,
+          this.center.z - this.widthDirection.z * halfWidth
+        );
+        positions.setXYZ(
+          vertex + 1,
+          this.center.x + this.widthDirection.x * halfWidth,
+          this.center.y + this.widthDirection.y * halfWidth,
+          this.center.z + this.widthDirection.z * halfWidth
+        );
+      }
+    }
+    positions.needsUpdate = true;
+  }
+  dispose() {
+    this.outerGeometry.dispose();
+    this.coreGeometry.dispose();
+    this.outerMesh.removeFromParent();
+    this.coreMesh.removeFromParent();
+  }
+}
+class ThrusterJetEffect {
+  constructor(scene) {
+    __publicField(this, "outerMaterial", createJetMaterial("#ffd4aa", "#ff5a18", 0.1, 1.65));
+    __publicField(this, "coreMaterial", createJetMaterial("#fff7df", "#ffad42", 0.075, 1.82));
+    __publicField(this, "plumes");
+    __publicField(this, "lagDirection", new THREE.Vector3(0, 0, 1));
+    __publicField(this, "sideDirection", new THREE.Vector3(1, 0, 0));
+    __publicField(this, "displayedOuterLength", 0.34);
+    __publicField(this, "displayedOuterRadius", 0.11);
+    __publicField(this, "flowInitialized", false);
+    this.plumes = [
+      new CurvedJetPlume(scene, this.outerMaterial, this.coreMaterial, 0),
+      new CurvedJetPlume(scene, this.outerMaterial, this.coreMaterial, 1)
+    ];
+  }
+  update(delta, elapsedTime, visible, sockets, rearDirection, lateralVelocity, boosted, boostStrength, finishMode, pulse, drivePower) {
+    const power = THREE.MathUtils.clamp(
+      boosted ? THREE.MathUtils.lerp(0.78, 1, boostStrength) : finishMode ? 0.86 : drivePower,
+      0,
+      1
+    );
+    const jetVisible = visible && power > 0.035;
+    this.outerMaterial.uniforms.uTime.value = elapsedTime;
+    this.coreMaterial.uniforms.uTime.value = elapsedTime;
+    this.outerMaterial.uniforms.uPower.value = power;
+    this.coreMaterial.uniforms.uPower.value = power;
+    this.outerMaterial.uniforms.uAlpha.value = (boosted ? 0.15 : finishMode ? 0.125 : 0.09) * power;
+    this.coreMaterial.uniforms.uAlpha.value = (boosted ? 0.105 : finishMode ? 0.09 : 0.062) * power;
+    if (!jetVisible || !this.flowInitialized) {
+      this.lagDirection.copy(rearDirection);
+      this.flowInitialized = jetVisible;
+    } else {
+      this.lagDirection.lerp(rearDirection, 1 - Math.exp(-4.4 * delta)).normalize();
+    }
+    this.sideDirection.set(rearDirection.z, 0, -rearDirection.x).normalize();
+    const steering = THREE.MathUtils.clamp(lateralVelocity / 8, -1, 1);
+    const targetOuterLength = finishMode ? 1.25 : boosted ? THREE.MathUtils.lerp(0.98, 1.58, boostStrength) * 0.8 : THREE.MathUtils.lerp(0.28, 0.74, power);
+    const targetOuterRadius = finishMode ? 0.2 : boosted ? THREE.MathUtils.lerp(0.17, 0.24, boostStrength) : THREE.MathUtils.lerp(0.1, 0.17, power);
+    this.displayedOuterLength = THREE.MathUtils.damp(
+      this.displayedOuterLength,
+      targetOuterLength,
+      6.2,
+      delta
+    );
+    this.displayedOuterRadius = THREE.MathUtils.damp(
+      this.displayedOuterRadius,
+      targetOuterRadius,
+      7.2,
+      delta
+    );
+    const coreBaseLength = this.displayedOuterLength * (boosted ? 0.5 : 0.46);
+    const coreBaseRadius = this.displayedOuterRadius * 0.42;
+    const pulseScale = 0.92 + pulse * 0.09;
+    for (let index = 0; index < this.plumes.length; index++) {
+      const thrusterSide = index === 0 ? -1 : 1;
+      const insideTurn = Math.max(0, steering * thrusterSide);
+      const outputScale = 1 - insideTurn * 0.22;
+      this.plumes[index].update(
+        jetVisible,
+        sockets[index],
+        rearDirection,
+        this.lagDirection,
+        this.sideDirection,
+        lateralVelocity,
+        this.displayedOuterLength * pulseScale * outputScale,
+        coreBaseLength * pulseScale * outputScale,
+        this.displayedOuterRadius * (1 - insideTurn * 0.08),
+        coreBaseRadius * (1 - insideTurn * 0.08),
+        pulse,
+        elapsedTime
+      );
+    }
+  }
+  dispose() {
+    this.outerMaterial.dispose();
+    this.coreMaterial.dispose();
+    for (const plume of this.plumes) plume.dispose();
+  }
+}
 const THRUSTER_PARTICLE_COUNT = 288;
 const THRUSTER_SPRAY_COUNT = 128;
 const CLEAR_EXIT_FORWARD_DISTANCE = 105;
@@ -21278,7 +23093,10 @@ class Player {
       blending: THREE.AdditiveBlending
     }));
     __publicField(this, "repairTime", 0);
+    __publicField(this, "jumpActive", false);
     __publicField(this, "jumpHeight", 0);
+    __publicField(this, "jumpClearance", 0);
+    __publicField(this, "jumpLaunchRoadElevation", 0);
     __publicField(this, "jumpVelocity", 0);
     __publicField(this, "jumpGravity", 9.4);
     __publicField(this, "jumpPeakHeight", 0);
@@ -21298,6 +23116,9 @@ class Player {
     __publicField(this, "landingReboundOffset", 0);
     __publicField(this, "clearExitProgress", 0);
     __publicField(this, "clearRoadOffset", 0);
+    __publicField(this, "finishMode", false);
+    __publicField(this, "finishAfterimage");
+    __publicField(this, "thrusterJet");
     __publicField(this, "thrusterSockets", []);
     __publicField(this, "weaponPods", []);
     __publicField(this, "thrusterLights", []);
@@ -21317,6 +23138,8 @@ class Player {
     __publicField(this, "thrusterSprayColors", new Float32Array(THRUSTER_SPRAY_COUNT * 3));
     __publicField(this, "trailCursor", 0);
     __publicField(this, "trailEmissionAccumulators", [0.18, 0.72]);
+    __publicField(this, "displayedSprayLength", 0.32);
+    __publicField(this, "displayedSpraySpread", 0.05);
     __publicField(this, "rearDirection", new THREE.Vector3());
     __publicField(this, "sideDirection", new THREE.Vector3());
     __publicField(this, "thrusterSocketPositions", [new THREE.Vector3(), new THREE.Vector3()]);
@@ -21369,6 +23192,8 @@ class Player {
     this.thrusterSpray.frustumCulled = false;
     scene.add(this.thrusterSpray);
     this.createThrusterLighting();
+    this.thrusterJet = new ThrusterJetEffect(scene);
+    this.finishAfterimage = new FinishAfterimageEffect(scene);
     this.resetThrusterTrail();
     this.mesh.position.set(0, 0.42, 0);
     scene.add(this.mesh);
@@ -21572,7 +23397,7 @@ class Player {
       this.targetX = this.currentLane * this.laneWidth;
     }
   }
-  update(delta, roadHeading = 0, roadElevation = 0) {
+  update(delta, roadHeading = 0, roadElevation = 0, propulsionPower = 0) {
     this.elapsedTime += delta;
     this.landedThisFrame = false;
     const targetRoadX = this.targetX + this.clearRoadOffset;
@@ -21583,12 +23408,13 @@ class Player {
     const targetRoll = THREE.MathUtils.clamp(-this.lateralVelocity * 0.1, -0.42, 0.42);
     const targetYaw = -roadHeading - this.lateralVelocity * 0.03;
     const railFlex = THREE.MathUtils.clamp(this.lateralVelocity * 0.012, -0.024, 0.024);
-    if (this.jumpHeight > 0 || this.jumpVelocity > 0) {
+    if (this.jumpActive) {
       this.jumpAirTime += delta;
       this.jumpVelocity -= this.jumpGravity * delta;
       this.jumpHeight += this.jumpVelocity * delta;
       this.jumpPeakHeight = Math.max(this.jumpPeakHeight, this.jumpHeight);
-      if (this.jumpHeight <= 0 && this.jumpVelocity < 0) {
+      this.jumpClearance = this.jumpLaunchRoadElevation + this.jumpHeight - roadElevation;
+      if (this.jumpClearance <= 0 && this.jumpVelocity < 0) {
         const impactSpeed = Math.abs(this.jumpVelocity);
         const heightStrength = THREE.MathUtils.clamp((this.jumpPeakHeight - 2) / 3.5, 0, 1);
         const speedStrength = THREE.MathUtils.clamp((impactSpeed - 6) / 3.5, 0, 1);
@@ -21604,7 +23430,9 @@ class Player {
         this.landingReboundDuration = reboundPeriod * 2;
         this.landingReboundAmplitude = THREE.MathUtils.lerp(0.26, 0.62, this.landingImpactStrength);
         this.landingSecondImpactDelay = reboundPeriod;
+        this.jumpActive = false;
         this.jumpHeight = 0;
+        this.jumpClearance = 0;
         this.jumpVelocity = 0;
         this.jumpPeakHeight = 0;
         this.jumpAirTime = 0;
@@ -21615,7 +23443,8 @@ class Player {
       }
     }
     const clearLift = this.clearExitProgress * this.clearExitProgress * (3 - 2 * this.clearExitProgress) * 1.1;
-    const targetHeight = 0.42 + roadElevation + this.jumpHeight + clearLift + Math.min(0.22, Math.abs(this.lateralVelocity) * 0.022);
+    const flightElevation = this.jumpActive ? this.jumpLaunchRoadElevation + this.jumpHeight : roadElevation;
+    const targetHeight = 0.42 + flightElevation + clearLift + Math.min(0.22, Math.abs(this.lateralVelocity) * 0.022);
     this.mesh.position.y = THREE.MathUtils.damp(this.mesh.position.y, targetHeight, 10, delta);
     this.mesh.rotation.z = THREE.MathUtils.lerp(this.mesh.rotation.z, targetRoll, 15 * delta);
     this.mesh.rotation.y = THREE.MathUtils.damp(this.mesh.rotation.y, targetYaw, 9, delta);
@@ -21650,11 +23479,10 @@ class Player {
       const dampingEnvelope = Math.exp(-this.landingReboundDamping * reboundElapsed);
       this.landingReboundOffset = -normalizedAmplitude * dampingEnvelope * Math.sin(this.landingReboundAngularFrequency * reboundElapsed);
     }
-    const jumpActive = this.jumpHeight > 0 || this.jumpVelocity > 0;
     const ascentRatio = this.jumpInitialVelocity > 0 ? THREE.MathUtils.clamp(this.jumpVelocity / this.jumpInitialVelocity, 0, 1) : 0;
     const airbornePitch = this.jumpLaunchPitch * THREE.MathUtils.lerp(0.82, 1, ascentRatio);
-    const targetPitch = jumpActive ? airbornePitch : this.landingReboundOffset * 0.34;
-    this.mesh.rotation.x = THREE.MathUtils.damp(this.mesh.rotation.x, targetPitch, jumpActive ? 7.5 : 12.5, delta);
+    const targetPitch = this.jumpActive ? airbornePitch : this.landingReboundOffset * 0.34;
+    this.mesh.rotation.x = THREE.MathUtils.damp(this.mesh.rotation.x, targetPitch, this.jumpActive ? 7.5 : 12.5, delta);
     this.vehicleRoot.position.y = Math.sin(this.elapsedTime * 3.4) * 0.018 + this.landingReboundOffset;
     const pulse = 0.82 + Math.sin(this.elapsedTime * (this.boosted ? 15 : 9)) * 0.18;
     for (const material of this.thrusterMaterials) {
@@ -21664,7 +23492,7 @@ class Player {
         material.emissiveIntensity = (this.boosted ? 4.2 : 2.1) * pulse;
       }
     }
-    this.updateThrusterEffects(delta, pulse);
+    this.updateThrusterEffects(delta, pulse, propulsionPower);
     const exitEffectsVisible = this.clearExitProgress < CLEAR_EXIT_EFFECTS_END;
     this.boostGlow.visible = this.boosted && this.boostStrength > 0.02 && exitEffectsVisible;
     this.boostGlowMaterial.opacity = (0.08 + pulse * 0.065) * this.boostStrength;
@@ -21696,41 +23524,65 @@ class Player {
       this.repairGlow.visible = false;
     }
   }
-  updateThrusterEffects(delta, pulse) {
+  updateThrusterEffects(delta, pulse, propulsionPower) {
     var _a;
-    const effectsVisible = this.clearExitProgress < CLEAR_EXIT_EFFECTS_END;
+    const drivePower = THREE.MathUtils.clamp(propulsionPower, 0, 1);
+    const effectsVisible = this.clearExitProgress < CLEAR_EXIT_EFFECTS_END && drivePower > 0.035;
     this.thrusterTrail.visible = effectsVisible;
     this.thrusterSpray.visible = effectsVisible;
     for (const glow of this.thrusterGlows) glow.visible = effectsVisible;
-    if (!effectsVisible) {
-      for (const light of this.thrusterLights) light.intensity = 0;
-      return;
-    }
     const rearDirection = this.rearDirection.set(0, 0, 1).applyQuaternion(this.mesh.quaternion).normalize();
     const socketPositions = this.thrusterSocketPositions;
     for (let index = 0; index < socketPositions.length; index++) {
       (_a = this.thrusterSockets[index]) == null ? void 0 : _a.getWorldPosition(socketPositions[index]);
     }
-    const glowScale = this.boosted ? 0.94 + pulse * 0.24 : 0.32 + pulse * 0.09;
+    this.finishAfterimage.update(
+      delta,
+      this.finishMode,
+      this.clearExitProgress,
+      this.mesh.matrixWorld,
+      socketPositions
+    );
+    this.thrusterJet.update(
+      delta,
+      this.elapsedTime,
+      effectsVisible,
+      socketPositions,
+      rearDirection,
+      this.lateralVelocity,
+      this.boosted,
+      this.boostStrength,
+      this.finishMode,
+      pulse,
+      drivePower
+    );
+    if (!effectsVisible) {
+      for (const light of this.thrusterLights) light.intensity = 0;
+      return;
+    }
+    const glowScale = this.boosted ? 0.34 + this.boostStrength * 0.08 + pulse * 0.06 : 0.12 + drivePower * 0.075 + pulse * 0.025;
     for (let index = 0; index < 2; index++) {
       const socketPosition = socketPositions[index];
       if (!socketPosition) continue;
       this.thrusterLights[index].position.copy(socketPosition).addScaledVector(rearDirection, 0.06);
-      this.thrusterLights[index].intensity = (this.boosted ? 12 : 3.8) * pulse;
+      this.thrusterLights[index].intensity = (this.boosted ? 8 + this.boostStrength * 4 : 1.2 + drivePower * 2.2) * pulse;
       this.thrusterLights[index].distance = this.boosted ? 0.9 : 0.72;
       this.thrusterGlows[index].position.copy(socketPosition).addScaledVector(rearDirection, 0.035);
       this.thrusterGlows[index].scale.setScalar(glowScale);
-      this.thrusterGlows[index].material.opacity = this.boosted ? 0.96 : 0.68;
+      this.thrusterGlows[index].material.opacity = this.boosted ? 0.72 : 0.46;
     }
-    const emissionRate = this.boosted ? 112 : 44;
+    const emissionRate = this.finishMode ? 42 : this.boosted ? 72 : 10 + drivePower * 22;
+    const steering = THREE.MathUtils.clamp(this.lateralVelocity / 8, -1, 1);
     for (let thrusterIndex = 0; thrusterIndex < socketPositions.length; thrusterIndex++) {
-      this.trailEmissionAccumulators[thrusterIndex] += delta * emissionRate * (thrusterIndex === 0 ? 0.93 : 1.07);
+      const thrusterSide = thrusterIndex === 0 ? -1 : 1;
+      const outputScale = 1 - Math.max(0, steering * thrusterSide) * 0.22;
+      this.trailEmissionAccumulators[thrusterIndex] += delta * emissionRate * outputScale * (thrusterIndex === 0 ? 0.93 : 1.07);
       while (this.trailEmissionAccumulators[thrusterIndex] >= 1) {
-        this.spawnThrusterParticle(socketPositions[thrusterIndex], rearDirection, thrusterIndex);
+        this.spawnThrusterParticle(socketPositions[thrusterIndex], rearDirection, thrusterIndex, drivePower);
         this.trailEmissionAccumulators[thrusterIndex] -= 1;
       }
     }
-    this.updateThrusterSpray(socketPositions, rearDirection);
+    this.updateThrusterSpray(delta, socketPositions, rearDirection, drivePower);
     for (let index = 0; index < this.thrusterTrailAges.length; index++) {
       if (this.thrusterTrailAges[index] < 0) continue;
       this.thrusterTrailAges[index] += delta;
@@ -21760,15 +23612,17 @@ class Player {
     }
     this.thrusterTrail.geometry.getAttribute("position").needsUpdate = true;
     this.thrusterTrail.geometry.getAttribute("color").needsUpdate = true;
-    this.thrusterTrailMaterial.size = this.boosted ? 0.2 : 0.095;
-    this.thrusterTrailMaterial.opacity = this.boosted ? 0.96 : 0.78;
+    this.thrusterTrailMaterial.size = this.finishMode ? 0.034 : this.boosted ? 0.046 : THREE.MathUtils.lerp(0.018, 0.03, drivePower);
+    this.thrusterTrailMaterial.opacity = this.finishMode ? 0.58 : this.boosted ? 0.68 : THREE.MathUtils.lerp(0.24, 0.46, drivePower);
   }
-  updateThrusterSpray(socketPositions, rearDirection) {
+  updateThrusterSpray(delta, socketPositions, rearDirection, drivePower) {
     if (socketPositions.length < 2) return;
     const sideDirection = this.sideDirection.set(rearDirection.z, 0, -rearDirection.x).normalize();
-    const trailLength = this.boosted ? 3.35 : 1.3;
-    const spread = this.boosted ? 0.38 : 0.18;
-    const flowRate = this.boosted ? 3.15 : 1.45;
+    const targetLength = this.finishMode ? 1.22 : this.boosted ? THREE.MathUtils.lerp(0.9, 1.42, this.boostStrength) * 0.8 : THREE.MathUtils.lerp(0.24, 0.7, drivePower);
+    const targetSpread = this.finishMode ? 0.09 : this.boosted ? THREE.MathUtils.lerp(0.11, 0.18, this.boostStrength) : THREE.MathUtils.lerp(0.045, 0.095, drivePower);
+    this.displayedSprayLength = THREE.MathUtils.damp(this.displayedSprayLength, targetLength, 6.2, delta);
+    this.displayedSpraySpread = THREE.MathUtils.damp(this.displayedSpraySpread, targetSpread, 7.2, delta);
+    const flowRate = this.finishMode ? 2.4 : this.boosted ? 3.15 : THREE.MathUtils.lerp(0.8, 1.55, drivePower);
     for (let index = 0; index < THRUSTER_SPRAY_COUNT; index++) {
       const offset = index * 3;
       const thrusterIndex = index % 2;
@@ -21777,18 +23631,21 @@ class Player {
       const secondarySeed = Math.abs(Math.sin((index + 1) * 78.233) * 12345.6789) % 1;
       const sideTimeOffset = thrusterIndex === 0 ? 0.08 : 0.53;
       const sideFlowRate = flowRate * (thrusterIndex === 0 ? 0.91 : 1.08);
+      const thrusterSide = thrusterIndex === 0 ? -1 : 1;
+      const steering = THREE.MathUtils.clamp(this.lateralVelocity / 8, -1, 1);
+      const outputScale = 1 - Math.max(0, steering * thrusterSide) * 0.22;
       const phase = (this.elapsedTime * sideFlowRate + seed + sideTimeOffset) % 1;
       const swirlDirection = thrusterIndex === 0 ? 1 : -1;
       const helixTurns = 1.35 + secondarySeed * 0.85;
       const angle = seed * Math.PI * 2 + (phase * Math.PI * 2 * helixTurns + this.elapsedTime * (1.7 + secondarySeed * 0.9)) * swirlDirection;
-      const cylinderRadius = (0.035 + spread * (0.38 + phase * 0.34)) * (0.72 + secondarySeed * 0.5);
+      const cylinderRadius = (0.035 + this.displayedSpraySpread * (0.38 + phase * 0.34)) * (0.72 + secondarySeed * 0.5);
       const lateral = Math.cos(angle) * cylinderRadius;
       const vertical = Math.sin(angle) * cylinderRadius * (0.76 + secondarySeed * 0.24) + phase * 0.035;
       const laneLag = -this.lateralVelocity * phase * phase * 0.035;
       const distanceJitter = 0.9 + (secondarySeed - 0.5) * 0.22;
-      this.thrusterSprayPositions[offset] = socket.x + rearDirection.x * phase * trailLength * distanceJitter + sideDirection.x * lateral + laneLag;
+      this.thrusterSprayPositions[offset] = socket.x + rearDirection.x * phase * this.displayedSprayLength * outputScale * distanceJitter + sideDirection.x * lateral + laneLag;
       this.thrusterSprayPositions[offset + 1] = socket.y + vertical;
-      this.thrusterSprayPositions[offset + 2] = socket.z + rearDirection.z * phase * trailLength * distanceJitter + sideDirection.z * lateral;
+      this.thrusterSprayPositions[offset + 2] = socket.z + rearDirection.z * phase * this.displayedSprayLength * outputScale * distanceJitter + sideDirection.z * lateral;
       const fade = Math.sin(Math.PI * phase) * (0.68 + seed * 0.32);
       this.thrusterSprayColors[offset] = fade;
       this.thrusterSprayColors[offset + 1] = (this.boosted ? 0.52 : 0.31) * fade;
@@ -21796,13 +23653,13 @@ class Player {
     }
     this.thrusterSpray.geometry.getAttribute("position").needsUpdate = true;
     this.thrusterSpray.geometry.getAttribute("color").needsUpdate = true;
-    this.thrusterSprayMaterial.size = this.boosted ? 0.16 : 0.068;
-    this.thrusterSprayMaterial.opacity = this.boosted ? 1 : 0.84;
+    this.thrusterSprayMaterial.size = this.finishMode ? 0.025 : this.boosted ? 0.034 : 0.022;
+    this.thrusterSprayMaterial.opacity = this.finishMode ? 0.34 : this.boosted ? 0.42 : THREE.MathUtils.lerp(0.14, 0.28, drivePower);
   }
-  spawnThrusterParticle(origin, rearDirection, thrusterIndex) {
+  spawnThrusterParticle(origin, rearDirection, thrusterIndex, drivePower) {
     const index = this.trailCursor;
     const offset = index * 3;
-    const jitter = this.boosted ? 0.12 : 0.065;
+    const jitter = this.finishMode ? 0.035 : this.boosted ? 0.072 : 0.038;
     const sideDirection = this.sideDirection.set(rearDirection.z, 0, -rearDirection.x).normalize();
     const radialAngle = Math.random() * Math.PI * 2;
     const radialOffset = Math.sqrt(Math.random()) * jitter;
@@ -21810,9 +23667,9 @@ class Player {
     this.thrusterTrailPositions[offset] = origin.x + sideDirection.x * lateralOffset;
     this.thrusterTrailPositions[offset + 1] = origin.y + Math.sin(radialAngle) * radialOffset;
     this.thrusterTrailPositions[offset + 2] = origin.z + sideDirection.z * lateralOffset;
-    const speed = this.boosted ? 7.2 + Math.random() * 6.5 : 1.7 + Math.random() * 2.2;
-    const outwardBias = (thrusterIndex === 0 ? -1 : 1) * (this.boosted ? 0.18 : 0.08);
-    const lateralSpread = (Math.random() - 0.5) * (this.boosted ? 3.1 : 1.45) + outwardBias;
+    const speed = this.finishMode ? 4.2 + Math.random() * 3.8 : this.boosted ? 7.2 + Math.random() * 6.5 : THREE.MathUtils.lerp(1.2, 2.8, drivePower) + Math.random() * THREE.MathUtils.lerp(1.2, 2.4, drivePower);
+    const outwardBias = (thrusterIndex === 0 ? -1 : 1) * (this.finishMode ? 0.1 : this.boosted ? 0.18 : 0.08);
+    const lateralSpread = (Math.random() - 0.5) * (this.finishMode ? 1.1 : this.boosted ? 3.1 : 1.45) + outwardBias;
     this.thrusterTrailVelocities[offset] = rearDirection.x * speed + sideDirection.x * lateralSpread;
     this.thrusterTrailVelocities[offset + 1] = (Math.random() - 0.48) * (this.boosted ? 1.05 : 0.52);
     this.thrusterTrailVelocities[offset + 2] = rearDirection.z * speed + sideDirection.z * lateralSpread;
@@ -21823,7 +23680,7 @@ class Player {
     this.thrusterTrailColors[offset + 1] = this.boosted ? 0.48 : 0.28;
     this.thrusterTrailColors[offset + 2] = this.boosted ? 0.12 : 0.025;
     this.thrusterTrailAges[index] = 0;
-    this.thrusterTrailLifetimes[index] = this.boosted ? 0.72 + Math.random() * 0.78 : 0.64 + Math.random() * 0.62;
+    this.thrusterTrailLifetimes[index] = this.finishMode ? 0.34 + Math.random() * 0.18 : this.boosted ? 0.42 + Math.random() * 0.38 : 0.28 + Math.random() * 0.24;
     this.trailCursor = (this.trailCursor + 1) % this.thrusterTrailAges.length;
   }
   resetThrusterTrail() {
@@ -21865,9 +23722,12 @@ class Player {
   getSteeringLoad() {
     return THREE.MathUtils.clamp(Math.abs(this.lateralVelocity) / 8, 0, 1);
   }
-  jump(boosted = false, entrySpeedRatio = 1, extended = false) {
-    if (this.jumpHeight > 0.05 || this.jumpVelocity > 0) return false;
+  jump(boosted = false, entrySpeedRatio = 1, extended = false, launchRoadElevation = 0) {
+    if (this.jumpActive) return false;
+    this.jumpActive = true;
     this.jumpHeight = 0.02;
+    this.jumpClearance = 0.02;
+    this.jumpLaunchRoadElevation = launchRoadElevation;
     this.jumpPeakHeight = this.jumpHeight;
     this.jumpAirTime = 0;
     this.boostedJump = boosted;
@@ -21879,19 +23739,19 @@ class Player {
     return true;
   }
   isAirborne() {
-    return this.jumpHeight > 0.32;
+    return this.jumpClearance > 0.32;
   }
   isJumpActive() {
-    return this.jumpHeight > 0 || this.jumpVelocity > 0;
+    return this.jumpActive;
   }
   getJumpHeight() {
-    return this.jumpHeight;
+    return Math.max(0, this.jumpClearance);
   }
   getAirborneAmount() {
-    return THREE.MathUtils.clamp(this.jumpHeight / 2.5, 0, 1);
+    return THREE.MathUtils.clamp(this.jumpClearance / 2.5, 0, 1);
   }
   isBoostJumpActive() {
-    return this.boostedJump && (this.jumpHeight > 0 || this.jumpVelocity > 0);
+    return this.boostedJump && this.jumpActive;
   }
   getLandingReboundOffset() {
     return this.landingReboundOffset;
@@ -21912,6 +23772,10 @@ class Player {
     this.repairGlow.visible = true;
   }
   setClearExit(progress, roadOffset) {
+    if (!this.finishMode) {
+      this.finishMode = true;
+      this.finishAfterimage.begin(this.vehicleRoot, this.mesh);
+    }
     this.clearExitProgress = progress;
     const eased = progress * progress * (3 - 2 * progress);
     const fade = THREE.MathUtils.smoothstep(progress, CLEAR_EXIT_FADE_START, CLEAR_EXIT_EFFECTS_END);
@@ -21942,6 +23806,9 @@ class Player {
     this.mesh.rotation.set(0, 0, 0);
     this.repairTime = 0;
     this.jumpHeight = 0;
+    this.jumpClearance = 0;
+    this.jumpLaunchRoadElevation = 0;
+    this.jumpActive = false;
     this.jumpVelocity = 0;
     this.jumpGravity = 9.4;
     this.jumpPeakHeight = 0;
@@ -21961,6 +23828,8 @@ class Player {
     this.landingReboundOffset = 0;
     this.clearExitProgress = 0;
     this.clearRoadOffset = 0;
+    this.finishMode = false;
+    this.finishAfterimage.reset();
     this.thrusterTrail.visible = true;
     this.thrusterSpray.visible = true;
     for (const glow of this.thrusterGlows) glow.visible = true;
@@ -21980,6 +23849,8 @@ class Player {
   }
   dispose() {
     this.disposed = true;
+    this.finishAfterimage.dispose();
+    this.thrusterJet.dispose();
     this.disposeObject(this.mesh);
     this.mesh.removeFromParent();
     this.thrusterTrail.geometry.dispose();
@@ -22001,7 +23872,8 @@ const MENU_TRACK = { key: "menu", title: "DEA EX MACHINA", src: assetUrl("audio/
 const WEATHER_TRACKS = {
   rain: { key: "rain", title: "PATTERN COMPLETION", src: assetUrl("audio/bgm/pattern-completion.mp3") },
   snow: { key: "snow", title: "WAKE UP BODHISATTVA", src: assetUrl("audio/bgm/wake-up-bodhisattva.mp3") },
-  overcast: { key: "overcast", title: "AGONIST", src: assetUrl("audio/bgm/agonist.mp3"), startAt: 67, fadeInOnLoop: true }
+  overcast: { key: "overcast", title: "AGONIST", src: assetUrl("audio/bgm/agonist.mp3"), startAt: 67, fadeInOnLoop: true },
+  sandstorm: { key: "desert-sandstorm", title: "PATTERN COMPLETION", src: assetUrl("audio/bgm/pattern-completion.mp3") }
 };
 const CLEAR_TRACKS = [
   { key: "clear-ascent", title: "ASCENT", src: assetUrl("audio/bgm/ascent.mp3") },
@@ -22036,9 +23908,7 @@ class GameAudio {
     __publicField(this, "engineOutput", null);
     __publicField(this, "debrisNoiseBuffer", null);
     __publicField(this, "debrisRattleCooldownUntil", 0);
-    __publicField(this, "engineDriveBoosted", false);
-    __publicField(this, "normalDriveCurve", createDriveCurve(2.35));
-    __publicField(this, "boostDriveCurve", createDriveCurve(5));
+    __publicField(this, "normalDriveCurve", createDriveCurve(1.45));
     __publicField(this, "sfxMixBoost", 1.75);
     __publicField(this, "restartMusicLoop", () => {
       const track = this.desiredTrack;
@@ -22083,9 +23953,9 @@ class GameAudio {
     this.setMusicMix(1, 0.8);
     this.selectMusic(MENU_TRACK);
   }
-  playWeatherMusic(weather) {
+  playWeatherMusic(weather, biome = "city", theme = "day") {
     this.setMusicMix(0.7, 0.8);
-    const track = weather === "clear" ? CLEAR_TRACKS[Math.random() < 0.78 ? 0 : 1] : WEATHER_TRACKS[weather];
+    const track = biome === "desert" ? weather === "sandstorm" ? WEATHER_TRACKS.sandstorm : theme === "night" ? WEATHER_TRACKS.overcast : CLEAR_TRACKS[0] : weather === "clear" ? CLEAR_TRACKS[Math.random() < 0.78 ? 0 : 1] : WEATHER_TRACKS[weather] ?? CLEAR_TRACKS[0];
     this.selectMusic(track, true);
   }
   raiseMusicForClear() {
@@ -22157,27 +24027,23 @@ class GameAudio {
     const recede = THREE.MathUtils.smoothstep(exitProgress, 0.2, 1);
     const recedePitch = THREE.MathUtils.lerp(1, 0.38, recede);
     const recedeGain = THREE.MathUtils.lerp(1, 0.13, THREE.MathUtils.smoothstep(exitProgress, 0.3, 1)) * tail;
-    const strain = Math.sin(now * (boosted ? 31 : 18)) * (boosted ? 0.022 : 7e-3);
+    const strain = Math.sin(now * 18) * 7e-3;
     const baseFrequency = (38 + speed * 1.25) * pitchLoad * recedePitch * (1 + strain);
-    const pulseFrequency = (20 + speed * 0.82 + (boosted ? 12 : 0)) * recedePitch;
-    const activeGain = (0.068 + normalizedSpeed * 0.09) * (boosted ? 1.24 : 1) * mixVolume * recedeGain;
+    const pulseFrequency = (20 + speed * 0.82) * recedePitch;
+    const activeGain = (0.068 + normalizedSpeed * 0.09) * (boosted ? 1.16 : 1) * mixVolume * recedeGain;
     const targetGain = active ? activeGain : 1e-4;
     this.engineSub.frequency.setTargetAtTime(baseFrequency * 0.5, now, 0.045);
     this.engineLow.frequency.setTargetAtTime(baseFrequency, now, 0.045);
     this.engineHigh.frequency.setTargetAtTime(baseFrequency * 1.49, now, 0.045);
     this.engineSubGain.gain.setTargetAtTime(THREE.MathUtils.lerp(0.56, 0.42, airborne), now, 0.08);
     this.engineLowGain.gain.setTargetAtTime(THREE.MathUtils.lerp(0.64, 0.53, airborne), now, 0.08);
-    this.engineHigh.detune.setTargetAtTime((boosted ? 24 : 9) + airborne * 54 + Math.sin(now * 27) * (boosted ? 11 : 3), now, 0.05);
-    this.engineHighGain.gain.setTargetAtTime((boosted ? 0.52 : 0.3) + turnLoad * 0.08 + airborne * 0.18, now, 0.08);
+    this.engineHigh.detune.setTargetAtTime(9 + airborne * 54 + Math.sin(now * 27) * 3, now, 0.05);
+    this.engineHighGain.gain.setTargetAtTime(0.15 + turnLoad * 0.045 + airborne * 0.1, now, 0.08);
     this.enginePulse.frequency.setTargetAtTime(pulseFrequency, now, 0.04);
-    this.enginePulseDepth.gain.setTargetAtTime(targetGain * (boosted ? 0.62 : 0.43), now, 0.06);
-    this.engineFilter.frequency.setTargetAtTime((720 + speed * 30 + (boosted ? 1200 : 0) + airborne * 850) * THREE.MathUtils.lerp(1, 0.42, recede), now, 0.08);
-    this.engineNoiseFilter.frequency.setTargetAtTime((820 + speed * 34 + (boosted ? 1350 : 0) + airborne * 1900) * THREE.MathUtils.lerp(1, 0.44, recede), now, 0.08);
-    this.engineNoiseGain.gain.setTargetAtTime((0.012 + normalizedSpeed * 0.05 + (boosted ? 0.075 : 0) + turnLoad * 0.02 + airborne * 0.055) * recedeGain, now, 0.08);
-    if (boosted !== this.engineDriveBoosted) {
-      this.engineDriveBoosted = boosted;
-      this.engineDrive.curve = boosted ? this.boostDriveCurve : this.normalDriveCurve;
-    }
+    this.enginePulseDepth.gain.setTargetAtTime(targetGain * 0.16, now, 0.06);
+    this.engineFilter.frequency.setTargetAtTime((720 + speed * 30 + airborne * 850) * THREE.MathUtils.lerp(1, 0.42, recede), now, 0.08);
+    this.engineNoiseFilter.frequency.setTargetAtTime((820 + speed * 34 + (boosted ? 420 : 0) + airborne * 1900) * THREE.MathUtils.lerp(1, 0.44, recede), now, 0.08);
+    this.engineNoiseGain.gain.setTargetAtTime((0.012 + normalizedSpeed * 0.05 + (boosted ? 0.045 : 0) + turnLoad * 0.02 + airborne * 0.055) * recedeGain, now, 0.08);
     this.engineOutput.gain.setTargetAtTime(targetGain, now, active ? 0.08 : 0.03);
   }
   ensureEngine() {
@@ -22198,16 +24064,16 @@ class GameAudio {
     this.engineCompressor = context.createDynamicsCompressor();
     this.engineOutput = context.createGain();
     this.engineSub.type = "sine";
-    this.engineLow.type = "sawtooth";
+    this.engineLow.type = "triangle";
     this.engineHigh.type = "sawtooth";
     this.engineHigh.detune.value = 7;
-    this.enginePulse.type = "square";
+    this.enginePulse.type = "sine";
     this.engineSubGain.gain.value = 0.56;
     this.engineLowGain.gain.value = 0.64;
-    this.engineHighGain.gain.value = 0.24;
+    this.engineHighGain.gain.value = 0.15;
     this.enginePulseDepth.gain.value = 0;
     this.engineFilter.type = "lowpass";
-    this.engineFilter.Q.value = 3.2;
+    this.engineFilter.Q.value = 1.55;
     this.engineNoiseFilter.type = "bandpass";
     this.engineNoiseFilter.Q.value = 1.15;
     this.engineNoiseGain.gain.value = 0;
@@ -22792,6 +24658,7 @@ class Game {
     __publicField(this, "gameplayCameraTarget", new THREE.Vector3(0, 0, -9.6));
     __publicField(this, "cameraTarget", this.previewCameraTarget.clone());
     __publicField(this, "cameraFollowX", 0);
+    __publicField(this, "cameraRoadElevation", 0);
     __publicField(this, "clearCameraAnchorX", 0);
     __publicField(this, "cameraViewBlend", 0);
     __publicField(this, "previewCameraTime", 0);
@@ -22898,7 +24765,17 @@ class Game {
         this.player.setBoosted(this.overdriveTime > 0, overdriveBlend * overdriveWarningPulse);
         this.updateHeldInput(delta);
         const jumpWasActive = this.player.isJumpActive();
-        this.player.update(delta, this.environment.getRoadHeading(0), this.environment.getRoadElevation(0));
+        const propulsionPower = THREE.MathUtils.smoothstep(
+          this.currentSpeed,
+          20,
+          this.stageDefinition.cruiseSpeed
+        );
+        this.player.update(
+          delta,
+          this.environment.getRoadHeading(0),
+          this.environment.getRoadElevation(0),
+          propulsionPower
+        );
         playerUpdated = true;
         if (jumpWasActive) this.addAirtimeScore(delta);
         const landing = this.player.consumeLanding();
@@ -22950,7 +24827,12 @@ class Game {
         this.player.setBoosted(exitBoosted, accelerating ? 1 : retainedBoostStrength);
         this.player.setClearExit(progress, this.environment.getRoadOffset);
         const clearJumpWasActive = this.player.isJumpActive();
-        this.player.update(delta, this.environment.getRoadHeading(this.player.getZ()), this.environment.getRoadElevation(this.player.getZ()));
+        this.player.update(
+          delta,
+          this.environment.getRoadHeading(this.player.getZ()),
+          this.environment.getRoadElevation(this.player.getZ()),
+          1
+        );
         playerUpdated = true;
         if (clearJumpWasActive) this.addAirtimeScore(delta);
         const clearLanding = this.player.consumeLanding();
@@ -23017,7 +24899,15 @@ class Game {
         this.currentSpeed = THREE.MathUtils.damp(this.currentSpeed, 0, 3.5, delta);
         this.obstacleManager.update(delta, this.currentSpeed, this.player.getX(), false, false, false, false);
       }
-      if (!playerUpdated) this.player.update(delta, this.environment.getRoadHeading(0), this.environment.getRoadElevation(0));
+      if (!playerUpdated) {
+        const idlePropulsionPower = this.status === "ready" || this.status === "countdown" ? 0.22 : 0;
+        this.player.update(
+          delta,
+          this.environment.getRoadHeading(0),
+          this.environment.getRoadElevation(0),
+          idlePropulsionPower
+        );
+      }
       const exitBoost = this.status === "clearing" && (this.overdriveTime > 0 || this.clearTimer > this.clearHoldDuration);
       this.environment.update(delta, this.currentSpeed, this.overdriveTime > 0 || exitBoost);
       const clearEngineTailStrength = this.clearEngineTailTime / this.clearEngineTailDuration;
@@ -23210,7 +25100,12 @@ class Game {
     if (event === "ramp" || event === "gapRamp") {
       const boostedJump = this.overdriveTime > 0;
       const entrySpeedRatio = this.currentSpeed / Math.max(1, this.stageDefinition.cruiseSpeed);
-      if (!this.player.jump(boostedJump, entrySpeedRatio, event === "gapRamp")) return;
+      if (!this.player.jump(
+        boostedJump,
+        entrySpeedRatio,
+        event === "gapRamp",
+        this.environment.getRoadElevation(0)
+      )) return;
       this.rampLaunchSpeed = this.currentSpeed * RAMP_SPEED_MULTIPLIER;
       this.currentSpeed = this.rampLaunchSpeed;
       this.currentAirtime = 0;
@@ -23260,7 +25155,16 @@ class Game {
     const night = this.stageDefinition.theme === "night";
     const sunset = this.stageDefinition.theme === "sunset";
     const factory = this.stageDefinition.biome === "factory";
-    if (factory) {
+    const desert = this.stageDefinition.biome === "desert";
+    const sandstorm = weather === "sandstorm";
+    if (desert) {
+      this.hemisphereLight.color.setHex(night ? 10135741 : 16765089);
+      this.hemisphereLight.groundColor.setHex(night ? 3087394 : 8205861);
+      this.hemisphereLight.intensity = sandstorm ? night ? 2.78 : 2.25 : night ? 3.02 : 2.45;
+      this.keyLight.color.setHex(night ? 13031935 : 16756845);
+      this.keyLight.intensity = sandstorm ? night ? 2.14 : 2.12 : night ? 2.36 : 2.3;
+      this.renderer.toneMappingExposure = sandstorm ? night ? 1.1 : 1 : night ? 1.16 : 1.04;
+    } else if (factory) {
       this.hemisphereLight.color.setHex(night ? 12372934 : 14736853);
       this.hemisphereLight.groundColor.setHex(night ? 2107429 : 4999749);
       this.hemisphereLight.intensity = night ? 3.2 : 2.55;
@@ -23268,12 +25172,12 @@ class Game {
       this.keyLight.intensity = night ? 2.55 : 1.65;
       this.renderer.toneMappingExposure = night ? 1.2 : 1.02;
     } else {
-      this.hemisphereLight.color.setHex(night ? 13230309 : 16777215);
-      this.hemisphereLight.groundColor.setHex(night ? 2636099 : 6582658);
-      this.hemisphereLight.intensity = night ? 3 : 2.5;
+      this.hemisphereLight.color.setHex(night ? 13230309 : 16317435);
+      this.hemisphereLight.groundColor.setHex(night ? 2636099 : 6846078);
+      this.hemisphereLight.intensity = night ? 3 : 2.4;
       this.keyLight.color.setHex(night ? 14873846 : 16777215);
-      this.keyLight.intensity = night ? 2.5 : sunset ? 2.35 : 2.1;
-      this.renderer.toneMappingExposure = night ? 1.14 : 1.05;
+      this.keyLight.intensity = night ? 2.5 : sunset ? 2.35 : 2;
+      this.renderer.toneMappingExposure = night ? 1.14 : 1.02;
     }
     this.applyWeather(weather);
   }
@@ -23366,6 +25270,7 @@ class Game {
       clearExitProgress: 0,
       clearExitStartSpeed: 55,
       clearCameraAnchorX: 0,
+      cameraRoadElevation: 0,
       boostLaunchTime: 0,
       rampLaunchSpeed: 0,
       clearEngineTailTime: 0,
@@ -23375,7 +25280,11 @@ class Game {
     this.heldDirection = 0;
     this.heldMoveTimer = 0;
     this.obstacleManager.reset(false);
-    this.audio.playWeatherMusic(this.weather);
+    this.audio.playWeatherMusic(
+      this.weather,
+      this.stageDefinition.biome,
+      this.stageDefinition.theme
+    );
     this.publishSnapshot();
     const countdownStage = this.stage;
     void this.audio.unlock().catch(() => void 0).then(() => {
@@ -23408,6 +25317,7 @@ class Game {
       clearExitProgress: 0,
       clearExitStartSpeed: 55,
       clearCameraAnchorX: 0,
+      cameraRoadElevation: 0,
       boostLaunchTime: 0,
       rampLaunchSpeed: 0,
       clearEngineTailTime: 0,
@@ -23465,7 +25375,14 @@ class Game {
     }
     const cameraFollowTarget = this.status === "clearing" || this.status === "cleared" ? this.clearCameraAnchorX : this.player.getX();
     this.cameraFollowX = THREE.MathUtils.damp(this.cameraFollowX, cameraFollowTarget, 7.5, delta);
+    this.cameraRoadElevation = THREE.MathUtils.damp(
+      this.cameraRoadElevation,
+      this.environment.getRoadElevation(this.player.getZ()),
+      4.2,
+      delta
+    );
     this.camera.position.copy(this.previewCameraPosition).lerp(this.gameplayCameraPosition, this.cameraViewBlend);
+    this.camera.position.y += this.cameraRoadElevation * this.cameraViewBlend;
     const jumpHeight = this.player.getJumpHeight();
     const landingRebound = this.player.getLandingReboundOffset();
     this.camera.position.y += jumpHeight * (boostAirborne > 0 ? 0.1 : 0.16) * this.cameraViewBlend;
@@ -23478,6 +25395,7 @@ class Game {
     this.camera.position.z += Math.cos(this.previewCameraTime * 0.13) * 1.4 * previewWeight;
     this.camera.position.x += this.cameraFollowX;
     this.cameraTarget.copy(this.previewCameraTarget).lerp(this.gameplayCameraTarget, this.cameraViewBlend);
+    this.cameraTarget.y += this.cameraRoadElevation * this.cameraViewBlend;
     this.cameraTarget.y += jumpHeight * (boostAirborne > 0 ? 0.08 : 0.32) * this.cameraViewBlend;
     this.cameraTarget.y += landingRebound * 0.14 * this.cameraViewBlend;
     this.cameraTarget.z -= boostAirborne * 4.2 * this.cameraViewBlend;
@@ -23723,14 +25641,17 @@ const BASE_WEIGHTS = {
   clear: 0.6,
   overcast: 0.2,
   rain: 0.15,
-  snow: 0.05
+  snow: 0.05,
+  sandstorm: 0
 };
 function rollWeather(stage = 1, random = Math.random) {
-  const allowed = getStageDefinition(stage).allowedWeather;
-  const total = allowed.reduce((sum, weather) => sum + BASE_WEIGHTS[weather], 0);
+  const definition = getStageDefinition(stage);
+  const allowed = definition.allowedWeather;
+  const weights = definition.biome === "desert" ? { ...BASE_WEIGHTS, clear: 0.75, sandstorm: 0.25 } : BASE_WEIGHTS;
+  const total = allowed.reduce((sum, weather) => sum + weights[weather], 0);
   let value = random() * total;
   for (const weather of allowed) {
-    value -= BASE_WEIGHTS[weather];
+    value -= weights[weather];
     if (value <= 0) return weather;
   }
   return allowed[allowed.length - 1] ?? "clear";
