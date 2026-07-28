@@ -2228,13 +2228,18 @@ button:not(:disabled):active {
 
 .result-main-grid {
   grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  grid-template-areas: "celebration score-list"
+                       "celebration total"
+                       "stats stats"
+                       "actions actions";
   align-items: center;
-  gap: 22px;
+  gap: 10px 22px;
   display: grid;
 }
 
 .result-celebration {
   text-align: left;
+  grid-area: celebration;
   min-width: 0;
 }
 
@@ -2283,15 +2288,10 @@ button:not(:disabled):active {
   line-height: .88;
 }
 
-.result-score-zone {
-  grid-template-columns: minmax(0, 1fr);
-  gap: 10px;
-  min-width: 0;
-  display: grid;
-}
-
 .result-score-list {
+  grid-area: score-list;
   gap: 3px;
+  min-width: 0;
   display: grid;
 }
 
@@ -2317,6 +2317,7 @@ button:not(:disabled):active {
 .result-total-wrap {
   text-align: center;
   flex-direction: column;
+  grid-area: total;
   align-items: center;
   min-width: 0;
   display: flex;
@@ -2357,9 +2358,10 @@ button:not(:disabled):active {
 
 .result-stat-strip {
   background: #25282d0e;
+  grid-area: stats;
   grid-template-columns: 1.35fr 1fr 1fr 1.2fr;
   gap: 10px;
-  margin-top: 14px;
+  margin-top: 4px;
   padding: 10px 12px;
   display: grid;
 }
@@ -2409,9 +2411,10 @@ button:not(:disabled):active {
 }
 
 .result-actions {
+  grid-area: actions;
   grid-template-columns: minmax(92px, 1fr) minmax(0, 3.2fr);
   gap: 8px;
-  margin-top: 12px;
+  margin-top: 2px;
   display: grid;
 }
 
@@ -2444,6 +2447,11 @@ button:not(:disabled):active {
 
   .result-main-grid {
     grid-template-columns: 1fr;
+    grid-template-areas: "celebration"
+                         "total"
+                         "stats"
+                         "score-list"
+                         "actions";
     gap: 12px;
   }
 
@@ -2453,17 +2461,64 @@ button:not(:disabled):active {
 
   .result-stars {
     justify-content: center;
+    margin: 10px 0 6px;
   }
 
-  .result-score-zone {
-    grid-template-columns: minmax(0, 1fr) minmax(132px, .82fr);
-    align-items: end;
+  .result-star-slot {
+    width: clamp(52px, 17vw, 66px);
+  }
+
+  .result-total-wrap {
+    padding-block: 3px 0;
+  }
+
+  .result-total-score {
+    font-size: clamp(50px, 16vw, 66px);
+  }
+
+  .result-new-record {
+    align-self: center;
+    margin-top: -2px;
+    font-size: clamp(15px, 4.8vw, 19px);
+    position: static;
+  }
+
+  .result-score-list {
+    gap: 5px;
+    padding: 2px 4px 0;
+  }
+
+  .result-score-row {
+    font-size: 10.5px;
+  }
+
+  .result-score-row strong {
+    font-size: 13px;
   }
 
   .result-stat-strip {
     grid-template-columns: 1fr 1fr;
     gap: 9px 12px;
+    margin-top: 0;
     padding: 10px;
+  }
+
+  .result-stat small {
+    font-size: 8.5px;
+  }
+
+  .result-stat strong {
+    font-size: 18px;
+  }
+
+  .result-actions {
+    grid-template-columns: minmax(88px, .8fr) minmax(0, 2fr);
+    margin-top: 0;
+  }
+
+  .result-menu-button, .result-next-button {
+    min-height: 48px;
+    font-size: 12px;
   }
 }
 

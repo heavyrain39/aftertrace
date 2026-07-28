@@ -13360,12 +13360,16 @@ function buildRoutePath(nodes) {
   if (nodes.length === 0) return "";
   const parts = [`M${nodes[0][0]} ${nodes[0][1]}`];
   for (let index = 1; index < nodes.length; index++) {
-    const [previousX, previousY] = nodes[index - 1];
-    const [x, y] = nodes[index];
-    parts.push(`Q${previousX} ${previousY} ${(previousX + x) / 2} ${(previousY + y) / 2}`);
+    const [startX, startY] = nodes[index - 1];
+    const [endX, endY] = nodes[index];
+    const [beforeX, beforeY] = nodes[Math.max(0, index - 2)];
+    const [afterX, afterY] = nodes[Math.min(nodes.length - 1, index + 1)];
+    const controlOneX = startX + (endX - beforeX) / 6;
+    const controlOneY = startY + (endY - beforeY) / 6;
+    const controlTwoX = endX - (afterX - startX) / 6;
+    const controlTwoY = endY - (afterY - startY) / 6;
+    parts.push(`C${controlOneX} ${controlOneY} ${controlTwoX} ${controlTwoY} ${endX} ${endY}`);
   }
-  const [lastX, lastY] = nodes[nodes.length - 1];
-  parts.push(`T${lastX} ${lastY}`);
   return parts.join(" ");
 }
 const ROUTE_PATH = buildRoutePath(ROUTE_NODES);
@@ -13430,8 +13434,7 @@ function StageRoute({ profile, clearedStage, earnedStars = 0, onSelect, onMenu }
               completed && /* @__PURE__ */ jsxRuntimeExports.jsxs("text", { x, y: y + 24, textAnchor: "middle", fill: "#25282d", fontSize: "7.5", letterSpacing: "0.55", children: [
                 "★".repeat(profile.stars[index]),
                 "☆".repeat(3 - profile.stars[index])
-              ] }),
-              current && /* @__PURE__ */ jsxRuntimeExports.jsx("text", { x, y: y - 21, textAnchor: "middle", fill: "#087e8d", fontFamily: "DM Mono, monospace", fontSize: "7.5", fontWeight: "900", letterSpacing: "0.55", children: "SELECTED" })
+              ] })
             ]
           },
           stage
@@ -13443,8 +13446,7 @@ function StageRoute({ profile, clearedStage, earnedStars = 0, onSelect, onMenu }
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "font-mono text-[10px] font-black tracking-[0.14em] text-[#25282d]/60", children: [
             "STAGE ",
-            selectedStage.toString().padStart(2, "0"),
-            " SELECTED"
+            selectedStage.toString().padStart(2, "0")
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "mt-1 text-2xl font-black italic leading-none tracking-[-0.04em]", children: selectedBackground.name })
         ] }),
@@ -13469,7 +13471,7 @@ function StageRoute({ profile, clearedStage, earnedStars = 0, onSelect, onMenu }
     ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "route-decision w-full max-w-[560px] self-center border-t border-[#25282d] pt-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4 flex items-end justify-between gap-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-[10px] font-black tracking-[0.14em] text-[#25282d]/60", children: chapterComplete ? "ROUTE COMPLETE" : `STAGE ${selectedStage.toString().padStart(2, "0")} SELECTED` }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-[10px] font-black tracking-[0.14em] text-[#25282d]/60", children: chapterComplete ? "ROUTE COMPLETE" : `STAGE ${selectedStage.toString().padStart(2, "0")}` }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "mt-1 text-2xl font-black italic leading-none tracking-[-0.04em]", children: chapterComplete ? selectedBackground.name : "KEEP MOVING?" }),
           !chapterComplete && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 font-mono text-[9px] font-black tracking-[0.1em] text-[#25282d]/55", children: [
             "AREA // ",
@@ -13627,76 +13629,74 @@ function ResultPanel({ snapshot, previousBestStars, previousBestScore, onExit, o
             }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "result-praise", children: clearMessage })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-score-zone", "aria-hidden": "true", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "result-score-list", children: scoreRows.map((row, index) => {
-              const value = animatedValue(row.value, index);
-              const sign = value > 0 && index > 0 ? "+" : value < 0 ? "−" : "";
-              return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-score-row", style: { animationDelay: `${index * 45 + 80}ms` }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: row.label }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { className: value < 0 ? "text-[#ff3f78]" : "", children: [
-                  sign,
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-total-wrap", "aria-hidden": "true", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "result-total-label", children: "TOTAL SCORE" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { className: "result-total-score", children: formatScore(animatedValue(snapshot.score, 2)) }),
+            isNewRecord && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "result-new-record", children: "NEW RECORD!" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-stat-strip", "aria-hidden": "true", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-stat", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldCheck, {}),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "INTEGRITY" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
+                  integrityValue,
                   " ",
-                  formatScore(value)
-                ] })
-              ] }, row.label);
-            }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-total-wrap", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "result-total-label", children: "TOTAL SCORE" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { className: "result-total-score", children: formatScore(animatedValue(snapshot.score, 2)) }),
-              isNewRecord && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "result-new-record", children: "NEW RECORD!" })
-            ] })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-stat-strip", "aria-hidden": "true", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-stat", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldCheck, {}),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "INTEGRITY" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
-                integrityValue,
-                " ",
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("em", { children: [
-                  "// HIT ",
-                  animatedValue(snapshot.impacts, 0).toString().padStart(2, "0")
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("em", { children: [
+                    "// HIT ",
+                    animatedValue(snapshot.impacts, 0).toString().padStart(2, "0")
+                  ] })
                 ] })
               ] })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-stat", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(PlaneTakeoff, {}),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "AIRTIME" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
-                (animatedValue(snapshot.airtime * 100, 1) / 100).toFixed(2),
-                " ",
-                /* @__PURE__ */ jsxRuntimeExports.jsx("em", { children: "S" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-stat", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(PlaneTakeoff, {}),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "AIRTIME" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
+                  (animatedValue(snapshot.airtime * 100, 1) / 100).toFixed(2),
+                  " ",
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("em", { children: "S" })
+                ] })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-stat", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Bomb, {}),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "WRECKED" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: animatedValue(snapshot.wreckedCount, 2).toString().padStart(2, "0") })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-stat", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Route, {}),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "DISTANCE" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
+                  (animatedValue(snapshot.distance, 3) / 1e3).toFixed(2),
+                  " ",
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("em", { children: "KM" })
+                ] })
               ] })
             ] })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-stat", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Bomb, {}),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "WRECKED" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: animatedValue(snapshot.wreckedCount, 2).toString().padStart(2, "0") })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-stat", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Route, {}),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "DISTANCE" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
-                (animatedValue(snapshot.distance, 3) / 1e3).toFixed(2),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "result-score-list", "aria-hidden": "true", children: scoreRows.map((row, index) => {
+            const value = animatedValue(row.value, index);
+            const sign = value > 0 && index > 0 ? "+" : value < 0 ? "−" : "";
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-score-row", style: { animationDelay: `${index * 45 + 80}ms` }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: row.label }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { className: value < 0 ? "text-[#ff3f78]" : "", children: [
+                sign,
                 " ",
-                /* @__PURE__ */ jsxRuntimeExports.jsx("em", { children: "KM" })
+                formatScore(value)
               ] })
+            ] }, row.label);
+          }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-actions", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "menu-button result-menu-button relative font-mono font-black tracking-[0.16em]", onClick: onExit, children: "MENU" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "menu-button menu-button--cyan result-next-button relative flex items-center justify-center gap-3 font-mono font-black tracking-[0.15em]", onClick: onNextStage, children: [
+              nextLabel,
+              /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 18, strokeWidth: 2.8, "aria-hidden": "true" })
             ] })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-actions", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "menu-button result-menu-button relative font-mono font-black tracking-[0.16em]", onClick: onExit, children: "MENU" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "menu-button menu-button--cyan result-next-button relative flex items-center justify-center gap-3 font-mono font-black tracking-[0.15em]", onClick: onNextStage, children: [
-            nextLabel,
-            /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 18, strokeWidth: 2.8, "aria-hidden": "true" })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "sr-only", children: [
@@ -15023,7 +15023,6 @@ class DesertEnvironmentKit {
     __publicField(this, "rockLight", new THREE.MeshStandardMaterial({ color: 11095605, roughness: 0.98, metalness: 0 }));
     __publicField(this, "rockDark", new THREE.MeshStandardMaterial({ color: 7878443, roughness: 1, metalness: 0 }));
     __publicField(this, "cactus", new THREE.MeshStandardMaterial({ color: 4745035, roughness: 0.92, metalness: 0 }));
-    __publicField(this, "cactusRib", new THREE.MeshStandardMaterial({ color: 7242336, roughness: 0.9, metalness: 0 }));
     __publicField(this, "weatheredMetal", new THREE.MeshStandardMaterial({ color: 7170658, roughness: 0.82, metalness: 0.38 }));
     __publicField(this, "darkMetal", new THREE.MeshStandardMaterial({ color: 3422005, roughness: 0.72, metalness: 0.5 }));
     __publicField(this, "fadedPanel", new THREE.MeshStandardMaterial({ color: 7239536, roughness: 0.68, metalness: 0.28 }));
@@ -15039,7 +15038,6 @@ class DesertEnvironmentKit {
     this.rockLight.color.setHex(night ? 6107184 : 11095605);
     this.rockDark.color.setHex(night ? 4204330 : 7878443);
     this.cactus.color.setHex(night ? 3163452 : 4745035);
-    this.cactusRib.color.setHex(night ? 4873291 : 7242336);
     this.weatheredMetal.color.setHex(night ? 5593171 : 7170658);
     this.fadedPanel.color.setHex(night ? 5069657 : 7239536);
     this.marker.color.setHex(night ? 9201213 : 11963209);
@@ -15152,7 +15150,6 @@ class DesertEnvironmentKit {
     cactus.name = "desert_cactus";
     const x = side * lateral;
     this.addTaperedCylinder(cactus, 0.18, 0.25, height, this.cactus, x, height / 2, z, 8);
-    this.addTaperedCylinder(cactus, 0.045, 0.065, height * 0.94, this.cactusRib, x - side * 0.16, height * 0.5, z, 7);
     const crown = new THREE.Mesh(this.sphere(0.182, 9, 7), this.cactus);
     crown.position.set(x, height, z);
     crown.scale.y = 1.08;
@@ -15324,7 +15321,6 @@ class DesertEnvironmentKit {
       this.rockLight,
       this.rockDark,
       this.cactus,
-      this.cactusRib,
       this.weatheredMetal,
       this.darkMetal,
       this.fadedPanel,
@@ -15998,10 +15994,9 @@ class Environment {
     });
     __publicField(this, "getRoadElevation", (z) => {
       const sample = this.distance - z;
-      const baseElevation = Math.sin(sample * 0.018) * 0.82 + Math.sin(sample * 7e-3 + 1.2) * 0.42;
-      if (!this.jumpGap || sample <= this.jumpGap.start) return baseElevation + this.roadLevelOffset;
+      if (!this.jumpGap || sample <= this.jumpGap.start) return this.roadLevelOffset;
       const descent = THREE.MathUtils.smoothstep(sample, this.jumpGap.start, this.jumpGap.end);
-      return baseElevation + this.jumpGap.startLevel - this.jumpGap.landingDrop * descent;
+      return this.jumpGap.startLevel - this.jumpGap.landingDrop * descent;
     });
     __publicField(this, "getRoadSlope", (z) => {
       const halfStep = 0.5;
@@ -17820,7 +17815,7 @@ class Environment {
 const PROJECTILE_OBSTACLE_HIT_RADIUS = 1.05;
 const JUMP_GAP_LENGTH = 112;
 const GAP_RAMP_RECOVERY_SECONDS = 3.8;
-const SHARD_LIFETIME_SCALE = 1 / 1.2;
+const SHARD_LIFETIME_SCALE = 1 / 1.5;
 const SHARD_SPEED_SCALE = 1.18;
 class ObstacleManager {
   constructor(scene, roadOffset = () => 0, roadHeading = () => 0, hitRoadside = () => null, roadElevation = () => 0, scheduleJumpGap = () => void 0) {
