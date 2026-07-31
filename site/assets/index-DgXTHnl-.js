@@ -14919,9 +14919,216 @@ class UnrealBloomPass extends Pass {
 }
 UnrealBloomPass.BlurDirectionX = new Vector2(1, 0);
 UnrealBloomPass.BlurDirectionY = new Vector2(0, 1);
+function mergeGeometries(geometries, useGroups = false) {
+  const isIndexed = geometries[0].index !== null;
+  const attributesUsed = new Set(Object.keys(geometries[0].attributes));
+  const morphAttributesUsed = new Set(Object.keys(geometries[0].morphAttributes));
+  const attributes = {};
+  const morphAttributes = {};
+  const morphTargetsRelative = geometries[0].morphTargetsRelative;
+  const mergedGeometry = new BufferGeometry();
+  let offset = 0;
+  for (let i = 0; i < geometries.length; ++i) {
+    const geometry = geometries[i];
+    let attributesCount = 0;
+    if (isIndexed !== (geometry.index !== null)) {
+      console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed with geometry at index " + i + ". All geometries must have compatible attributes; make sure index attribute exists among all geometries, or in none of them.");
+      return null;
+    }
+    for (const name in geometry.attributes) {
+      if (!attributesUsed.has(name)) {
+        console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed with geometry at index " + i + '. All geometries must have compatible attributes; make sure "' + name + '" attribute exists among all geometries, or in none of them.');
+        return null;
+      }
+      if (attributes[name] === void 0) attributes[name] = [];
+      attributes[name].push(geometry.attributes[name]);
+      attributesCount++;
+    }
+    if (attributesCount !== attributesUsed.size) {
+      console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed with geometry at index " + i + ". Make sure all geometries have the same number of attributes.");
+      return null;
+    }
+    if (morphTargetsRelative !== geometry.morphTargetsRelative) {
+      console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed with geometry at index " + i + ". .morphTargetsRelative must be consistent throughout all geometries.");
+      return null;
+    }
+    for (const name in geometry.morphAttributes) {
+      if (!morphAttributesUsed.has(name)) {
+        console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed with geometry at index " + i + ".  .morphAttributes must be consistent throughout all geometries.");
+        return null;
+      }
+      if (morphAttributes[name] === void 0) morphAttributes[name] = [];
+      morphAttributes[name].push(geometry.morphAttributes[name]);
+    }
+    if (useGroups) {
+      let count;
+      if (isIndexed) {
+        count = geometry.index.count;
+      } else if (geometry.attributes.position !== void 0) {
+        count = geometry.attributes.position.count;
+      } else {
+        console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed with geometry at index " + i + ". The geometry must have either an index or a position attribute");
+        return null;
+      }
+      mergedGeometry.addGroup(offset, count, i);
+      offset += count;
+    }
+  }
+  if (isIndexed) {
+    let indexOffset = 0;
+    const mergedIndex = [];
+    for (let i = 0; i < geometries.length; ++i) {
+      const index = geometries[i].index;
+      for (let j = 0; j < index.count; ++j) {
+        mergedIndex.push(index.getX(j) + indexOffset);
+      }
+      indexOffset += geometries[i].attributes.position.count;
+    }
+    mergedGeometry.setIndex(mergedIndex);
+  }
+  for (const name in attributes) {
+    const mergedAttribute = mergeAttributes(attributes[name]);
+    if (!mergedAttribute) {
+      console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed while trying to merge the " + name + " attribute.");
+      return null;
+    }
+    mergedGeometry.setAttribute(name, mergedAttribute);
+  }
+  for (const name in morphAttributes) {
+    const numMorphTargets = morphAttributes[name][0].length;
+    if (numMorphTargets === 0) break;
+    mergedGeometry.morphAttributes = mergedGeometry.morphAttributes || {};
+    mergedGeometry.morphAttributes[name] = [];
+    for (let i = 0; i < numMorphTargets; ++i) {
+      const morphAttributesToMerge = [];
+      for (let j = 0; j < morphAttributes[name].length; ++j) {
+        morphAttributesToMerge.push(morphAttributes[name][j][i]);
+      }
+      const mergedMorphAttribute = mergeAttributes(morphAttributesToMerge);
+      if (!mergedMorphAttribute) {
+        console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed while trying to merge the " + name + " morphAttribute.");
+        return null;
+      }
+      mergedGeometry.morphAttributes[name].push(mergedMorphAttribute);
+    }
+  }
+  return mergedGeometry;
+}
+function mergeAttributes(attributes) {
+  let TypedArray;
+  let itemSize;
+  let normalized;
+  let gpuType = -1;
+  let arrayLength = 0;
+  for (let i = 0; i < attributes.length; ++i) {
+    const attribute = attributes[i];
+    if (TypedArray === void 0) TypedArray = attribute.array.constructor;
+    if (TypedArray !== attribute.array.constructor) {
+      console.error("THREE.BufferGeometryUtils: .mergeAttributes() failed. BufferAttribute.array must be of consistent array types across matching attributes.");
+      return null;
+    }
+    if (itemSize === void 0) itemSize = attribute.itemSize;
+    if (itemSize !== attribute.itemSize) {
+      console.error("THREE.BufferGeometryUtils: .mergeAttributes() failed. BufferAttribute.itemSize must be consistent across matching attributes.");
+      return null;
+    }
+    if (normalized === void 0) normalized = attribute.normalized;
+    if (normalized !== attribute.normalized) {
+      console.error("THREE.BufferGeometryUtils: .mergeAttributes() failed. BufferAttribute.normalized must be consistent across matching attributes.");
+      return null;
+    }
+    if (gpuType === -1) gpuType = attribute.gpuType;
+    if (gpuType !== attribute.gpuType) {
+      console.error("THREE.BufferGeometryUtils: .mergeAttributes() failed. BufferAttribute.gpuType must be consistent across matching attributes.");
+      return null;
+    }
+    arrayLength += attribute.count * itemSize;
+  }
+  const array = new TypedArray(arrayLength);
+  const result = new BufferAttribute(array, itemSize, normalized);
+  let offset = 0;
+  for (let i = 0; i < attributes.length; ++i) {
+    const attribute = attributes[i];
+    if (attribute.isInterleavedBufferAttribute) {
+      const tupleOffset = offset / itemSize;
+      for (let j = 0, l = attribute.count; j < l; j++) {
+        for (let c = 0; c < itemSize; c++) {
+          const value = attribute.getComponent(j, c);
+          result.setComponent(j + tupleOffset, c, value);
+        }
+      }
+    } else {
+      array.set(attribute.array, offset);
+    }
+    offset += attribute.count * itemSize;
+  }
+  if (gpuType !== void 0) {
+    result.gpuType = gpuType;
+  }
+  return result;
+}
+function toTrianglesDrawMode(geometry, drawMode) {
+  if (drawMode === TrianglesDrawMode) {
+    console.warn("THREE.BufferGeometryUtils.toTrianglesDrawMode(): Geometry already defined as triangles.");
+    return geometry;
+  }
+  if (drawMode === TriangleFanDrawMode || drawMode === TriangleStripDrawMode) {
+    let index = geometry.getIndex();
+    if (index === null) {
+      const indices = [];
+      const position = geometry.getAttribute("position");
+      if (position !== void 0) {
+        for (let i = 0; i < position.count; i++) {
+          indices.push(i);
+        }
+        geometry.setIndex(indices);
+        index = geometry.getIndex();
+      } else {
+        console.error("THREE.BufferGeometryUtils.toTrianglesDrawMode(): Undefined position attribute. Processing not possible.");
+        return geometry;
+      }
+    }
+    const numberOfTriangles = index.count - 2;
+    const newIndices = [];
+    if (drawMode === TriangleFanDrawMode) {
+      for (let i = 1; i <= numberOfTriangles; i++) {
+        newIndices.push(index.getX(0));
+        newIndices.push(index.getX(i));
+        newIndices.push(index.getX(i + 1));
+      }
+    } else {
+      for (let i = 0; i < numberOfTriangles; i++) {
+        if (i % 2 === 0) {
+          newIndices.push(index.getX(i));
+          newIndices.push(index.getX(i + 1));
+          newIndices.push(index.getX(i + 2));
+        } else {
+          newIndices.push(index.getX(i + 2));
+          newIndices.push(index.getX(i + 1));
+          newIndices.push(index.getX(i));
+        }
+      }
+    }
+    if (newIndices.length / 3 !== numberOfTriangles) {
+      console.error("THREE.BufferGeometryUtils.toTrianglesDrawMode(): Unable to generate correct amount of triangles.");
+    }
+    const newGeometry = geometry.clone();
+    newGeometry.setIndex(newIndices);
+    newGeometry.clearGroups();
+    return newGeometry;
+  } else {
+    console.error("THREE.BufferGeometryUtils.toTrianglesDrawMode(): Unknown draw mode:", drawMode);
+    return geometry;
+  }
+}
 const LANE_WIDTH = 2.36;
 const ROAD_WIDTH = 8.05;
 const ROAD_DIVIDER_OFFSET = LANE_WIDTH / 2;
+const ROADSIDE_ROW_SPACING = 9.6;
+const ROADSIDE_GROUND_LENGTH = ROADSIDE_ROW_SPACING + 0.36;
+const ROADSIDE_STRIP_LENGTH = ROADSIDE_ROW_SPACING + 0.24;
+const ROADSIDE_GROUND_UNDERCUT = 0.35;
+const oppositeSide = (side) => side === 1 ? -1 : 1;
 const D = "dune-shelf";
 const R = "rock-shelf";
 const C$1 = "cactus-wash";
@@ -15055,13 +15262,31 @@ class DesertEnvironmentKit {
     if (kind === "canyon-gate") this.createCanyonGate(group, side, row, layoutVariant);
     return { group, destructibles };
   }
+  // Layout rows are allowed to leave a side empty, but the desert floor still has
+  // to be there. Attaching the floor to the module meant every empty row cut a full
+  // 9.6m by 31m hole in the terrain that showed the background through it.
+  createGroundOnlyModule(side, row, layoutVariant) {
+    const group = new THREE.Group();
+    group.name = `desert_open_flat_${row}_${side}`;
+    this.createBase(group, side, row, layoutVariant);
+    return group;
+  }
   createBase(group, side, row, layoutVariant) {
     const roadEdge = ROAD_WIDTH / 2 + 0.2;
     const depth = 31;
-    this.addBox(group, depth, 0.16, 9.45, this.sand, side * (roadEdge + depth / 2), -0.13, 0);
-    this.addBox(group, 2.6, 0.08, 9.3, this.gravel, side * (roadEdge + 1.3), -0.025, 0);
+    this.addBox(
+      group,
+      depth,
+      0.16,
+      ROADSIDE_GROUND_LENGTH,
+      this.sand,
+      side * (roadEdge - ROADSIDE_GROUND_UNDERCUT + depth / 2),
+      -0.13,
+      0
+    );
+    this.addBox(group, 2.6, 0.08, ROADSIDE_STRIP_LENGTH, this.gravel, side * (roadEdge + 1.3), -0.025, 0);
     const washOffset = 3.2 + (row + layoutVariant + (side > 0 ? 1 : 0)) % 3 * 0.55;
-    const wash = this.addBox(group, 0.72, 0.04, 8.9, this.rockDark, side * (roadEdge + washOffset), -0.08, 0);
+    const wash = this.addBox(group, 0.72, 0.04, 8.9, this.rockDark, side * (roadEdge + washOffset), -0.03, 0);
     wash.rotation.y = side * (0.025 + row % 3 * 0.012);
   }
   createDuneShelf(group, side, row, layoutVariant) {
@@ -15155,10 +15380,10 @@ class DesertEnvironmentKit {
     crown.scale.y = 1.08;
     crown.userData.sharedGeometry = true;
     cactus.add(crown);
-    const firstSide = variant % 2 === 0 ? side : -side;
+    const firstSide = variant % 2 === 0 ? side : oppositeSide(side);
     this.addCactusArm(cactus, x, z, height, firstSide, 0.43 + variant % 3 * 0.035, 0.26);
     if (variant % 2 === 1) {
-      this.addCactusArm(cactus, x, z, height, firstSide === 1 ? -1 : 1, 0.63, 0.22);
+      this.addCactusArm(cactus, x, z, height, oppositeSide(firstSide), 0.63, 0.22);
     }
     cactus.userData.destructible = true;
     cactus.userData.destroyed = false;
@@ -15465,6 +15690,34 @@ class FactoryEnvironmentKit {
     if (kind === "crane-landmark") this.createCraneLandmark(group, side);
     return { group, destructibles };
   }
+  // Layout rows are allowed to leave a side empty, but the yard surface still has
+  // to be there. Attaching the surface to the module meant every empty row cut a
+  // full 9.6m by 30m hole in the ground that showed the sky through it.
+  createGroundOnlyModule(side, row) {
+    const group = new THREE.Group();
+    group.name = `factory_open_yard_${row}_${side}`;
+    this.addYardSurface(group, side);
+    return group;
+  }
+  addYardSurface(group, side) {
+    const roadEdge = ROAD_WIDTH / 2 + 0.18;
+    const yardDepth = 30;
+    this.addBox(
+      group,
+      yardDepth,
+      0.14,
+      ROADSIDE_GROUND_LENGTH,
+      this.yard,
+      side * (roadEdge - ROADSIDE_GROUND_UNDERCUT + yardDepth / 2),
+      -0.1,
+      0
+    );
+    this.addBox(group, 2.2, 0.08, ROADSIDE_STRIP_LENGTH, this.concrete, side * (roadEdge + 1.1), -5e-3, 0);
+    this.addBox(group, 3.35, 0.035, ROADSIDE_STRIP_LENGTH, this.darkSteel, side * (roadEdge + 3.95), 5e-3, 0);
+    for (const z of [-3.05, 0, 3.05]) {
+      this.addBox(group, 16.1, 0.018, 0.035, this.darkSteel, side * (roadEdge + 13.4), -0.018, z);
+    }
+  }
   createFloodlight(side) {
     const group = new THREE.Group();
     group.name = "factory_floodlight";
@@ -15481,13 +15734,7 @@ class FactoryEnvironmentKit {
   }
   createBase(group, side, kind, row, layoutVariant, destructibles) {
     const roadEdge = ROAD_WIDTH / 2 + 0.18;
-    const yardDepth = 23;
-    this.addBox(group, yardDepth, 0.14, 9.42, this.yard, side * (roadEdge + yardDepth / 2), -0.1, 0);
-    this.addBox(group, 2.2, 0.08, 9.32, this.concrete, side * (roadEdge + 1.1), -5e-3, 0);
-    this.addBox(group, 3.35, 0.035, 8.9, this.darkSteel, side * (roadEdge + 3.95), 5e-3, 0);
-    for (const z of [-3.05, 0, 3.05]) {
-      this.addBox(group, 16.1, 0.018, 0.035, this.darkSteel, side * (roadEdge + 13.4), -0.018, z);
-    }
+    this.addYardSurface(group, side);
     if (kind !== "assembly-yard") {
       destructibles.push(this.addFenceRun(group, side, roadEdge + 6.1, kind === "tank-farm" ? 2.5 : 3.25));
     }
@@ -15516,7 +15763,7 @@ class FactoryEnvironmentKit {
       this.addCylinder(group, radius, 1.82, material, side * 7.8, 1.61, z, "y", 12);
       this.addCylinder(group, radius, 1.82, material, side * 16.4, 1.61, z, "y", 12);
       this.addPipeElbow(group, radius, 0.5, material, side * 7.8, 3.02, z, side, -1, 12);
-      this.addPipeElbow(group, radius, 0.5, material, side * 16.4, 3.02, z, -side, -1, 12);
+      this.addPipeElbow(group, radius, 0.5, material, side * 16.4, 3.02, z, oppositeSide(side), -1, 12);
       for (const x of [7.8, 16.4]) {
         this.addCylinder(group, radius + 0.06, 0.12, this.darkSteel, side * x, 2.42, z, "y", 12);
       }
@@ -15538,7 +15785,7 @@ class FactoryEnvironmentKit {
     destructibles.push(this.createPumpSkid(group, side, 8, pumpZ));
     this.addCylinder(group, 0.18, 4.6, this.fadedYellow, side * 10.3, 0.82, pumpZ, "x", 10);
     this.addCylinder(group, 0.18, 0.9, this.fadedYellow, side * 13.05, 1.72, pumpZ, "y", 10);
-    this.addPipeElbow(group, 0.18, 0.45, this.fadedYellow, side * 13.05, 0.82, pumpZ, -side, 1, 10);
+    this.addPipeElbow(group, 0.18, 0.45, this.fadedYellow, side * 13.05, 0.82, pumpZ, oppositeSide(side), 1, 10);
     if (breached) {
       const debris = new THREE.Group();
       debris.name = "breached_tank_debris";
@@ -15843,6 +16090,14 @@ const RAIN_RIPPLE_RATE = 34;
 const STREETLIGHT_COUNT = 16;
 const STAR_COUNT = 160;
 const DESERT_MOON_OFFSET = new THREE.Vector3(-28, 15, -86);
+const CITY_CLEAR_SKY_RADIUS = 118;
+const CITY_CLEAR_SKY_PLATE_TOP = 30;
+const CITY_CLEAR_SKY_WRAPS = 2;
+const CITY_CLEAR_SKY_SWAY_RATE = 53e-4;
+const CITY_CLEAR_SKY_SWAY_LIMIT = 0.34;
+const CITY_CLEAR_SKY_HAZE_TOP = 7;
+const CITY_CLEAR_SKY_HAZE_LIFT = 0.13;
+const CITY_CLEAR_SKY_HAZE_LIFT_TOP = 18;
 const MAX_ROAD_HEADING = 0.115;
 const FORWARD_VISIBILITY_SCALE = 1.14;
 const FINISH_STRAIGHT_LENGTH = 96;
@@ -15869,6 +16124,44 @@ const createRoadPatternRecipe = (template, direction) => ({
   headingPoints: template.headingPoints.map(([distance, headingDelta]) => [distance, headingDelta * direction])
 });
 const easeRoadPoint = (value) => value * value * (3 - 2 * value);
+const ROAD_DECK_SURFACE_Y = -0.018;
+const ROAD_DECK_CURB_INNER = ROAD_WIDTH / 2 + 0.11;
+const ROAD_DECK_CURB_OUTER = ROAD_WIDTH / 2 + 0.25;
+const ROAD_DECK_CURB_BOTTOM = -0.05;
+const ROAD_DECK_CURB_TOP = 0.13;
+const ROAD_DECK_EDGE_HALF = 0.0225;
+const ROAD_DECK_EDGE_BOTTOM = 1e-3;
+const ROAD_DECK_EDGE_TOP = 0.023;
+const roadDeckEdgeProfile = (center) => [
+  [center - ROAD_DECK_EDGE_HALF, ROAD_DECK_EDGE_BOTTOM],
+  [center - ROAD_DECK_EDGE_HALF, ROAD_DECK_EDGE_TOP],
+  [center + ROAD_DECK_EDGE_HALF, ROAD_DECK_EDGE_TOP],
+  [center + ROAD_DECK_EDGE_HALF, ROAD_DECK_EDGE_BOTTOM]
+];
+const roadDeckCurbProfile = (side) => {
+  const inner = side * ROAD_DECK_CURB_INNER;
+  const outer = side * ROAD_DECK_CURB_OUTER;
+  const minX = Math.min(inner, outer);
+  const maxX = Math.max(inner, outer);
+  return [
+    [minX, ROAD_DECK_CURB_BOTTOM],
+    [minX, ROAD_DECK_CURB_TOP],
+    [maxX, ROAD_DECK_CURB_TOP],
+    [maxX, ROAD_DECK_CURB_BOTTOM]
+  ];
+};
+const ROAD_DECK_SURFACE_PROFILE = [
+  [-ROAD_DECK_CURB_INNER, ROAD_DECK_SURFACE_Y],
+  [ROAD_DECK_CURB_INNER, ROAD_DECK_SURFACE_Y]
+];
+const ROAD_DECK_TRIM_PROFILES = [
+  roadDeckEdgeProfile(-ROAD_WIDTH / 2),
+  roadDeckEdgeProfile(ROAD_WIDTH / 2),
+  roadDeckCurbProfile(-1),
+  roadDeckCurbProfile(1)
+];
+const ROAD_DASH_PERIOD = 4;
+const ROAD_DASH_LATERALS = [-ROAD_DIVIDER_OFFSET, ROAD_DIVIDER_OFFSET];
 const CITY_LAYOUTS = [
   [[0, 0], [3, 3], [1, 2], [11, 11], [5, 4], [3, 3], [2, 1], [0, 0], [9, 10], [3, 3], [6, 8], [11, 11]],
   [[11, 11], [3, 3], [2, 2], [0, 0], [4, 5], [3, 3], [1, 1], [11, 11], [10, 9], [3, 3], [8, 6], [0, 0]],
@@ -15877,9 +16170,27 @@ const CITY_LAYOUTS = [
 class Environment {
   constructor(scene) {
     __publicField(this, "scene");
-    __publicField(this, "roadSegments", []);
+    // The deck used to be 72 rigid 2m units, each carrying its own yaw and pitch.
+    // Neighbouring units therefore never shared an edge, so every curve turned the
+    // curb and the painted edges into a chain of visibly kinked chords. These bands
+    // are swept instead: consecutive rows share the exact same route sample, so the
+    // deck is continuous by construction and needs no recycling.
+    __publicField(this, "roadDeckBands", []);
+    __publicField(this, "roadDashes");
+    __publicField(this, "roadRowZ");
+    __publicField(this, "roadRowCenter");
+    __publicField(this, "roadRowElevation");
+    __publicField(this, "roadRowCos");
+    __publicField(this, "roadRowSin");
+    __publicField(this, "roadRowInGap");
+    __publicField(this, "roadDeckDummy", new THREE.Object3D());
     __publicField(this, "roadsideProps", []);
     __publicField(this, "destructibleProps", []);
+    __publicField(this, "cityClearSkyTexture");
+    __publicField(this, "cityClearSky");
+    // Shared with the sky dome's patched program so the haze band always resolves
+    // to the exact colour scene fog resolves to.
+    __publicField(this, "cityClearSkyHazeColor", { value: new THREE.Color(15855336) });
     __publicField(this, "stars");
     __publicField(this, "moon");
     __publicField(this, "rain");
@@ -15923,14 +16234,16 @@ class Environment {
     __publicField(this, "roadPatternHeading", 0);
     __publicField(this, "lastRoadPatternId", "");
     __publicField(this, "finishRoute", null);
+    __publicField(this, "roadOriginSample", Number.NaN);
+    __publicField(this, "roadOriginCenter", 0);
     __publicField(this, "jumpGap", null);
     __publicField(this, "roadLevelOffset", 0);
     __publicField(this, "jumpGapVisual");
-    __publicField(this, "segmentLength", 2);
-    __publicField(this, "segmentCount", 72);
+    __publicField(this, "roadRowPitch", 2);
+    __publicField(this, "roadQuadCount", 72);
     __publicField(this, "rearRoadExtent", 16);
     __publicField(this, "roadsideRowCount", 24);
-    __publicField(this, "roadsideSpacing", 9.6);
+    __publicField(this, "roadsideSpacing", ROADSIDE_ROW_SPACING);
     __publicField(this, "roadWidth", ROAD_WIDTH);
     __publicField(this, "factoryKit", new FactoryEnvironmentKit());
     __publicField(this, "desertKit", new DesertEnvironmentKit());
@@ -15946,6 +16259,10 @@ class Environment {
     __publicField(this, "magentaMaterial", new THREE.MeshBasicMaterial({ color: 16727928 }));
     __publicField(this, "glassMaterial", new THREE.MeshBasicMaterial({ color: 9353665, transparent: true, opacity: 0.28, depthWrite: false }));
     __publicField(this, "windowMaterial", new THREE.MeshBasicMaterial({ color: 7314853, transparent: true, opacity: 0.52 }));
+    // Deliberately biased toward the sky rather than toward the near buildings, so the
+    // backdrop already reads as aerial distance before fog is applied.
+    __publicField(this, "backdropMaterial", new THREE.MeshBasicMaterial({ color: 14673382 }));
+    __publicField(this, "backdropCapMaterial", new THREE.MeshBasicMaterial({ color: 12831951 }));
     __publicField(this, "pavementMaterial", new THREE.MeshBasicMaterial({ color: 13092545 }));
     __publicField(this, "serviceRoadMaterial", new THREE.MeshBasicMaterial({ color: 8751239 }));
     __publicField(this, "edgeMaterial", new THREE.LineBasicMaterial({ color: 3422012, transparent: true, opacity: 0.76 }));
@@ -15989,7 +16306,11 @@ class Environment {
       return sample > this.jumpGap.start && sample < this.jumpGap.end;
     });
     __publicField(this, "getRoadOffset", (z) => {
-      const rawOffset = this.getRoadCenter(this.distance - z) - this.getRoadCenter(this.distance);
+      if (this.roadOriginSample !== this.distance) {
+        this.roadOriginSample = this.distance;
+        this.roadOriginCenter = this.getRoadCenter(this.distance);
+      }
+      const rawOffset = this.getRoadCenter(this.distance - z) - this.roadOriginCenter;
       return Math.tanh(rawOffset / 4.8) * 4.8;
     });
     __publicField(this, "getRoadHeading", (z) => {
@@ -16050,25 +16371,37 @@ class Environment {
     scene.add(this.jumpGapVisual.root);
     this.resetRoadRoute();
     scene.fog = new THREE.Fog(15855336, 24, 105);
-    for (let index = 0; index < this.segmentCount; index++) {
-      const segment = this.createRoadSegment(index % 2 === 0);
-      segment.position.z = this.rearRoadExtent - index * this.segmentLength;
-      this.roadSegments.push(segment);
-      scene.add(segment);
-    }
+    const roadRowCount = this.roadQuadCount + 1;
+    this.roadRowZ = new Float32Array(roadRowCount);
+    this.roadRowCenter = new Float32Array(roadRowCount);
+    this.roadRowElevation = new Float32Array(roadRowCount);
+    this.roadRowCos = new Float32Array(roadRowCount);
+    this.roadRowSin = new Float32Array(roadRowCount);
+    this.roadRowInGap = new Uint8Array(roadRowCount);
+    this.roadDeckBands = [
+      this.createRoadDeckBand(this.roadSurfaceMaterial, [ROAD_DECK_SURFACE_PROFILE]),
+      this.createRoadDeckBand(this.darkMaterial, ROAD_DECK_TRIM_PROFILES)
+    ];
+    for (const band of this.roadDeckBands) scene.add(band.mesh);
+    this.roadDashes = this.createRoadDashes();
+    scene.add(this.roadDashes);
+    this.updateRoadDeck();
     this.createRoadsideField();
+    this.cityClearSkyTexture = this.createCityClearSkyTexture();
+    this.cityClearSky = this.createCityClearSky();
     this.stars = this.createStars();
     this.moon = this.createMoon();
     this.rain = this.createRain();
     this.snowTexture = this.createSnowTexture();
     this.snow = this.createSnow();
     this.sandstorm = this.createSandstorm();
-    scene.add(this.stars, this.moon, this.rain, this.snow, this.sandstorm);
+    scene.add(this.cityClearSky, this.stars, this.moon, this.rain, this.snow, this.sandstorm);
     this.createRainRipples();
     this.setWeather("clear");
   }
   resetRoadRoute() {
     this.finishRoute = null;
+    this.roadOriginSample = Number.NaN;
     this.jumpGap = null;
     this.roadLevelOffset = 0;
     this.jumpGapVisual.root.visible = false;
@@ -16093,6 +16426,7 @@ class Environment {
       sStart: null,
       sLength: FINISH_S_MIN_LENGTH
     };
+    this.roadOriginSample = Number.NaN;
   }
   beginFinishRoute(exitTravelDistance) {
     if (!this.finishRoute) {
@@ -16104,6 +16438,7 @@ class Environment {
       FINISH_S_MIN_LENGTH,
       (exitTravelDistance - FINISH_STRAIGHT_LENGTH) / FINISH_S_EXIT_PROGRESS
     );
+    this.roadOriginSample = Number.NaN;
   }
   patternFitsHeading(recipe, startHeading) {
     return recipe.headingPoints.every(([, delta]) => Math.abs(startHeading + delta) <= MAX_ROAD_HEADING);
@@ -16208,7 +16543,19 @@ class Environment {
   getProceduralRoadCenter(sample) {
     var _a;
     this.ensureRoadPatternCoverage(sample + 1);
-    const segment = this.roadPatternSegments.find(({ start, end }) => sample >= start && sample <= end);
+    let low = 0;
+    let high = this.roadPatternSegments.length - 1;
+    let segment;
+    while (low <= high) {
+      const middle = low + high >> 1;
+      const candidate = this.roadPatternSegments[middle];
+      if (sample < candidate.start) high = middle - 1;
+      else if (sample > candidate.end) low = middle + 1;
+      else {
+        segment = candidate;
+        break;
+      }
+    }
     if (segment) return this.sampleRoadPattern(segment, sample);
     return ((_a = this.roadPatternSegments[0]) == null ? void 0 : _a.centerSamples[0]) ?? 0;
   }
@@ -16229,49 +16576,141 @@ class Environment {
     }
     return this.getProceduralRoadCenter(sample);
   }
-  createRoadSegment(hasDividerDash) {
-    const group = new THREE.Group();
-    const roadDeckParts = [];
-    const surface = new THREE.Mesh(
-      new THREE.PlaneGeometry(this.roadWidth, this.segmentLength + 0.28),
-      this.roadSurfaceMaterial
-    );
-    surface.rotation.x = -Math.PI / 2;
-    surface.position.y = -0.018;
-    group.add(surface);
-    roadDeckParts.push(surface);
-    const boundaryGeometry = new THREE.BoxGeometry(0.045, 0.022, this.segmentLength + 0.18);
-    for (const x of [-this.roadWidth / 2, this.roadWidth / 2]) {
-      const boundary = new THREE.Mesh(boundaryGeometry, this.darkMaterial);
-      boundary.position.set(x, 0.012, 0);
-      group.add(boundary);
-      roadDeckParts.push(boundary);
-    }
-    const curbGeometry = new THREE.BoxGeometry(0.14, 0.18, this.segmentLength + 0.32);
-    const curbOffset = this.roadWidth / 2 + 0.18;
-    for (const x of [-curbOffset, curbOffset]) {
-      const curb = new THREE.Mesh(curbGeometry, this.darkMaterial);
-      curb.position.set(x, 0.04, 0);
-      group.add(curb);
-      roadDeckParts.push(curb);
-    }
-    if (hasDividerDash) {
-      const dashGeometry = new THREE.BoxGeometry(0.09, 0.018, 1.44);
-      for (const x of [-ROAD_DIVIDER_OFFSET, ROAD_DIVIDER_OFFSET]) {
-        const dash = new THREE.Mesh(dashGeometry, this.laneDividerMaterial);
-        dash.position.set(x, 0.016, 0);
-        group.add(dash);
-        roadDeckParts.push(dash);
+  createRoadDeckBand(material, profiles) {
+    const faces = [];
+    for (const profile of profiles) {
+      for (let index = 0; index < profile.length - 1; index++) {
+        const [ax, ay] = profile[index];
+        const [bx, by] = profile[index + 1];
+        const span = Math.hypot(bx - ax, by - ay);
+        faces.push({ ax, ay, bx, by, nx: -(by - ay) / span, ny: (bx - ax) / span });
       }
     }
-    group.userData.roadDeckParts = roadDeckParts;
-    return group;
+    const quads = faces.length * this.roadQuadCount;
+    const position = new THREE.BufferAttribute(new Float32Array(quads * 4 * 3), 3);
+    const normal = new THREE.BufferAttribute(new Float32Array(quads * 4 * 3), 3);
+    position.setUsage(THREE.DynamicDrawUsage);
+    normal.setUsage(THREE.DynamicDrawUsage);
+    const indices = new Uint32Array(quads * 6);
+    for (let quad = 0; quad < quads; quad++) {
+      const vertex = quad * 4;
+      const target = quad * 6;
+      indices[target] = vertex;
+      indices[target + 1] = vertex + 1;
+      indices[target + 2] = vertex + 2;
+      indices[target + 3] = vertex;
+      indices[target + 4] = vertex + 2;
+      indices[target + 5] = vertex + 3;
+    }
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", position);
+    geometry.setAttribute("normal", normal);
+    geometry.setIndex(new THREE.BufferAttribute(indices, 1));
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.name = "road_deck_band";
+    mesh.frustumCulled = false;
+    return { mesh, position, normal, faces };
   }
-  updateRoadGapPresentation(segment) {
-    const sample = this.distance - segment.position.z;
-    const inGap = this.jumpGap !== null && sample >= this.jumpGap.start && sample <= this.jumpGap.end;
-    const roadDeckParts = segment.userData.roadDeckParts;
-    for (const part of roadDeckParts) part.visible = !inGap;
+  createRoadDashes() {
+    const count = Math.ceil(this.roadQuadCount * this.roadRowPitch / ROAD_DASH_PERIOD) + 1;
+    const dashes = new THREE.InstancedMesh(
+      new THREE.BoxGeometry(0.09, 0.018, 1.44),
+      this.laneDividerMaterial,
+      count * ROAD_DASH_LATERALS.length
+    );
+    dashes.name = "road_lane_dashes";
+    dashes.frustumCulled = false;
+    dashes.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    return dashes;
+  }
+  writeRoadDeckCorner(positions, normals, cursor, face, row, atProfileEnd) {
+    const lateral = atProfileEnd ? face.bx : face.ax;
+    const height = atProfileEnd ? face.by : face.ay;
+    const cos = this.roadRowCos[row];
+    const sin = this.roadRowSin[row];
+    positions[cursor] = this.roadRowCenter[row] + lateral * cos;
+    positions[cursor + 1] = this.roadRowElevation[row] + height;
+    positions[cursor + 2] = this.roadRowZ[row] + lateral * sin;
+    normals[cursor] = face.nx * cos;
+    normals[cursor + 1] = face.ny;
+    normals[cursor + 2] = face.nx * sin;
+    return cursor + 3;
+  }
+  updateRoadDeck() {
+    for (let row = 0; row < this.roadRowZ.length; row++) {
+      const z = this.rearRoadExtent - row * this.roadRowPitch;
+      const heading = this.getRoadHeading(z);
+      const sample = this.distance - z;
+      this.roadRowZ[row] = z;
+      this.roadRowCenter[row] = this.getRoadOffset(z);
+      this.roadRowElevation[row] = this.getRoadElevation(z);
+      this.roadRowCos[row] = Math.cos(heading);
+      this.roadRowSin[row] = Math.sin(heading);
+      this.roadRowInGap[row] = this.jumpGap !== null && sample >= this.jumpGap.start && sample <= this.jumpGap.end ? 1 : 0;
+    }
+    for (const band of this.roadDeckBands) {
+      const positions = band.position.array;
+      const normals = band.normal.array;
+      let cursor = 0;
+      for (const face of band.faces) {
+        for (let quad = 0; quad < this.roadQuadCount; quad++) {
+          const far = quad + 1;
+          if (this.roadRowInGap[quad] === 1 || this.roadRowInGap[far] === 1) {
+            for (let corner = 0; corner < 4; corner++) {
+              positions[cursor] = this.roadRowCenter[quad];
+              positions[cursor + 1] = this.roadRowElevation[quad];
+              positions[cursor + 2] = this.roadRowZ[quad];
+              normals[cursor] = 0;
+              normals[cursor + 1] = 1;
+              normals[cursor + 2] = 0;
+              cursor += 3;
+            }
+            continue;
+          }
+          cursor = this.writeRoadDeckCorner(positions, normals, cursor, face, quad, false);
+          cursor = this.writeRoadDeckCorner(positions, normals, cursor, face, quad, true);
+          cursor = this.writeRoadDeckCorner(positions, normals, cursor, face, far, true);
+          cursor = this.writeRoadDeckCorner(positions, normals, cursor, face, far, false);
+        }
+      }
+      band.position.needsUpdate = true;
+      band.normal.needsUpdate = true;
+    }
+    this.updateRoadDashes();
+  }
+  updateRoadDashes() {
+    const phase = this.distance % ROAD_DASH_PERIOD;
+    const rows = this.roadDashes.count / ROAD_DASH_LATERALS.length;
+    let instance = 0;
+    for (let row = 0; row < rows; row++) {
+      const z = this.rearRoadExtent + phase - row * ROAD_DASH_PERIOD;
+      const sample = this.distance - z;
+      const inGap = this.jumpGap !== null && sample >= this.jumpGap.start && sample <= this.jumpGap.end;
+      const center = this.getRoadOffset(z);
+      const elevation = this.getRoadElevation(z);
+      const heading = this.getRoadHeading(z);
+      const cos = Math.cos(heading);
+      const sin = Math.sin(heading);
+      for (const lateral of ROAD_DASH_LATERALS) {
+        if (inGap) {
+          this.roadDeckDummy.scale.setScalar(0);
+          this.roadDeckDummy.position.set(0, 0, 0);
+          this.roadDeckDummy.rotation.set(0, 0, 0);
+        } else {
+          this.roadDeckDummy.scale.setScalar(1);
+          this.roadDeckDummy.position.set(
+            center + lateral * cos,
+            elevation + 0.016,
+            z + lateral * sin
+          );
+          this.roadDeckDummy.rotation.set(this.getRoadSlope(z), -heading, 0);
+        }
+        this.roadDeckDummy.updateMatrix();
+        this.roadDashes.setMatrixAt(instance, this.roadDeckDummy.matrix);
+        instance += 1;
+      }
+    }
+    this.roadDashes.instanceMatrix.needsUpdate = true;
   }
   addJumpGapBox(group, size, material, position) {
     const mesh = new THREE.Mesh(new THREE.BoxGeometry(...size), material);
@@ -16626,12 +17065,72 @@ class Environment {
         const type = layout[row % layout.length][sideIndex];
         if (type === null) continue;
         const group = this.createCityBlock(type, side, row);
+        const rotor = group.getObjectByName("roadside_rotor") ?? void 0;
+        this.batchStaticCityBlock(group, rotor);
         group.position.z = -8 - row * this.roadsideSpacing;
-        this.roadsideProps.push({ group, side, shoulder: 0 });
+        this.roadsideProps.push({ group, side, shoulder: 0, rotor });
         this.scene.add(group);
       }
     }
     this.createStreetlightField();
+  }
+  batchStaticCityBlock(group, animatedRoot) {
+    group.updateWorldMatrix(true, true);
+    const rootInverse = new THREE.Matrix4().copy(group.matrixWorld).invert();
+    const animatedObjects = /* @__PURE__ */ new Set();
+    animatedRoot == null ? void 0 : animatedRoot.traverse((child) => animatedObjects.add(child));
+    const meshBatches = /* @__PURE__ */ new Map();
+    const lineBatches = /* @__PURE__ */ new Map();
+    const sources = [];
+    const instanceMatrix = new THREE.Matrix4();
+    const relativeMatrix = new THREE.Matrix4();
+    const addGeometry = (batches, material, geometry) => {
+      const geometries = batches.get(material);
+      if (geometries) geometries.push(geometry);
+      else batches.set(material, [geometry]);
+    };
+    group.traverse((child) => {
+      if (animatedObjects.has(child)) return;
+      if (child instanceof THREE.InstancedMesh && !Array.isArray(child.material)) {
+        for (let index = 0; index < child.count; index++) {
+          child.getMatrixAt(index, instanceMatrix);
+          relativeMatrix.multiplyMatrices(rootInverse, child.matrixWorld).multiply(instanceMatrix);
+          addGeometry(meshBatches, child.material, child.geometry.clone().applyMatrix4(relativeMatrix));
+        }
+        sources.push(child);
+        return;
+      }
+      if (child instanceof THREE.Mesh && !Array.isArray(child.material)) {
+        relativeMatrix.multiplyMatrices(rootInverse, child.matrixWorld);
+        addGeometry(meshBatches, child.material, child.geometry.clone().applyMatrix4(relativeMatrix));
+        sources.push(child);
+        return;
+      }
+      if (child instanceof THREE.LineSegments && !Array.isArray(child.material)) {
+        relativeMatrix.multiplyMatrices(rootInverse, child.matrixWorld);
+        addGeometry(lineBatches, child.material, child.geometry.clone().applyMatrix4(relativeMatrix));
+        sources.push(child);
+      }
+    });
+    for (const source of sources) {
+      source.removeFromParent();
+      if (!source.userData.sharedGeometry) source.geometry.dispose();
+    }
+    const addMergedBatches = (batches, createObject) => {
+      for (const [material, geometries] of batches) {
+        const merged = geometries.length === 1 ? geometries[0] : mergeGeometries(geometries, false);
+        if (merged) {
+          if (geometries.length > 1) {
+            for (const geometry of geometries) geometry.dispose();
+          }
+          group.add(createObject(merged, material));
+        } else {
+          for (const geometry of geometries) group.add(createObject(geometry, material));
+        }
+      }
+    };
+    addMergedBatches(meshBatches, (geometry, material) => new THREE.Mesh(geometry, material));
+    addMergedBatches(lineBatches, (geometry, material) => new THREE.LineSegments(geometry, material));
   }
   createFactoryRoadsideField() {
     const layout = getFactoryLayout(this.stage);
@@ -16639,7 +17138,13 @@ class Environment {
       for (const side of [-1, 1]) {
         const sideIndex = side === 1 ? 1 : 0;
         const type = layout[row][sideIndex];
-        if (type === null) continue;
+        if (type === null) {
+          const open = this.factoryKit.createGroundOnlyModule(side, row);
+          open.position.z = -8 - row * this.roadsideSpacing;
+          this.roadsideProps.push({ group: open, side, shoulder: 0 });
+          this.scene.add(open);
+          continue;
+        }
         const built = this.factoryKit.createModule(type, side, row, this.factoryLayoutIndex);
         built.group.position.z = -8 - row * this.roadsideSpacing;
         this.roadsideProps.push({ group: built.group, side, shoulder: 0 });
@@ -16655,7 +17160,13 @@ class Environment {
       for (const side of [-1, 1]) {
         const sideIndex = side === 1 ? 1 : 0;
         const type = layout[row][sideIndex];
-        if (type === null) continue;
+        if (type === null) {
+          const open = this.desertKit.createGroundOnlyModule(side, row, this.desertLayoutIndex);
+          open.position.z = -8 - row * this.roadsideSpacing;
+          this.roadsideProps.push({ group: open, side, shoulder: 0 });
+          this.scene.add(open);
+          continue;
+        }
         const built = this.desertKit.createModule(type, side, row, this.desertLayoutIndex);
         built.group.position.z = -8 - row * this.roadsideSpacing;
         this.roadsideProps.push({ group: built.group, side, shoulder: 0 });
@@ -16771,24 +17282,25 @@ class Environment {
   createCityBlock(type, side, row) {
     const group = new THREE.Group();
     group.name = `city_block_${row}_${side}`;
-    const blockDepth = 18;
+    const blockDepth = 30;
     const roadEdge = this.roadWidth / 2 + 0.18;
+    const groundInnerEdge = roadEdge - ROADSIDE_GROUND_UNDERCUT;
     const serviceLaneOuterEdge = roadEdge + 4.45;
     const facilityCenter = serviceLaneOuterEdge + 1.2;
     const ground = new THREE.Mesh(
-      new THREE.BoxGeometry(blockDepth, 0.12, this.roadsideSpacing - 0.18),
+      new THREE.BoxGeometry(blockDepth, 0.12, ROADSIDE_GROUND_LENGTH),
       this.pavementMaterial
     );
-    ground.position.set(side * (roadEdge + blockDepth / 2), -0.09, 0);
+    ground.position.set(side * (groundInnerEdge + blockDepth / 2), -0.09, 0);
     group.add(ground);
     const sidewalk = new THREE.Mesh(
-      new THREE.BoxGeometry(2.15, 0.08, this.roadsideSpacing - 0.32),
+      new THREE.BoxGeometry(2.15, 0.08, ROADSIDE_STRIP_LENGTH),
       this.bodyMaterial
     );
     sidewalk.position.set(side * (roadEdge + 1.05), 0.015, 0);
     group.add(sidewalk);
     const serviceLane = new THREE.Mesh(
-      new THREE.BoxGeometry(2.2, 0.025, this.roadsideSpacing - 0.7),
+      new THREE.BoxGeometry(2.2, 0.025, ROADSIDE_STRIP_LENGTH),
       this.serviceRoadMaterial
     );
     serviceLane.position.set(side * (roadEdge + 3.35), -5e-3, 0);
@@ -16846,7 +17358,51 @@ class Environment {
     );
     tower.position.set(side * (roadEdge + 13.1 + row % 2 * 1.15), 0, row % 3 === 0 ? 2.25 : -2.1);
     group.add(tower);
+    this.addCityBackdrop(group, side, row, roadEdge);
     return group;
+  }
+  // Beyond the tower line the block used to be bare pavement all the way to the fog,
+  // which read as an empty plain rather than a city. A silhouette row of undetailed
+  // masses gives the horizon depth without adding anything the player can inspect:
+  // it sits far enough out that fog carries most of its contrast.
+  addCityBackdrop(group, side, row, roadEdge) {
+    const parity = row + (side === 1 ? 1 : 0);
+    const massSpecs = [
+      { lateral: 18.4, width: 8.2, depth: 6.4, height: 10.6, z: -2.4 },
+      { lateral: 24, width: 9.6, depth: 7.6, height: 12.6, z: 2.1 },
+      { lateral: 21.2, width: 6.2, depth: 5.2, height: 8.4, z: 3.6 }
+    ];
+    const carried = [
+      [0, 1],
+      [1, 2],
+      [0, 2],
+      [1],
+      [0, 1]
+    ][parity % 5];
+    for (const index of carried) {
+      const spec = massSpecs[index];
+      const variant = (parity + index * 2) % 4;
+      const height = spec.height * (0.82 + variant * 0.09);
+      const width = spec.width * (0.9 + variant % 3 * 0.07);
+      const mass = new THREE.Mesh(
+        new THREE.BoxGeometry(spec.depth, height, width),
+        this.backdropMaterial
+      );
+      mass.position.set(
+        // The lateral jitter has to stay small enough that the deepest mass plus
+        // half its depth still lands on the block ground.
+        side * (roadEdge + spec.lateral + variant * 0.4),
+        height / 2 - 0.03,
+        spec.z + (variant - 1.5) * 0.9
+      );
+      group.add(mass);
+      const cap = new THREE.Mesh(
+        new THREE.BoxGeometry(spec.depth + 0.24, 0.34, width + 0.24),
+        this.backdropCapMaterial
+      );
+      cap.position.set(mass.position.x, height + 0.14, mass.position.z);
+      group.add(cap);
+    }
   }
   getCityFeatureType(type, row) {
     if (type === 1) return row % 2 === 0 ? 4 : 9;
@@ -17071,6 +17627,67 @@ class Environment {
         break;
     }
     return group;
+  }
+  createCityClearSkyTexture() {
+    const texture = new THREE.TextureLoader().load(
+      `${"./"}textures/city-clear-sky.webp`
+    );
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.minFilter = THREE.LinearMipmapLinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.anisotropy = 4;
+    texture.wrapS = THREE.MirroredRepeatWrapping;
+    texture.wrapT = THREE.ClampToEdgeWrapping;
+    const plateSpan = CITY_CLEAR_SKY_PLATE_TOP / 180;
+    texture.repeat.set(CITY_CLEAR_SKY_WRAPS, 1 / plateSpan);
+    texture.offset.set(0, -0.5 / plateSpan);
+    return texture;
+  }
+  createCityClearSky() {
+    const hazeTop = CITY_CLEAR_SKY_HAZE_TOP / CITY_CLEAR_SKY_PLATE_TOP;
+    const hazeLiftTop = CITY_CLEAR_SKY_HAZE_LIFT_TOP / CITY_CLEAR_SKY_PLATE_TOP;
+    const material = new THREE.MeshBasicMaterial({
+      map: this.cityClearSkyTexture,
+      side: THREE.BackSide,
+      depthWrite: false,
+      fog: false
+    });
+    material.onBeforeCompile = (shader) => {
+      shader.uniforms.hazeColor = this.cityClearSkyHazeColor;
+      shader.fragmentShader = shader.fragmentShader.replace(
+        "#include <common>",
+        [
+          "#include <common>",
+          "uniform vec3 hazeColor;"
+        ].join("\n")
+      ).replace(
+        "#include <fog_fragment>",
+        [
+          "// The mapped V carries elevation as a fraction of the plate span,",
+          "// so anything at or below 0.0 is at or below the horizon.",
+          "float skyElevation = vMapUv.y;",
+          `float hazeBand = 1.0 - smoothstep( 0.0, ${hazeTop.toFixed(4)}, skyElevation );`,
+          "// A little pallor carried above the band keeps the transition from",
+          "// reading as a drawn edge across the low sky.",
+          `float hazeLift = ${CITY_CLEAR_SKY_HAZE_LIFT.toFixed(3)} * pow( 1.0 - clamp( skyElevation / ${hazeLiftTop.toFixed(4)}, 0.0, 1.0 ), 2.0 );`,
+          "float hazeAmount = clamp( hazeBand + ( 1.0 - hazeBand ) * hazeLift, 0.0, 1.0 );",
+          "gl_FragColor.rgb = mix( gl_FragColor.rgb, hazeColor, hazeAmount );"
+        ].join("\n")
+      );
+    };
+    material.customProgramCacheKey = () => "aftertrace-city-clear-sky-haze";
+    const sky = new THREE.Mesh(
+      // A denser band count keeps the mapped elevation, and therefore the haze
+      // ramp, from stepping across the shallow angles the camera actually sees.
+      new THREE.SphereGeometry(CITY_CLEAR_SKY_RADIUS, 64, 40),
+      material
+    );
+    sky.name = "city_clear_day_sky";
+    sky.rotation.y = 0;
+    sky.renderOrder = -100;
+    sky.frustumCulled = false;
+    sky.visible = false;
+    return sky;
   }
   createStars() {
     const geometry = new THREE.BufferGeometry();
@@ -17516,6 +18133,8 @@ class Environment {
     } else {
       this.bodyMaterial.color.setHex(night ? 6451578 : 14804195);
       this.darkMaterial.color.setHex(night ? 2569276 : 3159610);
+      this.backdropMaterial.color.setHex(night ? 2900301 : 14673382);
+      this.backdropCapMaterial.color.setHex(night ? 2241341 : 12831951);
       this.pavementMaterial.color.setHex(night ? 4543323 : 13751764);
       this.serviceRoadMaterial.color.setHex(night ? 3424842 : 9871007);
       this.roadSurfaceMaterial.color.setHex(night ? 2832706 : 15264488);
@@ -17589,9 +18208,11 @@ class Environment {
       profile.fogNear,
       profile.fogFar * FORWARD_VISIBILITY_SCALE
     );
+    this.cityClearSkyHazeColor.value.set(profile.background);
     this.rain.visible = weather === "rain";
     this.snow.visible = weather === "snow";
     this.sandstorm.visible = weather === "sandstorm";
+    this.cityClearSky.visible = this.biome === "city" && this.theme === "day" && weather === "clear";
     this.stars.visible = this.theme === "night" && weather === "clear";
     this.moon.visible = desert && this.theme === "night" && weather === "clear";
     const rainMaterial = this.rain.material;
@@ -17611,16 +18232,10 @@ class Environment {
   update(delta, speed, boosted = false) {
     this.distance += speed * delta;
     this.weatherElapsed += delta;
-    const wrapDistance = this.segmentLength * this.segmentCount;
-    for (const segment of this.roadSegments) {
-      segment.position.z += speed * delta;
-      if (segment.position.z > this.rearRoadExtent) segment.position.z -= wrapDistance;
-      segment.position.x = this.getRoadOffset(segment.position.z);
-      segment.position.y = this.getRoadElevation(segment.position.z);
-      segment.rotation.x = this.getRoadSlope(segment.position.z);
-      segment.rotation.y = -this.getRoadHeading(segment.position.z);
-      this.updateRoadGapPresentation(segment);
+    if (this.cityClearSky.visible) {
+      this.cityClearSky.rotation.y = Math.sin(this.weatherElapsed * CITY_CLEAR_SKY_SWAY_RATE) * CITY_CLEAR_SKY_SWAY_LIMIT;
     }
+    this.updateRoadDeck();
     if (this.jumpGap && this.distance > this.jumpGap.end + this.rearRoadExtent) {
       this.roadLevelOffset = this.jumpGap.startLevel - this.jumpGap.landingDrop;
       this.jumpGap = null;
@@ -17641,8 +18256,7 @@ class Environment {
       prop.group.position.y = this.getRoadElevation(prop.group.position.z);
       prop.group.rotation.y = -this.getRoadHeading(prop.group.position.z);
       this.updateRoadsideGapPresentation(prop.group);
-      const rotor = prop.group.getObjectByName("roadside_rotor");
-      if (rotor) rotor.rotation.z += delta * (boosted ? 8 : 3.2);
+      if (prop.rotor) prop.rotor.rotation.z += delta * (boosted ? 8 : 3.2);
     }
     this.updateStreetlightIllumination();
     if (this.stars.visible) {
@@ -17758,6 +18372,7 @@ class Environment {
     }
   }
   anchorSky(position) {
+    this.cityClearSky.position.copy(position);
     this.stars.position.copy(position);
     this.moon.position.copy(position).add(DESERT_MOON_OFFSET);
     const starsMaterial = this.stars.material;
@@ -17771,12 +18386,16 @@ class Environment {
     object.removeFromParent();
   }
   dispose() {
-    for (const segment of this.roadSegments) this.disposeObject(segment);
+    for (const band of this.roadDeckBands) this.disposeObject(band.mesh);
+    this.disposeObject(this.roadDashes);
     this.disposeObject(this.jumpGapVisual.root);
     this.clearRoadsideField();
     this.disposeObject(this.stars);
     this.stars.material.dispose();
     this.starTexture.dispose();
+    this.disposeObject(this.cityClearSky);
+    this.cityClearSky.material.dispose();
+    this.cityClearSkyTexture.dispose();
     this.moon.removeFromParent();
     this.moon.material.dispose();
     this.moonTexture.dispose();
@@ -17798,6 +18417,8 @@ class Environment {
     this.magentaMaterial.dispose();
     this.glassMaterial.dispose();
     this.windowMaterial.dispose();
+    this.backdropMaterial.dispose();
+    this.backdropCapMaterial.dispose();
     this.pavementMaterial.dispose();
     this.serviceRoadMaterial.dispose();
     this.edgeMaterial.dispose();
@@ -17925,7 +18546,11 @@ class ObstacleManager {
   }
   update(delta, speed, playerX, canSmash, allowRepair, allowDoubleScore, allowWeapon, previousPlayerX = playerX, scoreMultiplier = 1, playerAirborne = false, playerZ = 0, previousPlayerZ = playerZ, showScorePopups = true) {
     const events = [];
-    const fullWidthGapRampRow = this.entities.filter((entity) => entity.kind === "gapRamp").length === 3;
+    let gapRampCount = 0;
+    for (const entity of this.entities) {
+      if (entity.kind === "gapRamp") gapRampCount++;
+    }
+    const fullWidthGapRampRow = gapRampCount === 3;
     let fullWidthGapRampCrossed = false;
     for (let index = this.entities.length - 1; index >= 0; index--) {
       const entity = this.entities[index];
@@ -17941,23 +18566,23 @@ class ObstacleManager {
       entity.spawnFade = Math.min(1, entity.spawnFade + delta * 1.7);
       const horizonFade = THREE.MathUtils.smoothstep(entity.object.position.z, this.spawnZ, this.spawnZ + 19);
       const appearance = Math.min(entity.spawnFade, horizonFade);
-      this.applySpawnFade(entity.object, appearance);
+      if (appearance !== entity.spawnAppearance) {
+        this.applySpawnFade(entity.spawnMaterials, appearance);
+        entity.spawnAppearance = appearance;
+      }
       if (entity.kind !== "obstacle" && entity.kind !== "ramp" && entity.kind !== "gapRamp") {
         const floatWave = Math.sin(entity.spin * 3.8 + entity.floatPhase);
         const springWave = Math.sin(entity.spin * 7.6 + entity.floatPhase) * 0.012;
         entity.object.position.y = entity.baseY + this.roadElevation(currentZ) + floatWave * 0.085;
         entity.object.scale.setScalar(entity.baseScale * (0.82 + appearance * 0.18) * (1 + floatWave * 0.032 + springWave));
       }
-      const itemRing = entity.object.getObjectByName("item_ring");
-      if (itemRing) itemRing.rotation.z = entity.spin * 2.8;
-      const rampArrowGlow = entity.object.getObjectByName("ramp_arrow_glow");
-      if (rampArrowGlow instanceof THREE.Mesh) {
+      if (entity.itemRing) entity.itemRing.rotation.z = entity.spin * 2.8;
+      if (entity.rampArrowGlow) {
         const pulse = 0.5 + Math.sin(entity.spin * 5.2) * 0.5;
-        rampArrowGlow.material.opacity = 0.28 + pulse * 0.16;
-        rampArrowGlow.scale.setScalar(1 + pulse * 0.055);
+        entity.rampArrowGlow.material.opacity = 0.28 + pulse * 0.16;
+        entity.rampArrowGlow.scale.setScalar(1 + pulse * 0.055);
       }
-      const rotor = entity.object.getObjectByName("obstacle_rotor");
-      if (rotor) rotor.rotation.y += delta * 1.7;
+      if (entity.rotor) entity.rotor.rotation.y += delta * 1.7;
       const collisionRadius = entity.kind === "obstacle" ? 0.6 : entity.kind === "ramp" || entity.kind === "gapRamp" ? 0.72 : 0.82;
       if (fullWidthGapRampRow && entity.kind === "gapRamp" && this.crossesPlayerDepth(previousZ, currentZ, previousPlayerZ, playerZ)) {
         fullWidthGapRampCrossed = true;
@@ -18123,6 +18748,7 @@ class ObstacleManager {
     object.position.set(lane * this.laneWidth + this.roadOffset(z), baseY + this.roadElevation(z), z);
     object.rotation.y = -this.roadHeading(z);
     this.scene.add(object);
+    const rampArrowGlow = object.getObjectByName("ramp_arrow_glow");
     this.entities.push({
       object,
       kind,
@@ -18136,9 +18762,13 @@ class ObstacleManager {
       baseY,
       baseScale: object.scale.x,
       floatPhase: Math.random() * Math.PI * 2,
-      spawnFade: 0
+      spawnFade: 0,
+      spawnAppearance: -1,
+      spawnMaterials: this.prepareSpawnFade(object),
+      itemRing: object.getObjectByName("item_ring") ?? null,
+      rampArrowGlow: rampArrowGlow instanceof THREE.Mesh ? rampArrowGlow : null,
+      rotor: object.getObjectByName("obstacle_rotor") ?? null
     });
-    this.prepareSpawnFade(object);
   }
   fireWeapon(resolvePose) {
     const side = this.nextFireSide;
@@ -19064,23 +19694,17 @@ class ObstacleManager {
         material.needsUpdate = true;
       }
     });
+    return [...preparedMaterials];
   }
-  applySpawnFade(object, opacity) {
-    const updatedMaterials = /* @__PURE__ */ new Set();
-    object.traverse((child) => {
-      if (!(child instanceof THREE.Mesh) && !(child instanceof THREE.LineSegments) && !(child instanceof THREE.Sprite)) return;
-      const materials = Array.isArray(child.material) ? child.material : [child.material];
-      for (const material of materials) {
-        if (updatedMaterials.has(material)) continue;
-        updatedMaterials.add(material);
-        const baseOpacity = Number(material.userData.spawnBaseOpacity ?? 1);
-        material.opacity = baseOpacity * opacity;
-        if (opacity >= 1 && !material.userData.spawnWasTransparent && material.transparent) {
-          material.transparent = false;
-          material.needsUpdate = true;
-        }
+  applySpawnFade(materials, opacity) {
+    for (const material of materials) {
+      const baseOpacity = Number(material.userData.spawnBaseOpacity ?? 1);
+      material.opacity = baseOpacity * opacity;
+      if (opacity >= 1 && !material.userData.spawnWasTransparent && material.transparent) {
+        material.transparent = false;
+        material.needsUpdate = true;
       }
-    });
+    }
   }
   createScorePopup(position, points) {
     let texture = this.scoreTextures.get(points);
@@ -19414,208 +20038,6 @@ class ObstacleManager {
     (_a = this.springGeometry) == null ? void 0 : _a.dispose();
     for (const texture of this.scoreTextures.values()) texture.dispose();
     this.scoreTextures.clear();
-  }
-}
-function mergeGeometries(geometries, useGroups = false) {
-  const isIndexed = geometries[0].index !== null;
-  const attributesUsed = new Set(Object.keys(geometries[0].attributes));
-  const morphAttributesUsed = new Set(Object.keys(geometries[0].morphAttributes));
-  const attributes = {};
-  const morphAttributes = {};
-  const morphTargetsRelative = geometries[0].morphTargetsRelative;
-  const mergedGeometry = new BufferGeometry();
-  let offset = 0;
-  for (let i = 0; i < geometries.length; ++i) {
-    const geometry = geometries[i];
-    let attributesCount = 0;
-    if (isIndexed !== (geometry.index !== null)) {
-      console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed with geometry at index " + i + ". All geometries must have compatible attributes; make sure index attribute exists among all geometries, or in none of them.");
-      return null;
-    }
-    for (const name in geometry.attributes) {
-      if (!attributesUsed.has(name)) {
-        console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed with geometry at index " + i + '. All geometries must have compatible attributes; make sure "' + name + '" attribute exists among all geometries, or in none of them.');
-        return null;
-      }
-      if (attributes[name] === void 0) attributes[name] = [];
-      attributes[name].push(geometry.attributes[name]);
-      attributesCount++;
-    }
-    if (attributesCount !== attributesUsed.size) {
-      console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed with geometry at index " + i + ". Make sure all geometries have the same number of attributes.");
-      return null;
-    }
-    if (morphTargetsRelative !== geometry.morphTargetsRelative) {
-      console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed with geometry at index " + i + ". .morphTargetsRelative must be consistent throughout all geometries.");
-      return null;
-    }
-    for (const name in geometry.morphAttributes) {
-      if (!morphAttributesUsed.has(name)) {
-        console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed with geometry at index " + i + ".  .morphAttributes must be consistent throughout all geometries.");
-        return null;
-      }
-      if (morphAttributes[name] === void 0) morphAttributes[name] = [];
-      morphAttributes[name].push(geometry.morphAttributes[name]);
-    }
-    if (useGroups) {
-      let count;
-      if (isIndexed) {
-        count = geometry.index.count;
-      } else if (geometry.attributes.position !== void 0) {
-        count = geometry.attributes.position.count;
-      } else {
-        console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed with geometry at index " + i + ". The geometry must have either an index or a position attribute");
-        return null;
-      }
-      mergedGeometry.addGroup(offset, count, i);
-      offset += count;
-    }
-  }
-  if (isIndexed) {
-    let indexOffset = 0;
-    const mergedIndex = [];
-    for (let i = 0; i < geometries.length; ++i) {
-      const index = geometries[i].index;
-      for (let j = 0; j < index.count; ++j) {
-        mergedIndex.push(index.getX(j) + indexOffset);
-      }
-      indexOffset += geometries[i].attributes.position.count;
-    }
-    mergedGeometry.setIndex(mergedIndex);
-  }
-  for (const name in attributes) {
-    const mergedAttribute = mergeAttributes(attributes[name]);
-    if (!mergedAttribute) {
-      console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed while trying to merge the " + name + " attribute.");
-      return null;
-    }
-    mergedGeometry.setAttribute(name, mergedAttribute);
-  }
-  for (const name in morphAttributes) {
-    const numMorphTargets = morphAttributes[name][0].length;
-    if (numMorphTargets === 0) break;
-    mergedGeometry.morphAttributes = mergedGeometry.morphAttributes || {};
-    mergedGeometry.morphAttributes[name] = [];
-    for (let i = 0; i < numMorphTargets; ++i) {
-      const morphAttributesToMerge = [];
-      for (let j = 0; j < morphAttributes[name].length; ++j) {
-        morphAttributesToMerge.push(morphAttributes[name][j][i]);
-      }
-      const mergedMorphAttribute = mergeAttributes(morphAttributesToMerge);
-      if (!mergedMorphAttribute) {
-        console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed while trying to merge the " + name + " morphAttribute.");
-        return null;
-      }
-      mergedGeometry.morphAttributes[name].push(mergedMorphAttribute);
-    }
-  }
-  return mergedGeometry;
-}
-function mergeAttributes(attributes) {
-  let TypedArray;
-  let itemSize;
-  let normalized;
-  let gpuType = -1;
-  let arrayLength = 0;
-  for (let i = 0; i < attributes.length; ++i) {
-    const attribute = attributes[i];
-    if (TypedArray === void 0) TypedArray = attribute.array.constructor;
-    if (TypedArray !== attribute.array.constructor) {
-      console.error("THREE.BufferGeometryUtils: .mergeAttributes() failed. BufferAttribute.array must be of consistent array types across matching attributes.");
-      return null;
-    }
-    if (itemSize === void 0) itemSize = attribute.itemSize;
-    if (itemSize !== attribute.itemSize) {
-      console.error("THREE.BufferGeometryUtils: .mergeAttributes() failed. BufferAttribute.itemSize must be consistent across matching attributes.");
-      return null;
-    }
-    if (normalized === void 0) normalized = attribute.normalized;
-    if (normalized !== attribute.normalized) {
-      console.error("THREE.BufferGeometryUtils: .mergeAttributes() failed. BufferAttribute.normalized must be consistent across matching attributes.");
-      return null;
-    }
-    if (gpuType === -1) gpuType = attribute.gpuType;
-    if (gpuType !== attribute.gpuType) {
-      console.error("THREE.BufferGeometryUtils: .mergeAttributes() failed. BufferAttribute.gpuType must be consistent across matching attributes.");
-      return null;
-    }
-    arrayLength += attribute.count * itemSize;
-  }
-  const array = new TypedArray(arrayLength);
-  const result = new BufferAttribute(array, itemSize, normalized);
-  let offset = 0;
-  for (let i = 0; i < attributes.length; ++i) {
-    const attribute = attributes[i];
-    if (attribute.isInterleavedBufferAttribute) {
-      const tupleOffset = offset / itemSize;
-      for (let j = 0, l = attribute.count; j < l; j++) {
-        for (let c = 0; c < itemSize; c++) {
-          const value = attribute.getComponent(j, c);
-          result.setComponent(j + tupleOffset, c, value);
-        }
-      }
-    } else {
-      array.set(attribute.array, offset);
-    }
-    offset += attribute.count * itemSize;
-  }
-  if (gpuType !== void 0) {
-    result.gpuType = gpuType;
-  }
-  return result;
-}
-function toTrianglesDrawMode(geometry, drawMode) {
-  if (drawMode === TrianglesDrawMode) {
-    console.warn("THREE.BufferGeometryUtils.toTrianglesDrawMode(): Geometry already defined as triangles.");
-    return geometry;
-  }
-  if (drawMode === TriangleFanDrawMode || drawMode === TriangleStripDrawMode) {
-    let index = geometry.getIndex();
-    if (index === null) {
-      const indices = [];
-      const position = geometry.getAttribute("position");
-      if (position !== void 0) {
-        for (let i = 0; i < position.count; i++) {
-          indices.push(i);
-        }
-        geometry.setIndex(indices);
-        index = geometry.getIndex();
-      } else {
-        console.error("THREE.BufferGeometryUtils.toTrianglesDrawMode(): Undefined position attribute. Processing not possible.");
-        return geometry;
-      }
-    }
-    const numberOfTriangles = index.count - 2;
-    const newIndices = [];
-    if (drawMode === TriangleFanDrawMode) {
-      for (let i = 1; i <= numberOfTriangles; i++) {
-        newIndices.push(index.getX(0));
-        newIndices.push(index.getX(i));
-        newIndices.push(index.getX(i + 1));
-      }
-    } else {
-      for (let i = 0; i < numberOfTriangles; i++) {
-        if (i % 2 === 0) {
-          newIndices.push(index.getX(i));
-          newIndices.push(index.getX(i + 1));
-          newIndices.push(index.getX(i + 2));
-        } else {
-          newIndices.push(index.getX(i + 2));
-          newIndices.push(index.getX(i + 1));
-          newIndices.push(index.getX(i));
-        }
-      }
-    }
-    if (newIndices.length / 3 !== numberOfTriangles) {
-      console.error("THREE.BufferGeometryUtils.toTrianglesDrawMode(): Unable to generate correct amount of triangles.");
-    }
-    const newGeometry = geometry.clone();
-    newGeometry.setIndex(newIndices);
-    newGeometry.clearGroups();
-    return newGeometry;
-  } else {
-    console.error("THREE.BufferGeometryUtils.toTrianglesDrawMode(): Unknown draw mode:", drawMode);
-    return geometry;
   }
 }
 function clone(source) {
@@ -22641,6 +23063,7 @@ class FinishAfterimageEffect {
     __publicField(this, "inverseRootMatrix", new THREE.Matrix4());
     __publicField(this, "localMatrix", new THREE.Matrix4());
     __publicField(this, "ribbons");
+    __publicField(this, "scene");
     this.scene = scene;
     this.ribbons = [
       new FinishJetRibbon(scene, this.outerRibbonMaterial, this.coreRibbonMaterial, "finish_jet_left"),
@@ -23075,6 +23498,7 @@ class Player {
     __publicField(this, "rightRail");
     __publicField(this, "thrusterMaterials");
     __publicField(this, "elapsedTime", 0);
+    __publicField(this, "lanePositionX", 0);
     __publicField(this, "lateralVelocity", 0);
     __publicField(this, "invulnerable", false);
     __publicField(this, "boosted", false);
@@ -23420,11 +23844,11 @@ class Player {
     this.elapsedTime += delta;
     if (this.gapFallActive) this.gapFallElapsed += delta;
     this.landedThisFrame = false;
-    const targetRoadX = this.targetX + this.clearRoadOffset;
-    const spring = (targetRoadX - this.mesh.position.x) * 92;
+    const spring = (this.targetX - this.lanePositionX) * 92;
     this.lateralVelocity += spring * delta;
     this.lateralVelocity *= Math.exp(-13 * delta);
-    this.mesh.position.x += this.lateralVelocity * delta;
+    this.lanePositionX += this.lateralVelocity * delta;
+    this.mesh.position.x = this.lanePositionX + this.clearRoadOffset;
     const targetRoll = this.gapFallActive ? 0.58 : THREE.MathUtils.clamp(-this.lateralVelocity * 0.1, -0.42, 0.42);
     const targetYaw = this.gapFallActive ? -roadHeading - 0.28 : -roadHeading - this.lateralVelocity * 0.03;
     const railFlex = THREE.MathUtils.clamp(this.lateralVelocity * 0.012, -0.024, 0.024);
@@ -23838,6 +24262,7 @@ class Player {
   reset() {
     this.currentLane = 0;
     this.targetX = 0;
+    this.lanePositionX = 0;
     this.lateralVelocity = 0;
     this.mesh.position.x = 0;
     this.mesh.position.y = 0.42;
@@ -23913,15 +24338,39 @@ class Player {
 }
 const assetUrl = (path) => `${"./"}${path}`;
 const MENU_TRACK = { key: "menu", title: "DEA EX MACHINA", src: assetUrl("audio/bgm/dea-ex-machina.mp3") };
-const WEATHER_TRACKS = {
-  rain: { key: "rain", title: "PATTERN COMPLETION", src: assetUrl("audio/bgm/pattern-completion.mp3") },
-  snow: { key: "snow", title: "WAKE UP BODHISATTVA", src: assetUrl("audio/bgm/wake-up-bodhisattva.mp3") },
-  overcast: { key: "overcast", title: "AGONIST", src: assetUrl("audio/bgm/agonist.mp3"), startAt: 67, fadeInOnLoop: true },
-  sandstorm: { key: "desert-sandstorm", title: "PATTERN COMPLETION", src: assetUrl("audio/bgm/pattern-completion.mp3") }
-};
-const CLEAR_TRACKS = [
-  { key: "clear-ascent", title: "ASCENT", src: assetUrl("audio/bgm/ascent.mp3") },
-  { key: "clear-ievan", title: "IEVAN POLKKA", src: assetUrl("audio/bgm/ievan-polkka.mp3") }
+const WEATHER_TRACKS = [
+  {
+    key: "ascent",
+    title: "ASCENT",
+    src: assetUrl("audio/bgm/ascent.mp3"),
+    weights: { clear: 42, overcast: 15, rain: 16, snow: 20, sandstorm: 20 }
+  },
+  {
+    key: "ievan",
+    title: "IEVAN POLKKA",
+    src: assetUrl("audio/bgm/ievan-polkka.mp3"),
+    weights: { clear: 6, overcast: 5, rain: 5, snow: 5, sandstorm: 5 }
+  },
+  {
+    key: "pattern",
+    title: "PATTERN COMPLETION",
+    src: assetUrl("audio/bgm/pattern-completion.mp3"),
+    weights: { clear: 18, overcast: 20, rain: 35, snow: 17, sandstorm: 36 }
+  },
+  {
+    key: "bodhisattva",
+    title: "WAKE UP BODHISATTVA",
+    src: assetUrl("audio/bgm/wake-up-bodhisattva.mp3"),
+    weights: { clear: 19, overcast: 24, rain: 20, snow: 35, sandstorm: 16 }
+  },
+  {
+    key: "agonist",
+    title: "AGONIST",
+    src: assetUrl("audio/bgm/agonist.mp3"),
+    startAt: 67,
+    fadeInOnLoop: true,
+    weights: { clear: 15, overcast: 36, rain: 24, snow: 23, sandstorm: 23 }
+  }
 ];
 class GameAudio {
   constructor(volume = 0.7, musicVolume = 0.7, muted = true) {
@@ -23935,6 +24384,7 @@ class GameAudio {
     __publicField(this, "musicFadeFrame", 0);
     __publicField(this, "musicMix", 1);
     __publicField(this, "unlocked", false);
+    __publicField(this, "recentWeatherTrackKeys", []);
     __publicField(this, "engineLow", null);
     __publicField(this, "engineHigh", null);
     __publicField(this, "engineSub", null);
@@ -23997,9 +24447,22 @@ class GameAudio {
     this.setMusicMix(1, 0.8);
     this.selectMusic(MENU_TRACK);
   }
-  playWeatherMusic(weather, biome = "city", theme = "day") {
+  playWeatherMusic(weather) {
+    var _a;
     this.setMusicMix(0.7, 0.8);
-    const track = biome === "desert" ? weather === "sandstorm" ? WEATHER_TRACKS.sandstorm : theme === "night" ? WEATHER_TRACKS.overcast : CLEAR_TRACKS[0] : weather === "clear" ? CLEAR_TRACKS[Math.random() < 0.78 ? 0 : 1] : WEATHER_TRACKS[weather] ?? CLEAR_TRACKS[0];
+    const weightedTracks = WEATHER_TRACKS.map((track2) => {
+      const recentIndex = this.recentWeatherTrackKeys.indexOf(track2.key);
+      const repetitionScale = recentIndex === 0 ? 0.08 : recentIndex === 1 ? 0.42 : 1;
+      return { track: track2, weight: track2.weights[weather] * repetitionScale };
+    });
+    const totalWeight = weightedTracks.reduce((sum, entry) => sum + entry.weight, 0);
+    let value = Math.random() * totalWeight;
+    const track = ((_a = weightedTracks.find((entry) => {
+      value -= entry.weight;
+      return value <= 0;
+    })) == null ? void 0 : _a.track) ?? WEATHER_TRACKS[0];
+    this.recentWeatherTrackKeys.unshift(track.key);
+    this.recentWeatherTrackKeys.length = Math.min(this.recentWeatherTrackKeys.length, 2);
     this.selectMusic(track, true);
   }
   raiseMusicForClear() {
@@ -25367,11 +25830,7 @@ class Game {
     this.heldDirection = 0;
     this.heldMoveTimer = 0;
     this.obstacleManager.reset(false);
-    this.audio.playWeatherMusic(
-      this.weather,
-      this.stageDefinition.biome,
-      this.stageDefinition.theme
-    );
+    this.audio.playWeatherMusic(this.weather);
     this.publishSnapshot();
     const countdownStage = this.stage;
     void this.audio.unlock().catch(() => void 0).then(() => {
