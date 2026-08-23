@@ -12666,18 +12666,18 @@ const createLucideIcon = (iconName, iconNode) => {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$g = [
+const __iconNode$l = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$g);
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$l);
 /**
  * @license lucide-react v0.575.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$f = [
+const __iconNode$k = [
   ["circle", { cx: "11", cy: "13", r: "9", key: "hd149" }],
   [
     "path",
@@ -12688,14 +12688,14 @@ const __iconNode$f = [
   ],
   ["path", { d: "m22 2-1.5 1.5", key: "ay92ug" }]
 ];
-const Bomb = createLucideIcon("bomb", __iconNode$f);
+const Bomb = createLucideIcon("bomb", __iconNode$k);
 /**
  * @license lucide-react v0.575.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$e = [
+const __iconNode$j = [
   ["path", { d: "M10 12h4", key: "a56b0p" }],
   ["path", { d: "M10 8h4", key: "1sr2af" }],
   ["path", { d: "M14 21v-3a2 2 0 0 0-4 0v3", key: "1rgiei" }],
@@ -12708,44 +12708,44 @@ const __iconNode$e = [
   ],
   ["path", { d: "M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16", key: "16ra0t" }]
 ];
-const Building2 = createLucideIcon("building-2", __iconNode$e);
+const Building2 = createLucideIcon("building-2", __iconNode$j);
 /**
  * @license lucide-react v0.575.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$d = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$d);
+const __iconNode$i = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$i);
 /**
  * @license lucide-react v0.575.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$c = [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]];
-const Circle = createLucideIcon("circle", __iconNode$c);
+const __iconNode$h = [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]];
+const Circle = createLucideIcon("circle", __iconNode$h);
 /**
  * @license lucide-react v0.575.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$b = [
+const __iconNode$g = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "22", x2: "18", y1: "12", y2: "12", key: "l9bcsi" }],
   ["line", { x1: "6", x2: "2", y1: "12", y2: "12", key: "13hhkx" }],
   ["line", { x1: "12", x2: "12", y1: "6", y2: "2", key: "10w3f3" }],
   ["line", { x1: "12", x2: "12", y1: "22", y2: "18", key: "15g9kq" }]
 ];
-const Crosshair = createLucideIcon("crosshair", __iconNode$b);
+const Crosshair = createLucideIcon("crosshair", __iconNode$g);
 /**
  * @license lucide-react v0.575.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$a = [
+const __iconNode$f = [
   ["path", { d: "M12 16h.01", key: "1drbdi" }],
   ["path", { d: "M16 16h.01", key: "1f9h7w" }],
   [
@@ -12757,37 +12757,48 @@ const __iconNode$a = [
   ],
   ["path", { d: "M8 16h.01", key: "18s6g9" }]
 ];
-const Factory = createLucideIcon("factory", __iconNode$a);
+const Factory = createLucideIcon("factory", __iconNode$f);
 /**
  * @license lucide-react v0.575.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$9 = [
+const __iconNode$e = [
+  ["path", { d: "m12 14 4-4", key: "9kzdfg" }],
+  ["path", { d: "M3.34 19a10 10 0 1 1 17.32 0", key: "19p75a" }]
+];
+const Gauge = createLucideIcon("gauge", __iconNode$e);
+/**
+ * @license lucide-react v0.575.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$d = [
   ["rect", { width: "18", height: "11", x: "3", y: "11", rx: "2", ry: "2", key: "1w4ew1" }],
   ["path", { d: "M7 11V7a5 5 0 0 1 10 0v4", key: "fwvmzm" }]
 ];
-const Lock = createLucideIcon("lock", __iconNode$9);
+const Lock = createLucideIcon("lock", __iconNode$d);
 /**
  * @license lucide-react v0.575.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$8 = [
+const __iconNode$c = [
   ["path", { d: "M9 18V5l12-2v13", key: "1jmyc2" }],
   ["circle", { cx: "6", cy: "18", r: "3", key: "fqmcym" }],
   ["circle", { cx: "18", cy: "16", r: "3", key: "1hluhg" }]
 ];
-const Music = createLucideIcon("music", __iconNode$8);
+const Music = createLucideIcon("music", __iconNode$c);
 /**
  * @license lucide-react v0.575.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$7 = [
+const __iconNode$b = [
   ["path", { d: "M2 22h20", key: "272qi7" }],
   [
     "path",
@@ -12797,7 +12808,75 @@ const __iconNode$7 = [
     }
   ]
 ];
-const PlaneTakeoff = createLucideIcon("plane-takeoff", __iconNode$7);
+const PlaneTakeoff = createLucideIcon("plane-takeoff", __iconNode$b);
+/**
+ * @license lucide-react v0.575.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$a = [
+  ["path", { d: "M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5", key: "qeys4" }],
+  [
+    "path",
+    {
+      d: "M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09",
+      key: "u4xsad"
+    }
+  ],
+  [
+    "path",
+    {
+      d: "M9 12a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.4 22.4 0 0 1-4 2z",
+      key: "676m9"
+    }
+  ],
+  ["path", { d: "M9 12H4s.55-3.03 2-4c1.62-1.08 5 .05 5 .05", key: "92ym6u" }]
+];
+const Rocket = createLucideIcon("rocket", __iconNode$a);
+/**
+ * @license lucide-react v0.575.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$9 = [
+  ["circle", { cx: "6", cy: "19", r: "3", key: "1kj8tv" }],
+  ["path", { d: "M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15", key: "1d8sl" }],
+  ["circle", { cx: "18", cy: "5", r: "3", key: "gq8acd" }]
+];
+const Route = createLucideIcon("route", __iconNode$9);
+/**
+ * @license lucide-react v0.575.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$8 = [
+  ["path", { d: "M3 7V5a2 2 0 0 1 2-2h2", key: "aa7l1z" }],
+  ["path", { d: "M17 3h2a2 2 0 0 1 2 2v2", key: "4qcy5o" }],
+  ["path", { d: "M21 17v2a2 2 0 0 1-2 2h-2", key: "6vwrx8" }],
+  ["path", { d: "M7 21H5a2 2 0 0 1-2-2v-2", key: "ioqczr" }],
+  ["path", { d: "M7 12h10", key: "b7w52i" }]
+];
+const ScanLine = createLucideIcon("scan-line", __iconNode$8);
+/**
+ * @license lucide-react v0.575.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$7 = [
+  [
+    "path",
+    {
+      d: "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z",
+      key: "oel41y"
+    }
+  ],
+  ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
+];
+const ShieldCheck = createLucideIcon("shield-check", __iconNode$7);
 /**
  * @license lucide-react v0.575.0 - ISC
  *
@@ -12805,11 +12884,18 @@ const PlaneTakeoff = createLucideIcon("plane-takeoff", __iconNode$7);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$6 = [
-  ["circle", { cx: "6", cy: "19", r: "3", key: "1kj8tv" }],
-  ["path", { d: "M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15", key: "1d8sl" }],
-  ["circle", { cx: "18", cy: "5", r: "3", key: "gq8acd" }]
+  [
+    "path",
+    {
+      d: "M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z",
+      key: "1s2grr"
+    }
+  ],
+  ["path", { d: "M20 2v4", key: "1rf3ol" }],
+  ["path", { d: "M22 4h-4", key: "gwowj6" }],
+  ["circle", { cx: "4", cy: "20", r: "2", key: "6kqj1y" }]
 ];
-const Route = createLucideIcon("route", __iconNode$6);
+const Sparkles = createLucideIcon("sparkles", __iconNode$6);
 /**
  * @license lucide-react v0.575.0 - ISC
  *
@@ -12820,13 +12906,12 @@ const __iconNode$5 = [
   [
     "path",
     {
-      d: "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z",
-      key: "oel41y"
+      d: "M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z",
+      key: "r04s7s"
     }
-  ],
-  ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
+  ]
 ];
-const ShieldCheck = createLucideIcon("shield-check", __iconNode$5);
+const Star = createLucideIcon("star", __iconNode$5);
 /**
  * @license lucide-react v0.575.0 - ISC
  *
@@ -12834,15 +12919,13 @@ const ShieldCheck = createLucideIcon("shield-check", __iconNode$5);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$4 = [
-  [
-    "path",
-    {
-      d: "M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z",
-      key: "r04s7s"
-    }
-  ]
+  ["path", { d: "M10 11v6", key: "nco0om" }],
+  ["path", { d: "M14 11v6", key: "outv1u" }],
+  ["path", { d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6", key: "miytrc" }],
+  ["path", { d: "M3 6h18", key: "d0wm0j" }],
+  ["path", { d: "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2", key: "e791ji" }]
 ];
-const Star = createLucideIcon("star", __iconNode$4);
+const Trash2 = createLucideIcon("trash-2", __iconNode$4);
 /**
  * @license lucide-react v0.575.0 - ISC
  *
@@ -12850,20 +12933,6 @@ const Star = createLucideIcon("star", __iconNode$4);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$3 = [
-  ["path", { d: "M10 11v6", key: "nco0om" }],
-  ["path", { d: "M14 11v6", key: "outv1u" }],
-  ["path", { d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6", key: "miytrc" }],
-  ["path", { d: "M3 6h18", key: "d0wm0j" }],
-  ["path", { d: "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2", key: "e791ji" }]
-];
-const Trash2 = createLucideIcon("trash-2", __iconNode$3);
-/**
- * @license lucide-react v0.575.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$2 = [
   ["path", { d: "M10 14.66v1.626a2 2 0 0 1-.976 1.696A5 5 0 0 0 7 21.978", key: "1n3hpd" }],
   ["path", { d: "M14 14.66v1.626a2 2 0 0 0 .976 1.696A5 5 0 0 1 17 21.978", key: "rfe1zi" }],
   ["path", { d: "M18 9h1.5a1 1 0 0 0 0-5H18", key: "7xy6bh" }],
@@ -12871,7 +12940,25 @@ const __iconNode$2 = [
   ["path", { d: "M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z", key: "1mhfuq" }],
   ["path", { d: "M6 9H4.5a1 1 0 0 1 0-5H6", key: "tex48p" }]
 ];
-const Trophy = createLucideIcon("trophy", __iconNode$2);
+const Trophy = createLucideIcon("trophy", __iconNode$3);
+/**
+ * @license lucide-react v0.575.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$2 = [
+  [
+    "path",
+    {
+      d: "M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z",
+      key: "uqj9uw"
+    }
+  ],
+  ["path", { d: "M16 9a5 5 0 0 1 0 6", key: "1q6k2b" }],
+  ["path", { d: "M19.364 18.364a9 9 0 0 0 0-12.728", key: "ijwkga" }]
+];
+const Volume2 = createLucideIcon("volume-2", __iconNode$2);
 /**
  * @license lucide-react v0.575.0 - ISC
  *
@@ -12886,10 +12973,10 @@ const __iconNode$1 = [
       key: "uqj9uw"
     }
   ],
-  ["path", { d: "M16 9a5 5 0 0 1 0 6", key: "1q6k2b" }],
-  ["path", { d: "M19.364 18.364a9 9 0 0 0 0-12.728", key: "ijwkga" }]
+  ["line", { x1: "22", x2: "16", y1: "9", y2: "15", key: "1ewh16" }],
+  ["line", { x1: "16", x2: "22", y1: "9", y2: "15", key: "5ykzw1" }]
 ];
-const Volume2 = createLucideIcon("volume-2", __iconNode$1);
+const VolumeX = createLucideIcon("volume-x", __iconNode$1);
 /**
  * @license lucide-react v0.575.0 - ISC
  *
@@ -12900,14 +12987,12 @@ const __iconNode = [
   [
     "path",
     {
-      d: "M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z",
-      key: "uqj9uw"
+      d: "M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z",
+      key: "1xq2db"
     }
-  ],
-  ["line", { x1: "22", x2: "16", y1: "9", y2: "15", key: "1ewh16" }],
-  ["line", { x1: "16", x2: "22", y1: "9", y2: "15", key: "5ykzw1" }]
+  ]
 ];
-const VolumeX = createLucideIcon("volume-x", __iconNode);
+const Zap = createLucideIcon("zap", __iconNode);
 const PATTERNS = [
   {
     id: "single-check",
@@ -13284,36 +13369,46 @@ const STORE_UPGRADES = [
   {
     id: "drive",
     title: "DRIVE RESPONSE",
-    system: "AT-01 PROPULSION",
-    description: "Raises launch speed and restores cruise speed faster after impacts. Maximum speed is unchanged.",
+    category: "PROPULSION",
+    metric: "LAUNCH SPEED",
+    summary: "Quicker starts and faster recovery after a hit. Cruise top speed stays unchanged.",
+    levels: ["8 KM/H", "10 KM/H", "12 KM/H", "14 KM/H"],
     prices: [200, 450, 800]
   },
   {
     id: "boost",
     title: "BOOST SPEED",
-    system: "AT-01 PROPULSION",
-    description: "Raises BOOST ON velocity without changing normal cruise speed. LV2 restores the previous boost pace.",
+    category: "PROPULSION",
+    metric: "OVERDRIVE OUTPUT",
+    summary: "Uses more of the gap between cruise and overdrive speed while BOOST ON is active.",
+    levels: ["72%", "86%", "100%", "115%"],
     prices: [250, 600, 1e3]
   },
   {
     id: "weaponRange",
     title: "BEAM RANGE",
-    system: "AT-01 WEAPON",
-    description: "Extends the maximum distance each beam projectile can travel before dissipating.",
+    category: "TWIN FIRE",
+    metric: "MAX RANGE",
+    summary: "Lets each beam travel farther before it dissipates.",
+    levels: ["32 M", "50 M", "72 M", "104 M"],
     prices: [200, 500, 900]
   },
   {
     id: "weaponPower",
     title: "BEAM POWER",
-    system: "AT-01 WEAPON",
-    description: "Increases damage per hit. LV2 matches the previous destruction rhythm; LV3 destroys standard obstacles in one hit.",
+    category: "TWIN FIRE",
+    metric: "STANDARD BREAK",
+    summary: "Cuts the hits needed to destroy a standard obstacle.",
+    levels: ["6 HITS", "4 HITS", "3 HITS", "1 HIT"],
     prices: [300, 750, 1400]
   },
   {
     id: "weaponVelocity",
     title: "BEAM VELOCITY",
-    system: "AT-01 WEAPON",
-    description: "Raises projectile speed so shots reach approaching obstacles sooner and feel more responsive.",
+    category: "TWIN FIRE",
+    metric: "PROJECTILE SPEED",
+    summary: "Gets shots to approaching obstacles sooner for a more responsive beam.",
+    levels: ["72 M/S", "90 M/S", "108 M/S", "124 M/S"],
     prices: [200, 500, 900]
   }
 ];
@@ -13333,66 +13428,134 @@ function purchaseStoreUpgrade(profile, id) {
     }
   };
 }
-const STORE_BUTTON_CLASS = "menu-button relative min-h-11 w-full px-3 py-3 font-mono text-[11px] font-black tracking-[0.12em] disabled:cursor-default disabled:opacity-45";
+const STORE_BUTTON_CLASS = "menu-button relative min-h-12 w-full px-3 py-3 font-mono text-[10px] font-black tracking-[0.11em] disabled:cursor-default";
+const UPGRADE_ICONS = {
+  drive: Gauge,
+  boost: Rocket,
+  weaponRange: ScanLine,
+  weaponPower: Zap,
+  weaponVelocity: Sparkles
+};
+const CATEGORIES = [
+  { id: "PROPULSION", label: "PROPULSION", note: "STARTS, RECOVERY & BOOST" },
+  { id: "TWIN FIRE", label: "TWIN FIRE", note: "RANGE, DAMAGE & RESPONSE" }
+];
 function StorePanel({ profile, onPurchase, onBack }) {
-  const [feedback, setFeedback] = reactExports.useState("SELECT A SYSTEM TO UPGRADE");
+  const [feedback, setFeedback] = reactExports.useState("RINGS COLLECTED ON THE ROAD ARE SAVED HERE");
+  const installedLevels = STORE_UPGRADES.reduce((sum, upgrade) => sum + profile.upgrades[upgrade.id], 0);
+  const maximumLevels = STORE_UPGRADES.reduce((sum, upgrade) => sum + upgrade.prices.length, 0);
+  const completion = Math.round(installedLevels / maximumLevels * 100);
   const purchase = (id, title) => {
     const status = onPurchase(id);
     const nextLevel = profile.upgrades[id] + 1;
-    setFeedback(status === "purchased" ? `${title} // LV${nextLevel} INSTALLED` : status === "insufficient" ? "NOT ENOUGH RING" : "SYSTEM ALREADY MAXED");
+    setFeedback(status === "purchased" ? `${title} // LV${nextLevel} INSTALLED` : status === "insufficient" ? "KEEP DRIVING // MORE RING REQUIRED" : "SYSTEM ALREADY MAXED");
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "menu-panel max-h-[min(78dvh,700px)] w-full overflow-y-auto border border-[#25282d] bg-[#f7f3ed]/97 p-4 shadow-[6px_6px_0_#25282d] animate-fade-in sm:p-5", "aria-labelledby": "shop-title", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "flex items-end justify-between gap-4 border-b border-[#25282d]/25 pb-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-[9px] font-black tracking-[0.18em] text-[#25282d]/55", children: "AT-01 SYSTEM MARKET" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { id: "shop-title", className: "mt-1 text-2xl font-black italic leading-none tracking-[-0.035em]", children: "SHOP" })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-right font-mono", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[9px] font-black tracking-[0.16em] text-[#25282d]/55", children: "RING BALANCE" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-1 flex items-center justify-end gap-2 text-xl font-black tabular-nums", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "inline-block h-4 w-4 rounded-full border-[3px] border-[#f4a61f] shadow-[inset_0_0_0_1px_#fff2a6]", "aria-hidden": "true" }),
-          profile.walletRings.toLocaleString("en-US")
-        ] })
-      ] })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-4 grid gap-3 sm:grid-cols-2", children: STORE_UPGRADES.map((upgrade) => {
-      const level = profile.upgrades[upgrade.id];
-      const price = upgrade.prices[level];
-      const maxed = price === void 0;
-      const affordable = !maxed && profile.walletRings >= price;
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { className: "border border-[#25282d]/30 bg-[#25282d]/[0.045] p-3.5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-[8px] font-black tracking-[0.16em] text-[#25282d]/50", children: upgrade.system }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-1 flex items-center justify-between gap-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-[15px] font-black tracking-[0.035em]", children: upgrade.title }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-[10px] font-black", children: [
-            "LV",
-            level,
-            " / ",
-            upgrade.prices.length
-          ] })
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "menu-panel max-h-[min(80dvh,720px)] w-full overflow-y-auto border border-[#25282d] bg-[#f7f3ed]/98 shadow-[6px_6px_0_#25282d] animate-fade-in", "aria-labelledby": "shop-title", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "sticky top-0 z-20 border-b border-[#25282d] bg-[#f7f3ed]/98 p-4 pb-3 backdrop-blur-sm sm:p-5 sm:pb-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-end justify-between gap-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-[9px] font-black tracking-[0.18em] text-[#25282d]/65", children: "AT-01 UPGRADE BAY" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { id: "shop-title", className: "mt-1 text-2xl font-black italic leading-none tracking-[-0.035em]", children: "SYSTEM SHOP" })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 grid grid-cols-3 gap-1", "aria-label": `${level} of ${upgrade.prices.length} levels installed`, children: upgrade.prices.map((_, index) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `h-1.5 ${index < level ? "bg-[#20cfe1]" : "bg-[#25282d]/15"}` }, index)) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "my-3 min-h-[4.5em] font-mono text-[9.5px] leading-relaxed text-[#25282d]/68", children: upgrade.description }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            className: `${STORE_BUTTON_CLASS} ${affordable ? "menu-button--cyan" : ""}`,
-            disabled: maxed,
-            onClick: () => purchase(upgrade.id, upgrade.title),
-            children: maxed ? "MAXIMUM LEVEL" : `BUY LV${level + 1} // ${price.toString().padStart(4, "0")} RING`
-          }
-        )
-      ] }, upgrade.id);
-    }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 border border-dashed border-[#25282d]/30 px-3 py-2.5 font-mono text-[9px] leading-relaxed text-[#25282d]/55", children: "AIRFRAME BAY // AT-02 BREAKWALL AND AT-03 RAZORWING WILL OPEN AFTER THEIR VEHICLE MODELS ARE COMPLETE." }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 flex items-center justify-between gap-3 font-mono text-[9px] font-black tracking-[0.1em]", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { "aria-live": "polite", className: "text-[#d07b00]", children: feedback }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "shrink-0 text-[#25282d]/45", children: [
-        "LIFETIME ",
-        profile.lifetimeRings.toLocaleString("en-US")
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "border border-[#25282d] bg-[#25282d] px-3 py-2 text-right font-mono text-[#f7f3ed] shadow-[3px_3px_0_#20cfe1]", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[9px] font-black tracking-[0.14em] text-[#f7f3ed]/62", children: "AVAILABLE RING" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-0.5 flex items-center justify-end gap-2 text-xl font-black tabular-nums", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "inline-block h-4 w-4 rounded-full border-[3px] border-[#f4a61f] shadow-[inset_0_0_0_1px_#fff2a6]", "aria-hidden": "true" }),
+            profile.walletRings.toLocaleString("en-US")
+          ] })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 grid grid-cols-[1fr_auto] items-end gap-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-1.5 flex justify-between font-mono text-[9px] font-black tracking-[0.11em] text-[#25282d]/65", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "AT-01 DEVELOPMENT" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+              installedLevels,
+              " / ",
+              maximumLevels,
+              " LEVELS"
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-1.5 overflow-hidden bg-[#25282d]/14", "aria-label": `${completion}% of AT-01 upgrades installed`, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-full bg-[#20cfe1] transition-[width] duration-200", style: { width: `${completion}%` } }) })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono text-[9px] font-black tabular-nums text-[#25282d]/65", children: [
+          completion,
+          "%"
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { "aria-live": "polite", className: "mt-2.5 border-l-2 border-[#f4a61f] pl-2 font-mono text-[9.5px] font-black leading-relaxed tracking-[0.05em] text-[#b36a00]", children: feedback })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5 p-4 sm:p-5", children: [
+      CATEGORIES.map((category) => /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { "aria-labelledby": `shop-${category.id.toLowerCase()}`, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-2.5 flex items-end justify-between gap-3 border-b border-[#25282d]/25 pb-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { id: `shop-${category.id.toLowerCase()}`, className: "font-mono text-[11px] font-black tracking-[0.16em]", children: category.label }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-right font-mono text-[9px] font-black tracking-[0.08em] text-[#25282d]/62", children: category.note })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid gap-3 sm:grid-cols-2", children: STORE_UPGRADES.filter((upgrade) => upgrade.category === category.id).map((upgrade) => {
+          const level = profile.upgrades[upgrade.id];
+          const price = upgrade.prices[level];
+          const maxed = price === void 0;
+          const affordable = !maxed && profile.walletRings >= price;
+          const shortfall = maxed ? 0 : Math.max(0, price - profile.walletRings);
+          const Icon2 = UPGRADE_ICONS[upgrade.id];
+          const currentValue = upgrade.levels[level];
+          const nextValue = upgrade.levels[Math.min(level + 1, upgrade.levels.length - 1)];
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { className: `border bg-[#25282d]/[0.035] p-3.5 ${affordable ? "border-[#20cfe1] shadow-[3px_3px_0_#20cfe1]" : "border-[#25282d]/28"}`, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `grid h-9 w-9 shrink-0 place-items-center border ${maxed ? "border-[#20cfe1] bg-[#20cfe1]" : "border-[#25282d] bg-[#25282d] text-[#f7f3ed]"}`, children: maxed ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 19, strokeWidth: 3, "aria-hidden": true }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { size: 19, strokeWidth: 2.4, "aria-hidden": true }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 flex-1", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start justify-between gap-2", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-[14px] font-black leading-tight tracking-[0.025em]", children: upgrade.title }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "shrink-0 font-mono text-[9px] font-black", children: [
+                    "LV",
+                    level,
+                    " / ",
+                    upgrade.prices.length
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 flex gap-1", "aria-label": `${level} of ${upgrade.prices.length} levels installed`, children: upgrade.prices.map((_, index) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `h-1.5 flex-1 ${index < level ? "bg-[#20cfe1]" : "bg-[#25282d]/14"}` }, index)) })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 border border-[#25282d]/16 bg-white/55 p-2.5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-[9px] font-black tracking-[0.12em] text-[#25282d]/62", children: upgrade.metric }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-1 grid grid-cols-[1fr_auto_1fr] items-center gap-2 font-mono font-black tabular-nums", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[8.5px] tracking-[0.1em] text-[#25282d]/58", children: "CURRENT" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-0.5 text-[12px]", children: currentValue })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 15, strokeWidth: 2.5, className: "text-[#25282d]/58", "aria-hidden": true }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-right", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[8.5px] tracking-[0.1em] text-[#25282d]/58", children: maxed ? "FULL SPEC" : `NEXT LV${level + 1}` }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `mt-0.5 text-[12px] ${maxed || affordable ? "text-[#008ea0]" : ""}`, children: nextValue })
+                ] })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "my-3 min-h-[3.5em] font-mono text-[10px] leading-relaxed text-[#25282d]/68", children: upgrade.summary }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                className: `${STORE_BUTTON_CLASS} ${affordable ? "menu-button--cyan" : maxed ? "border-[#20cfe1] text-[#008ea0] disabled:opacity-100" : "text-[#d07b00]"}`,
+                disabled: maxed,
+                onClick: () => purchase(upgrade.id, upgrade.title),
+                "aria-label": maxed ? `${upgrade.title} maximum level installed` : affordable ? `Upgrade ${upgrade.title} to level ${level + 1} for ${price} ring` : `${shortfall} more ring needed for ${upgrade.title}`,
+                children: maxed ? "INSTALLED // MAX LEVEL" : affordable ? `UPGRADE LV${level + 1} // ${price.toLocaleString("en-US")} RING` : `NEED ${shortfall.toLocaleString("en-US")} MORE RING`
+              }
+            )
+          ] }, upgrade.id);
+        }) })
+      ] }, category.id)),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "border border-dashed border-[#25282d]/30 bg-[#25282d]/[0.025] px-3 py-3 font-mono text-[9.5px] leading-relaxed text-[#25282d]/58", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-black text-[#25282d]/72", children: "AIRFRAME BAY // COMING NEXT" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
+        "AT-02 BREAKWALL AND AT-03 RAZORWING WILL OPEN AFTER THEIR VEHICLE MODELS ARE READY."
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end font-mono text-[9px] font-black tracking-[0.08em] text-[#25282d]/58", children: [
+        "LIFETIME COLLECTED ",
+        profile.lifetimeRings.toLocaleString("en-US"),
+        " RING"
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: `${STORE_BUTTON_CLASS} mt-4`, onClick: onBack, children: "BACK TO MENU" })
+    /* @__PURE__ */ jsxRuntimeExports.jsx("footer", { className: "sticky bottom-0 z-20 border-t border-[#25282d]/20 bg-[#f7f3ed]/98 p-4 pt-3 backdrop-blur-sm sm:px-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: STORE_BUTTON_CLASS, onClick: onBack, children: "BACK TO MENU" }) })
   ] });
 }
 const BUTTON_CLASS = "menu-button group relative min-h-11 w-full px-3 py-3 text-center font-mono text-[13px] font-black tracking-[0.14em] transition duration-100 hover:text-[#f7f3ec]";
@@ -13872,7 +14035,10 @@ function ResultPanel({ snapshot, previousBestStars, previousBestScore, onExit, o
     { label: "AIRTIME BONUS", value: snapshot.scoreBreakdown.airborne },
     { label: "PICKUP BONUS", value: snapshot.scoreBreakdown.pickup },
     { label: "x2 BONUS", value: snapshot.scoreBreakdown.multiplier },
-    { label: "IMPACT PENALTY", value: snapshot.scoreBreakdown.impactPenalty }
+    {
+      label: snapshot.impacts === 0 ? "CLEAN RUN BONUS" : "IMPACT PENALTY",
+      value: snapshot.scoreBreakdown.integrityAdjustment
+    }
   ];
   const integrityValue = snapshot.hp === snapshot.maxHp ? "FULL" : `${snapshot.hp}/${snapshot.maxHp}`;
   const nextLabel = snapshot.stage >= STAGE_COUNT ? "REPLAY STAGE" : "NEXT STAGE";
@@ -13993,8 +14159,10 @@ function ResultPanel({ snapshot, previousBestStars, previousBestScore, onExit, o
           snapshot.scoreBreakdown.pickup,
           ", multiplier ",
           snapshot.scoreBreakdown.multiplier,
-          ", impact penalty ",
-          snapshot.scoreBreakdown.impactPenalty,
+          ", ",
+          snapshot.impacts === 0 ? "clean run bonus" : "impact penalty",
+          " ",
+          snapshot.scoreBreakdown.integrityAdjustment,
           "."
         ] })
       ]
@@ -15424,82 +15592,84 @@ const G$1 = "gutted-tower";
 const P$1 = "overgrown-plaza";
 const L = "barricade-line";
 const W = "transit-wreck";
+const A$1 = "silent-avenue";
+const M = "concrete-megablock";
 const ABANDONED_CITY_LAYOUTS = [
   [
     [B$1, P$1],
     [G$1, null],
-    [null, null],
-    [null, P$1],
+    [null, A$1],
+    [A$1, null],
     [null, null],
     [L, G$1],
-    [null, null],
-    [P$1, null],
+    [A$1, null],
+    [P$1, A$1],
     [null, B$1],
-    [null, G$1],
+    [A$1, G$1],
     [null, null],
-    [W, null],
+    [W, A$1],
     [null, null],
     [B$1, G$1],
-    [G$1, null],
+    [G$1, A$1],
     [null, null],
-    [null, P$1],
+    [A$1, P$1],
     [null, L],
-    [null, null],
+    [null, A$1],
     [B$1, null],
     [G$1, P$1],
-    [null, null],
-    [L, null],
+    [M, null],
+    [L, A$1],
     [null, G$1]
   ],
   [
-    [null, G$1],
+    [A$1, G$1],
     [P$1, B$1],
     [null, null],
-    [P$1, null],
+    [P$1, A$1],
     [G$1, null],
-    [null, null],
+    [null, A$1],
     [null, L],
-    [null, G$1],
+    [A$1, G$1],
     [null, null],
     [B$1, P$1],
-    [G$1, null],
+    [G$1, A$1],
     [null, W],
     [null, null],
-    [P$1, null],
-    [null, null],
+    [P$1, A$1],
+    [M, null],
     [null, B$1],
     [L, G$1],
-    [null, G$1],
+    [A$1, G$1],
     [null, null],
-    [B$1, null],
+    [B$1, A$1],
     [G$1, P$1],
     [null, null],
-    [null, L],
+    [A$1, L],
     [P$1, null]
   ],
   [
-    [L, null],
+    [L, A$1],
     [G$1, P$1],
     [null, null],
-    [B$1, null],
+    [B$1, A$1],
     [G$1, null],
-    [null, null],
+    [A$1, null],
     [null, P$1],
-    [null, L],
+    [A$1, L],
     [null, null],
     [P$1, G$1],
-    [null, B$1],
+    [A$1, B$1],
     [null, G$1],
     [null, null],
     [L, P$1],
-    [W, null],
+    [W, A$1],
     [null, null],
     [B$1, G$1],
-    [G$1, null],
+    [G$1, A$1],
     [null, null],
-    [null, P$1],
+    [M, P$1],
     [null, L],
-    [null, null],
+    [A$1, null],
     [B$1, null],
     [G$1, P$1]
   ]
@@ -15529,6 +15699,7 @@ const hash = (a, b) => {
   const value = Math.sin(a * 127.1 + b * 311.7) * 43758.5453;
   return value - Math.floor(value);
 };
+const wrapIndex$1 = (value, length) => (value % length + length) % length;
 const PALETTES = {
   day: {
     pavement: 6054495,
@@ -15540,6 +15711,7 @@ const PALETTES = {
     rubble: 5593683,
     steel: 3949118,
     rust: 6175528,
+    bark: 4865073,
     boarding: 5720632,
     foliage: 4874049,
     foliageDeep: 3360047,
@@ -15561,6 +15733,7 @@ const PALETTES = {
     rubble: 6377535,
     steel: 4537398,
     rust: 7290148,
+    bark: 5716779,
     boarding: 6441778,
     foliage: 5265464,
     foliageDeep: 3554342,
@@ -15580,6 +15753,7 @@ const PALETTES = {
     rubble: 2896952,
     steel: 2370351,
     rust: 4204831,
+    bark: 3156261,
     boarding: 3484706,
     foliage: 2898480,
     foliageDeep: 2042403,
@@ -15600,8 +15774,9 @@ class AbandonedCityEnvironmentKit {
     __publicField(this, "concreteWorn", new THREE.MeshStandardMaterial({ color: PALETTES.day.concreteWorn, roughness: 0.96, metalness: 0 }));
     __publicField(this, "concreteDark", new THREE.MeshStandardMaterial({ color: PALETTES.day.concreteDark, roughness: 0.92, metalness: 0.02 }));
     __publicField(this, "rubble", new THREE.MeshStandardMaterial({ color: PALETTES.day.rubble, roughness: 1, metalness: 0 }));
-    __publicField(this, "steel", new THREE.MeshStandardMaterial({ color: PALETTES.day.steel, roughness: 0.74, metalness: 0.4 }));
-    __publicField(this, "rust", new THREE.MeshStandardMaterial({ color: PALETTES.day.rust, roughness: 0.95, metalness: 0.1 }));
+    __publicField(this, "steel", new THREE.MeshStandardMaterial({ color: PALETTES.day.steel, roughness: 0.62, metalness: 0.5 }));
+    __publicField(this, "rust", new THREE.MeshStandardMaterial({ color: PALETTES.day.rust, roughness: 0.94, metalness: 0.12 }));
+    __publicField(this, "bark", new THREE.MeshStandardMaterial({ color: PALETTES.day.bark, roughness: 1, metalness: 0 }));
     __publicField(this, "boarding", new THREE.MeshStandardMaterial({ color: PALETTES.day.boarding, roughness: 0.9, metalness: 0 }));
     __publicField(this, "foliage", new THREE.MeshStandardMaterial({ color: PALETTES.day.foliage, roughness: 0.93, metalness: 0 }));
     __publicField(this, "foliageDeep", new THREE.MeshStandardMaterial({ color: PALETTES.day.foliageDeep, roughness: 0.94, metalness: 0 }));
@@ -15624,6 +15799,7 @@ class AbandonedCityEnvironmentKit {
     this.rubble.color.setHex(palette.rubble);
     this.steel.color.setHex(palette.steel);
     this.rust.color.setHex(palette.rust);
+    this.bark.color.setHex(palette.bark);
     this.boarding.color.setHex(palette.boarding);
     this.foliage.color.setHex(palette.foliage);
     this.foliageDeep.color.setHex(palette.foliageDeep);
@@ -15638,11 +15814,13 @@ class AbandonedCityEnvironmentKit {
     group.name = `abandoned_city_${kind}_${row}_${side}`;
     const destructibles = [];
     this.createBase(group, side, row, layoutVariant, true);
+    if (kind === "silent-avenue") this.createSilentAvenue(group, side, row, layoutVariant, destructibles);
     if (kind === "collapsed-block") this.createCollapsedBlock(group, side, row, layoutVariant, destructibles);
     if (kind === "gutted-tower") this.createGuttedTower(group, side, row, layoutVariant, destructibles);
     if (kind === "overgrown-plaza") this.createOvergrownPlaza(group, side, row, layoutVariant, destructibles);
     if (kind === "barricade-line") this.createBarricadeLine(group, side, row, layoutVariant, destructibles);
     if (kind === "transit-wreck") this.createTransitWreck(group, side, row, layoutVariant, destructibles);
+    if (kind === "concrete-megablock") this.createConcreteMegablock(group, side, row, layoutVariant, destructibles);
     return { group, destructibles };
   }
   // Layout rows are allowed to leave a side empty, but the street still has to be
@@ -15857,6 +16035,81 @@ class AbandonedCityEnvironmentKit {
     }
     this.addInstancedBoxes(group, masses, this.backdrop);
     this.addInstancedBoxes(group, caps, this.backdropCap);
+  }
+  // An intact but vacant street wall. This is the biome's common quiet module: dark
+  // openings, a few boarded shopfronts and curb growth carry the abandonment without
+  // turning every row into another collapse landmark.
+  createSilentAvenue(group, side, row, layoutVariant, destructibles) {
+    const variant = wrapIndex$1(row * 2 + layoutVariant + (side > 0 ? 1 : 0), 3);
+    const lateral = 12.2 + variant * 0.55;
+    const depth = 5.1 + variant % 2 * 0.45;
+    const frontage = 7.2;
+    const height = 5.8 + variant * 0.65;
+    const x = side * lateral;
+    const facadeX = side * (lateral - depth / 2 - 0.045);
+    this.addBox(group, depth + 0.38, 0.22, frontage + 0.4, this.concreteDark, x, GROUND_SURFACE_Y + 0.11, 0);
+    this.addBox(group, depth, 1.25, frontage, this.concreteWorn, x, GROUND_SURFACE_Y + 0.625, 0);
+    this.addBox(group, depth * 0.94, height - 1.18, frontage, this.concrete, x + side * 0.12, 1.25 + (height - 1.18) / 2, 0);
+    this.addBox(group, depth * 0.5, height + 0.7, 1.45, this.concreteWorn, x + side * depth * 0.2, height / 2 + 0.33, -frontage * 0.32);
+    this.addBox(group, depth * 0.42, 0.75, 1.3, this.concreteDark, x + side * depth * 0.18, height + 0.36, -frontage * 0.32);
+    const openings = [];
+    const boarded = [];
+    const ledges = [];
+    const floors = 4;
+    const columns = 5;
+    for (let floor = 0; floor < floors; floor++) {
+      const y = 1.55 + floor * ((height - 2.05) / (floors - 1));
+      for (let column = 0; column < columns; column++) {
+        const z = -frontage * 0.38 + column * (frontage * 0.76 / (columns - 1));
+        const opening = {
+          x: facadeX,
+          y,
+          z,
+          sx: 0.09,
+          sy: floor === 0 ? 0.88 : 0.72,
+          sz: 0.72
+        };
+        if (floor === 0 || wrapIndex$1(floor + column + variant, 7) === 0) boarded.push(opening);
+        else openings.push(opening);
+      }
+      if (floor > 0 && wrapIndex$1(floor + variant, 2) === 0) {
+        ledges.push({
+          x: facadeX - side * 0.23,
+          y: y - 0.48,
+          z: variant === 1 ? 1.35 : -1.2,
+          sx: 0.5,
+          sy: 0.12,
+          sz: 2.35
+        });
+      }
+    }
+    this.addInstancedBoxes(group, openings, this.opening);
+    this.addInstancedBoxes(group, boarded, this.boarding);
+    this.addInstancedBoxes(group, ledges, this.concreteDark);
+    const canopyZ = variant === 2 ? 1.8 : -1.75;
+    const canopy = this.addBox(
+      group,
+      0.92,
+      0.12,
+      1.8,
+      this.paint,
+      facadeX - side * 0.42,
+      1.18,
+      canopyZ
+    );
+    canopy.rotation.z = side * (variant === 1 ? -0.08 : 0.06);
+    this.addBox(group, 0.08, 0.62, 0.82, this.rust, facadeX - side * 0.08, 0.84, canopyZ + 1.1);
+    const treeLateral = SERVICE_LANE_CENTER + 2.72 + variant * 0.18;
+    const treeZ = variant === 0 ? 2.75 : -2.55;
+    const tree = this.createSuccessionTree(side, treeLateral, treeZ, 4.2 + variant * 0.35, variant);
+    group.add(tree);
+    destructibles.push(tree);
+    this.addShrubCluster(group, side, treeLateral + 1.2, treeZ - 0.6, 0.76, variant + 1);
+    if (variant === 1) {
+      const lamp = this.createDeadStreetLamp(side, SIDEWALK_CENTER + 0.35, -3.25, variant);
+      group.add(lamp);
+      destructibles.push(lamp);
+    }
   }
   // A mid-rise that lost its upper floors on one side. The base-shaft-crown order of
   // the living city survives, but the crown is gone and the break exposes the frame.
@@ -16117,23 +16370,20 @@ class AbandonedCityEnvironmentKit {
     const routeBoardX = kioskX - side * 1.18;
     this.addBox(group, 0.1, 1.28, 0.72, this.paint, routeBoardX, 1, kioskZ - 0.72);
     this.addBox(group, 0.13, 0.12, 0.82, this.rust, routeBoardX, 1.62, kioskZ - 0.72);
-    const kioskRoof = this.addBox(group, 2.5, 0.14, 2.9, this.concreteDark, kioskX - side * 0.3, 1.28, kioskZ + 0.25);
-    kioskRoof.rotation.z = side * 0.24;
-    kioskRoof.rotation.x = 0.06;
-    const treeX = x - side * 2.4;
-    const treeZ = variant % 2 === 0 ? 2.9 : -2.8;
+    const kioskRoof = this.addBox(group, 2.5, 0.14, 2.9, this.concreteDark, kioskX - side * 0.3, 1.8, kioskZ + 0.25);
+    kioskRoof.rotation.z = side * 0.08;
+    kioskRoof.rotation.x = 0.04;
+    const treeX = x - side * 1.85;
+    const treeZ = variant % 2 === 0 ? 2.15 : -2.1;
     const rootHeaves = [
-      { x: treeX - side * 0.55, y: GROUND_SURFACE_Y + 0.2, z: treeZ - 0.35, sx: 1.15, sy: 0.16, sz: 0.9, rz: side * 0.12, ry: 0.18 },
-      { x: treeX + side * 0.5, y: GROUND_SURFACE_Y + 0.18, z: treeZ + 0.42, sx: 1, sy: 0.14, sz: 0.82, rz: -side * 0.1, ry: -0.2 },
-      { x: treeX, y: GROUND_SURFACE_Y + 0.17, z: treeZ - 0.78, sx: 0.76, sy: 0.12, sz: 0.68, rx: 0.1, ry: 0.32 }
+      { x: treeX - side * 0.58, y: GROUND_SURFACE_Y + 0.17, z: treeZ + 0.24, sx: 1.42, sy: 0.12, sz: 0.58, rz: side * 0.08, ry: 0.24 },
+      { x: treeX + side * 0.48, y: GROUND_SURFACE_Y + 0.16, z: treeZ - 0.36, sx: 1.12, sy: 0.11, sz: 0.7, rz: -side * 0.06, ry: -0.32 },
+      { x: treeX - side * 0.04, y: GROUND_SURFACE_Y + 0.15, z: treeZ - 0.78, sx: 0.68, sy: 0.1, sz: 1.08, rx: 0.06, ry: 0.14 },
+      { x: treeX + side * 0.14, y: GROUND_SURFACE_Y + 0.14, z: treeZ + 0.72, sx: 0.76, sy: 0.09, sz: 0.86, rx: -0.05, ry: -0.2 },
+      { x: treeX - side * 0.72, y: GROUND_SURFACE_Y + 0.13, z: treeZ - 0.42, sx: 0.56, sy: 0.08, sz: 0.72, rz: side * 0.04, ry: 0.38 }
     ];
     this.addInstancedBoxes(group, rootHeaves, this.sidewalk);
-    this.addTaperedCylinder(group, 0.14, 0.26, 3.1, this.rust, treeX, 1.55 + GROUND_SURFACE_Y, treeZ, 7);
-    for (const [index, lean] of [0.5, -0.42].entries()) {
-      const branch = this.addCylinder(group, 0.07, 1.5, this.rust, treeX + side * lean * 0.45, 2.55 + index * 0.28, treeZ + (index === 0 ? 0.25 : -0.3), "y", 6);
-      branch.rotation.z = side * lean;
-      branch.rotation.x = index === 0 ? 0.3 : -0.26;
-    }
+    this.addPlazaTree(group, side, treeX, treeZ, variant);
     const bench = this.createToppledBench(side, lateral - 1.2, variant % 2 === 0 ? 0.4 : -0.6, variant);
     group.add(bench);
     destructibles.push(bench);
@@ -16174,11 +16424,13 @@ class AbandonedCityEnvironmentKit {
     }
     this.addInstancedBoxes(barrier, blocks, this.concrete);
     this.addInstancedBoxes(barrier, skirts, this.concreteDark);
-    const coilCount = 9;
+    const coilCount = 10;
+    const coilCenterY = 1.62 + GROUND_SURFACE_Y;
+    const coilStep = 7.8 / (coilCount - 1);
     const coils = new THREE.InstancedMesh(this.torus(0.5, 0.035), this.steel, coilCount);
     const coilDummy = new THREE.Object3D();
     for (let index = 0; index < coilCount; index++) {
-      coilDummy.position.set(side * barrierLateral, 1.42 + GROUND_SURFACE_Y, -3.9 + index * 0.975);
+      coilDummy.position.set(side * barrierLateral, coilCenterY, -3.9 + index * coilStep);
       coilDummy.rotation.set(0, side * (0.12 + index % 2 * 0.08), Math.PI / 2);
       coilDummy.updateMatrix();
       coils.setMatrixAt(index, coilDummy.matrix);
@@ -16186,6 +16438,11 @@ class AbandonedCityEnvironmentKit {
     coils.instanceMatrix.setUsage(THREE.StaticDrawUsage);
     coils.userData.sharedGeometry = true;
     barrier.add(coils);
+    this.addInstancedBoxes(barrier, [
+      { x: side * (barrierLateral - 0.44), y: coilCenterY, z: 0, sx: 0.04, sy: 0.04, sz: 7.8 },
+      { x: side * (barrierLateral + 0.44), y: coilCenterY, z: 0, sx: 0.04, sy: 0.04, sz: 7.8 },
+      { x: side * barrierLateral, y: coilCenterY + 0.44, z: 0, sx: 0.04, sy: 0.04, sz: 7.8 }
+    ], this.steel);
     barrier.userData.destructible = true;
     barrier.userData.destroyed = false;
     group.add(barrier);
@@ -16197,7 +16454,7 @@ class AbandonedCityEnvironmentKit {
       const tier = Math.floor(index / 5);
       bagDummy.position.set(
         side * (DEBRIS_INNER_LIMIT + 0.55 + index % 5 * 0.05 + tier * 0.1),
-        GROUND_SURFACE_Y + 0.14 + tier * 0.24,
+        SIDEWALK_TOP_Y + 0.125 + tier * 0.24,
         -2.2 + index % 5 * 0.62 + tier * 0.3
       );
       bagDummy.rotation.set(0, side * (0.1 + index % 3 * 0.14), 0);
@@ -16236,9 +16493,23 @@ class AbandonedCityEnvironmentKit {
     const bodyY = GROUND_SURFACE_Y + 0.03 + underframeBottom * Math.cos(tilt) + 1.1 * Math.sin(tilt);
     const car = new THREE.Group();
     car.name = "abandoned_city_transit_car";
-    this.addBox(car, 2.35, bodyHeight, 7.4, this.paint, 0, 0, 0);
+    this.addBox(car, 2.12, 1.72, 7.4, this.paint, 0, -0.29, 0);
+    const bodyShell = new THREE.Mesh(this.cylinder(1.18, 7.4, 12), this.paint);
+    bodyShell.position.y = 0.15;
+    bodyShell.rotation.x = Math.PI / 2;
+    bodyShell.userData.sharedGeometry = true;
+    car.add(bodyShell);
     this.addBox(car, 2.45, 0.22, 7.5, this.concreteDark, 0, bodyHalf + 0.08, 0);
     this.addBox(car, 2.2, 0.3, 7.2, this.steel, 0, -bodyHalf - 0.15, 0);
+    for (const face of [-1, 1]) {
+      this.addBox(car, 0.1, 0.34, 7.18, this.steel, face * 1.18, -0.95, 0);
+      this.addBox(car, 0.11, 0.12, 7.2, this.concreteDark, face * 1.2, 0.96, 0);
+    }
+    for (const end of [-1, 1]) {
+      this.addBox(car, 2.12, 0.12, 0.14, this.concreteDark, 0, 0.96, end * 3.66);
+      this.addBox(car, 0.12, 1.72, 0.14, this.concreteDark, -0.98, 0.02, end * 3.66);
+      this.addBox(car, 0.12, 1.72, 0.14, this.concreteDark, 0.98, 0.02, end * 3.66);
+    }
     const windows = [];
     const doors = [];
     for (const face of [-1, 1]) {
@@ -16273,7 +16544,7 @@ class AbandonedCityEnvironmentKit {
         1.7,
         this.concreteDark,
         side * (carLateral - 0.9 - wheelOffset * 0.32),
-        GROUND_SURFACE_Y + 0.34,
+        SERVICE_LANE_TOP_Y + 0.34,
         bogieZ + wheelOffset,
         "x",
         10
@@ -16313,15 +16584,139 @@ class AbandonedCityEnvironmentKit {
       { x: -0.78, y: 0.3, z: 0, sx: 0.11, sy: 0.12, sz: 4.1 },
       { x: 0.78, y: 0.3, z: 0, sx: 0.11, sy: 0.12, sz: 4.1 }
     ], this.steel);
-    brokenSpan.position.set(side * (trackLateral - 3.25), 4, 1.15);
-    brokenSpan.rotation.z = side * 0.72;
+    brokenSpan.position.set(side * (trackLateral - 3.25), 3.3, 1.15);
+    brokenSpan.rotation.z = side * 1.14;
     brokenSpan.rotation.x = -0.08;
     group.add(brokenSpan);
-    const talus = this.createRubbleTalus(side, trackLateral - 4.6, 1.35, 4.8, 1.55, 5, variant + 1);
+    const talus = this.createRubbleTalus(side, trackLateral - 5.8, 1.3, 5.2, 2.8, 7, variant + 1);
     group.add(talus);
+    this.addInstancedBoxes(group, [
+      {
+        x: side * (trackLateral - 3.95),
+        y: GROUND_SURFACE_Y + 0.58,
+        z: -0.95,
+        sx: 1.15,
+        sy: 1.1,
+        sz: 1.25,
+        ry: side * 0.24,
+        rz: side * 0.08
+      },
+      {
+        x: side * (trackLateral - 3.95),
+        y: GROUND_SURFACE_Y + 0.78,
+        z: 3.45,
+        sx: 1.2,
+        sy: 1.45,
+        sz: 1.2,
+        ry: -side * 0.18,
+        rz: -side * 0.06
+      }
+    ], this.concreteWorn);
     this.addRebarSpray(group, side, trackLateral - 4.1, -1.8, variant);
     this.addShrubCluster(group, side, trackLateral - 1.7, -3.15, 1.1, variant + 2);
     const pile = this.createDebrisPile(side, DEBRIS_INNER_LIMIT + 1.1, variant % 2 === 0 ? -3.5 : 3.6, variant);
+    group.add(pile);
+    destructibles.push(pile);
+  }
+  // The rare district landmark: one intact concrete wing, one torn-open frame and a
+  // tall service core arranged around a mostly empty civic plaza. Concentrating the
+  // structural detail here lets ordinary streets stay quiet and makes the landmark
+  // visible several rows before the player reaches it.
+  createConcreteMegablock(group, side, row, layoutVariant, destructibles) {
+    const variant = wrapIndex$1(row + layoutVariant + (side > 0 ? 1 : 0), 3);
+    const lateral = 17 + variant * 0.45;
+    const depth = 6.6;
+    const frontage = 8.2;
+    const height = 10.8 + variant * 0.7;
+    const x = side * lateral;
+    const facadeX = side * (lateral - depth / 2 - 0.055);
+    const plazaX = side * 10.4;
+    this.addBox(group, 8.4, 0.14, 8.8, this.sidewalk, plazaX, GROUND_SURFACE_Y + 0.07, 0);
+    this.addInstancedBoxes(group, [
+      { x: plazaX - side * 1.4, y: GROUND_SURFACE_Y + 0.15, z: -2.7, sx: 5.1, sy: 0.025, sz: 0.09, ry: side * 0.14 },
+      { x: plazaX + side * 1.2, y: GROUND_SURFACE_Y + 0.15, z: 1.5, sx: 4.8, sy: 0.025, sz: 0.09, ry: -side * 0.2 },
+      { x: plazaX, y: GROUND_SURFACE_Y + 0.15, z: 3.1, sx: 0.09, sy: 0.025, sz: 3.2, ry: side * 0.32 }
+    ], this.concreteDark);
+    this.addBox(group, depth + 0.7, 0.3, frontage + 0.65, this.concreteDark, x, GROUND_SURFACE_Y + 0.15, 0);
+    this.addBox(group, depth, height, frontage * 0.68, this.concrete, x, height / 2, -frontage * 0.16);
+    const coreZ = -frontage * 0.42;
+    const coreHeight = height + 1.65;
+    this.addBox(group, depth * 0.7, coreHeight, 1.35, this.concreteWorn, x + side * depth * 0.2, coreHeight / 2, coreZ);
+    this.addBox(group, 0.1, coreHeight * 0.72, 0.42, this.opening, facadeX - side * 0.03, coreHeight * 0.48, coreZ);
+    const windows = [];
+    const boards = [];
+    const facadeBands = [];
+    const floors = 6;
+    const columns = 4;
+    for (let floor = 0; floor < floors; floor++) {
+      const y = 1.25 + floor * ((height - 2) / (floors - 1));
+      for (let column = 0; column < columns; column++) {
+        const z = -frontage * 0.27 + column * (frontage * 0.43 / (columns - 1));
+        const opening = {
+          x: facadeX,
+          y,
+          z,
+          sx: 0.1,
+          sy: 0.82,
+          sz: 0.82
+        };
+        if (floor === 0 || wrapIndex$1(floor * 3 + column + variant, 11) === 0) boards.push(opening);
+        else windows.push(opening);
+      }
+      if (floor > 0) {
+        facadeBands.push({
+          x: facadeX - side * 0.08,
+          y: y - 0.58,
+          z: -frontage * 0.06,
+          sx: 0.18,
+          sy: 0.12,
+          sz: frontage * 0.58
+        });
+      }
+    }
+    this.addInstancedBoxes(group, windows, this.opening);
+    this.addInstancedBoxes(group, boards, this.boarding);
+    this.addInstancedBoxes(group, facadeBands, this.concreteDark);
+    const frameZ = frontage * 0.37;
+    const frameWidth = frontage * 0.28;
+    const columnsTransforms = [];
+    const slabs = [];
+    for (const xOffset of [-depth * 0.4, depth * 0.36]) {
+      for (const zOffset of [-frameWidth * 0.36, frameWidth * 0.36]) {
+        const index = columnsTransforms.length;
+        const columnHeight = height * (0.7 + wrapIndex$1(index + variant, 4) * 0.08);
+        columnsTransforms.push({
+          x: x + side * xOffset,
+          y: columnHeight / 2,
+          z: frameZ + zOffset,
+          sx: 0.38,
+          sy: columnHeight,
+          sz: 0.38
+        });
+      }
+    }
+    for (let floor = 1; floor <= 5; floor++) {
+      if (wrapIndex$1(floor + variant, 4) === 0) continue;
+      slabs.push({
+        x: x - side * (floor % 2 === 0 ? 0.18 : 0),
+        y: floor * (height / 6),
+        z: frameZ + (floor % 3 === 0 ? 0.22 : 0),
+        sx: depth * (floor === 5 ? 0.66 : 0.86),
+        sy: 0.2,
+        sz: frameWidth,
+        rz: side * (floor === 5 ? 0.04 : 0)
+      });
+    }
+    this.addInstancedBoxes(group, columnsTransforms, this.concreteWorn);
+    this.addInstancedBoxes(group, slabs, this.concreteWorn);
+    const talus = this.createRubbleTalus(side, lateral - depth / 2 - 1.1, frameZ, 4.6, 1.55, 3.8, variant + 4);
+    group.add(talus);
+    this.addRebarSpray(group, side, lateral - depth / 2 - 0.8, frameZ + 0.5, variant + 2);
+    const tree = this.createSuccessionTree(side, 9.35, -1.15, 5.35, variant + 4);
+    group.add(tree);
+    destructibles.push(tree);
+    this.addShrubCluster(group, side, 10.65, -2.05, 0.88, variant + 2);
+    const pile = this.createDebrisPile(side, SERVICE_LANE_CENTER + 2.35, 3.35, variant + 5);
     group.add(pile);
     destructibles.push(pile);
   }
@@ -16402,27 +16797,231 @@ class AbandonedCityEnvironmentKit {
     }
     this.addInstancedBoxes(group, strands, this.foliageDeep);
   }
+  createSuccessionTree(side, lateral, z, height, variant) {
+    const tree = new THREE.Group();
+    tree.name = "abandoned_city_succession_tree";
+    const turn = wrapIndex$1(variant, 3);
+    const sway = turn === 1 ? -1 : 1;
+    const x = side * lateral;
+    const ground = GROUND_SURFACE_Y + 0.015;
+    const root = new THREE.Vector3(x, ground, z);
+    const collar = new THREE.Vector3(x + side * height * 0.012, ground + height * 0.08, z);
+    const lower = new THREE.Vector3(
+      x + side * height * (0.025 + turn * 8e-3),
+      ground + height * 0.34,
+      z + sway * height * 0.025
+    );
+    const fork = new THREE.Vector3(
+      x - side * height * (0.012 + turn * 0.01),
+      ground + height * 0.63,
+      z - sway * height * 0.02
+    );
+    const leader = new THREE.Vector3(
+      x + side * height * (0.06 + turn * 0.012),
+      ground + height,
+      z - sway * height * (0.07 - turn * 0.012)
+    );
+    const roadJoint = lower.clone().lerp(fork, 0.42);
+    const roadTip = new THREE.Vector3(
+      x - side * height * (0.19 + turn * 0.025),
+      ground + height * (0.72 + turn * 0.025),
+      z + sway * height * 0.12
+    );
+    const outerTip = new THREE.Vector3(
+      x + side * height * (0.22 - turn * 0.025),
+      ground + height * (0.78 - turn * 0.02),
+      z - sway * height * 0.13
+    );
+    const rearTip = new THREE.Vector3(
+      x + side * height * 0.035,
+      ground + height * 0.83,
+      z - sway * height * (0.23 + turn * 0.015)
+    );
+    const frontTip = new THREE.Vector3(
+      x - side * height * 0.045,
+      ground + height * 0.76,
+      z + sway * height * (0.24 - turn * 0.012)
+    );
+    const roadTwigA = roadTip.clone().add(new THREE.Vector3(-side * height * 0.09, height * 0.09, sway * height * 0.035));
+    const roadTwigB = roadTip.clone().add(new THREE.Vector3(side * height * 0.025, height * 0.07, -sway * height * 0.09));
+    const outerTwigA = outerTip.clone().add(new THREE.Vector3(side * height * 0.09, height * 0.08, -sway * height * 0.025));
+    const outerTwigB = outerTip.clone().add(new THREE.Vector3(-side * height * 0.02, height * 0.065, sway * height * 0.09));
+    const rearTwig = rearTip.clone().add(new THREE.Vector3(side * height * 0.045, height * 0.07, -sway * height * 0.08));
+    const frontTwig = frontTip.clone().add(new THREE.Vector3(-side * height * 0.04, height * 0.075, sway * height * 0.08));
+    const leaderTwig = leader.clone().add(new THREE.Vector3(side * height * 0.045, height * 0.075, -sway * height * 0.04));
+    const branches = [
+      { start: root, end: collar, radius: height * 0.078 },
+      { start: collar, end: lower, radius: height * 0.062 },
+      { start: lower, end: fork, radius: height * 0.044 },
+      { start: fork, end: leader, radius: height * 0.026 },
+      { start: roadJoint, end: roadTip, radius: height * 0.031 },
+      { start: roadTip, end: roadTwigA, radius: height * 0.015 },
+      { start: roadTip, end: roadTwigB, radius: height * 0.013 },
+      { start: fork, end: outerTip, radius: height * 0.03 },
+      { start: outerTip, end: outerTwigA, radius: height * 0.014 },
+      { start: outerTip, end: outerTwigB, radius: height * 0.012 },
+      { start: fork, end: rearTip, radius: height * 0.023 },
+      { start: rearTip, end: rearTwig, radius: height * 0.012 },
+      { start: fork, end: frontTip, radius: height * 0.021 },
+      { start: frontTip, end: frontTwig, radius: height * 0.011 },
+      { start: leader, end: leaderTwig, radius: height * 0.01 },
+      { start: collar, end: new THREE.Vector3(x - side * height * 0.16, ground + 0.015, z + sway * height * 0.07), radius: height * 0.036 },
+      { start: collar, end: new THREE.Vector3(x + side * height * 0.15, ground + 0.012, z - sway * height * 0.08), radius: height * 0.034 },
+      { start: collar, end: new THREE.Vector3(x, ground + 0.01, z + sway * height * 0.17), radius: height * 0.028 }
+    ];
+    this.addInstancedBranches(tree, branches, this.bark, 8);
+    const leaf = (anchor, dx, dy, dz, sx, sy, sz, yaw) => ({
+      x: anchor.x + side * height * dx,
+      y: anchor.y + height * dy,
+      z: anchor.z + sway * height * dz,
+      sx: height * sx,
+      sy: height * sy,
+      sz: height * sz,
+      rx: sway * yaw * 0.22,
+      ry: side * yaw,
+      rz: side * yaw * 0.18
+    });
+    const lightLeaves = [
+      leaf(leader, 0, 0.01, 0, 0.29, 0.17, 0.23, 0.12),
+      leaf(leaderTwig, 0.02, 0.015, -0.01, 0.21, 0.14, 0.18, -0.22),
+      leaf(roadTip, -0.015, 0.015, 0, 0.3, 0.16, 0.23, 0.28),
+      leaf(roadTwigA, -0.01, 0.012, 0, 0.2, 0.13, 0.17, -0.18),
+      leaf(outerTip, 0.015, 0.015, 0, 0.31, 0.17, 0.24, -0.25),
+      leaf(outerTwigA, 0.01, 0.01, -0.01, 0.2, 0.13, 0.17, 0.2),
+      leaf(rearTip, 0, 0.012, -0.01, 0.27, 0.15, 0.27, 0.18),
+      leaf(frontTip, 0, 0.012, 0.01, 0.26, 0.15, 0.26, -0.2)
+    ];
+    const deepLeaves = [
+      leaf(fork, 0.01, 0.11, 0, 0.27, 0.15, 0.22, 0.08),
+      leaf(leader, -0.025, -0.07, 0.025, 0.24, 0.13, 0.2, -0.1),
+      leaf(roadTip, 0.025, -0.055, 0.025, 0.23, 0.13, 0.2, 0.12),
+      leaf(outerTip, -0.025, -0.055, -0.02, 0.23, 0.13, 0.2, -0.14),
+      leaf(rearTip, 0.035, -0.045, 0.02, 0.22, 0.12, 0.23, 0.16),
+      leaf(frontTip, -0.035, -0.045, -0.02, 0.22, 0.12, 0.22, -0.15)
+    ];
+    this.addInstancedFoliage(tree, lightLeaves, this.foliage);
+    this.addInstancedFoliage(tree, deepLeaves, this.foliageDeep);
+    tree.userData.destructible = true;
+    tree.userData.destroyed = false;
+    return tree;
+  }
+  addPlazaTree(group, side, treeX, treeZ, variant) {
+    const groundY = GROUND_SURFACE_Y + 0.12;
+    const zSway = variant % 2 === 0 ? 1 : -1;
+    const base = new THREE.Vector3(treeX, groundY, treeZ);
+    const rootCollar = new THREE.Vector3(treeX + side * 0.02, groundY + 0.3, treeZ);
+    const trunkA = new THREE.Vector3(treeX + side * 0.04, groundY + 0.74, treeZ + zSway * 0.04);
+    const trunkB = new THREE.Vector3(treeX + side * 0.12, groundY + 1.55, treeZ + zSway * 0.12);
+    const trunkC = new THREE.Vector3(treeX + side * 0.02, groundY + 2.35, treeZ - zSway * 0.04);
+    const upperFork = new THREE.Vector3(treeX + side * 0.15, groundY + 3.04, treeZ - zSway * 0.18);
+    const leader = new THREE.Vector3(treeX + side * 0.34, groundY + 3.84, treeZ - zSway * 0.36);
+    const roadJoint = new THREE.Vector3(treeX - side * 0.42, groundY + 2.18, treeZ + zSway * 0.24);
+    const roadTip = new THREE.Vector3(treeX - side * 1.16, groundY + 2.96, treeZ + zSway * 0.58);
+    const roadTwigA = roadTip.clone().add(new THREE.Vector3(-side * 0.34, 0.34, zSway * 0.16));
+    const roadTwigB = roadTip.clone().add(new THREE.Vector3(-side * 0.06, 0.24, -zSway * 0.4));
+    const outerJoint = new THREE.Vector3(treeX + side * 0.56, groundY + 2.74, treeZ - zSway * 0.16);
+    const outerTip = new THREE.Vector3(treeX + side * 1.24, groundY + 3.34, treeZ - zSway * 0.46);
+    const outerTwigA = outerTip.clone().add(new THREE.Vector3(side * 0.34, 0.28, -zSway * 0.12));
+    const outerTwigB = outerTip.clone().add(new THREE.Vector3(side * 0.08, 0.22, zSway * 0.36));
+    const rearTip = new THREE.Vector3(treeX - side * 0.28, groundY + 3.48, treeZ - zSway * 1.04);
+    const rearTwig = rearTip.clone().add(new THREE.Vector3(-side * 0.22, 0.28, -zSway * 0.3));
+    const frontTip = new THREE.Vector3(treeX + side * 0.42, groundY + 3.56, treeZ + zSway * 0.88);
+    const frontTwig = frontTip.clone().add(new THREE.Vector3(side * 0.2, 0.3, zSway * 0.28));
+    const leaderTwig = leader.clone().add(new THREE.Vector3(side * 0.18, 0.38, -zSway * 0.18));
+    const branches = [
+      { start: base, end: trunkA, radius: 0.36 },
+      { start: trunkA, end: trunkB, radius: 0.21 },
+      { start: trunkB, end: trunkC, radius: 0.13 },
+      { start: trunkC, end: upperFork, radius: 0.08 },
+      { start: upperFork, end: leader, radius: 0.052 },
+      { start: trunkB, end: roadJoint, radius: 0.15 },
+      { start: roadJoint, end: roadTip, radius: 0.088 },
+      { start: roadTip, end: roadTwigA, radius: 0.05 },
+      { start: roadTip, end: roadTwigB, radius: 0.046 },
+      { start: trunkC, end: outerJoint, radius: 0.12 },
+      { start: outerJoint, end: outerTip, radius: 0.07 },
+      { start: outerTip, end: outerTwigA, radius: 0.042 },
+      { start: outerTip, end: outerTwigB, radius: 0.04 },
+      { start: trunkC, end: rearTip, radius: 0.095 },
+      { start: rearTip, end: rearTwig, radius: 0.046 },
+      { start: upperFork, end: frontTip, radius: 0.072 },
+      { start: frontTip, end: frontTwig, radius: 0.04 },
+      { start: leader, end: leaderTwig, radius: 0.036 },
+      { start: rootCollar, end: new THREE.Vector3(treeX - side * 0.78, groundY + 0.03, treeZ + zSway * 0.34), radius: 0.18 },
+      { start: rootCollar, end: new THREE.Vector3(treeX + side * 0.7, groundY + 0.03, treeZ - zSway * 0.4), radius: 0.17 },
+      { start: rootCollar, end: new THREE.Vector3(treeX - side * 0.08, groundY + 0.025, treeZ - zSway * 0.82), radius: 0.14 },
+      { start: rootCollar, end: new THREE.Vector3(treeX + side * 0.2, groundY + 0.025, treeZ + zSway * 0.76), radius: 0.13 }
+    ];
+    this.addInstancedBranches(group, branches, this.bark, 9);
+    const leafLift = variant % 3 * 0.035;
+    const leaf = (anchor, dx, dy, dz, sx, sy, sz, turn) => ({
+      x: anchor.x + side * dx,
+      y: anchor.y + dy + leafLift,
+      z: anchor.z + zSway * dz,
+      sx,
+      sy,
+      sz,
+      rx: zSway * turn * 0.45,
+      ry: side * turn,
+      rz: side * turn * 0.35
+    });
+    const lightLeaves = [
+      leaf(leader, 0, 0.12, 0, 1.34, 0.86, 1.08, 0.12),
+      leaf(leader, 0.44, 0.02, 0.08, 0.98, 0.7, 0.86, -0.24),
+      leaf(leader, -0.4, -0.04, -0.14, 1.04, 0.74, 0.94, 0.2),
+      leaf(leaderTwig, 0.08, 0.08, -0.02, 0.82, 0.62, 0.76, -0.16),
+      leaf(roadTip, 0, 0.12, 0, 1.24, 0.76, 0.98, 0.28),
+      leaf(roadTip, -0.38, 0.12, 0.14, 0.92, 0.66, 0.82, -0.16),
+      leaf(roadTip, 0.34, -0.04, -0.16, 0.98, 0.7, 0.86, 0.22),
+      leaf(roadTwigA, -0.06, 0.04, 0.02, 0.76, 0.58, 0.7, 0.18),
+      leaf(outerTip, 0, 0.1, 0, 1.26, 0.8, 1.02, -0.26),
+      leaf(outerTip, 0.42, 0.08, -0.1, 0.9, 0.66, 0.82, 0.2),
+      leaf(outerTip, -0.34, -0.02, 0.16, 0.96, 0.7, 0.88, -0.18),
+      leaf(outerTwigA, 0.05, 0.02, 0, 0.74, 0.56, 0.68, 0.14),
+      leaf(rearTip, 0, 0.1, 0, 1.1, 0.72, 1.18, 0.22),
+      leaf(rearTip, -0.34, 0.02, -0.08, 0.82, 0.62, 0.94, -0.2),
+      leaf(frontTip, 0, 0.08, 0, 1.08, 0.72, 1.14, -0.22),
+      leaf(frontTip, 0.32, 0.02, 0.12, 0.8, 0.6, 0.88, 0.18)
+    ];
+    const deepLeaves = [
+      leaf(upperFork, 0, 0.28, 0, 1.24, 0.72, 1.08, 0.16),
+      leaf(leader, 0.02, -0.2, 0.18, 1.08, 0.64, 0.96, -0.12),
+      leaf(roadJoint, -0.28, 0.34, 0.08, 1.02, 0.66, 0.88, -0.2),
+      leaf(roadTip, 0.08, -0.18, 0.14, 0.9, 0.58, 0.82, 0.14),
+      leaf(outerJoint, 0.3, 0.3, -0.06, 1, 0.64, 0.9, 0.18),
+      leaf(outerTip, -0.06, -0.18, -0.12, 0.92, 0.6, 0.84, -0.14),
+      leaf(rearTip, 0.22, -0.14, 0.18, 0.88, 0.58, 0.94, 0.18),
+      leaf(frontTip, -0.2, -0.14, -0.18, 0.86, 0.58, 0.92, -0.16)
+    ];
+    this.addInstancedFoliage(group, lightLeaves, this.foliage);
+    this.addInstancedFoliage(group, deepLeaves, this.foliageDeep);
+  }
   addShrubCluster(group, side, lateral, z, scale, variant, baseY = GROUND_SURFACE_Y) {
     const x = side * lateral;
-    const specs = [
-      { dx: 0, dz: 0, radius: 0.52, material: this.foliage },
-      { dx: 0.46, dz: 0.38, radius: 0.36, material: this.foliageDeep },
-      { dx: -0.4, dz: -0.44, radius: 0.3, material: this.foliage }
+    const origin = new THREE.Vector3(x, baseY + 0.02, z);
+    const sway = variant % 2 === 0 ? 1 : -1;
+    const lobes = [
+      { x, y: baseY + 0.56 * scale, z, sx: 0.98 * scale, sy: 0.82 * scale, sz: 0.88 * scale, rz: side * 0.08 },
+      { x: x + side * 0.48 * scale, y: baseY + 0.48 * scale, z: z + 0.28 * scale, sx: 0.72 * scale, sy: 0.64 * scale, sz: 0.68 * scale, ry: side * 0.26 },
+      { x: x - side * 0.44 * scale, y: baseY + 0.43 * scale, z: z - 0.32 * scale, sx: 0.68 * scale, sy: 0.58 * scale, sz: 0.62 * scale, ry: -side * 0.3 },
+      { x: x + side * 0.16 * scale, y: baseY + 0.84 * scale, z: z - 0.12 * scale, sx: 0.64 * scale, sy: 0.58 * scale, sz: 0.6 * scale, rz: side * sway * 0.16 },
+      { x: x - side * 0.22 * scale, y: baseY + 0.7 * scale, z: z + 0.42 * scale, sx: 0.62 * scale, sy: 0.52 * scale, sz: 0.66 * scale, rx: 0.18 },
+      { x: x + side * 0.62 * scale, y: baseY + 0.35 * scale, z: z - 0.24 * scale, sx: 0.5 * scale, sy: 0.42 * scale, sz: 0.54 * scale, ry: 0.34 },
+      { x: x - side * 0.56 * scale, y: baseY + 0.32 * scale, z: z + 0.2 * scale, sx: 0.46 * scale, sy: 0.4 * scale, sz: 0.5 * scale, ry: -0.28 }
     ];
-    for (const [index, spec] of specs.entries()) {
-      const radius = spec.radius * scale;
-      const mesh = new THREE.Mesh(this.sphere(0.5, 8, 6), (index + variant) % 2 === 0 ? spec.material : this.foliageDeep);
-      mesh.position.set(x + side * spec.dx * scale, baseY + radius * 0.78, z + spec.dz * scale);
-      mesh.scale.set(radius * 2, radius * 1.55, radius * 2);
-      mesh.userData.sharedGeometry = true;
-      group.add(mesh);
-    }
+    const branches = lobes.map((lobe, index) => ({
+      start: index < 3 ? origin : origin.clone().add(new THREE.Vector3(side * (index % 2 === 0 ? -0.06 : 0.06) * scale, 0.1 * scale, 0)),
+      end: new THREE.Vector3(lobe.x, Math.max(baseY + 0.22 * scale, lobe.y - (lobe.sy ?? 1) * 0.12), lobe.z),
+      radius: (index === 0 ? 0.075 : 0.045) * scale
+    }));
+    this.addInstancedBranches(group, branches, this.bark, 7);
+    this.addInstancedFoliage(group, lobes.filter((_, index) => (index + variant) % 3 !== 0), this.foliage);
+    this.addInstancedFoliage(group, lobes.filter((_, index) => (index + variant) % 3 === 0), this.foliageDeep);
   }
   createShrubGroup(side, lateral, z, scale, variant) {
     const shrub = new THREE.Group();
     shrub.name = "abandoned_city_shrub";
     this.addShrubCluster(shrub, side, lateral, z, scale, variant);
-    this.addTaperedCylinder(shrub, 0.08, 0.13, 0.5 * scale, this.rust, side * lateral, GROUND_SURFACE_Y + 0.25 * scale, z, 6);
     shrub.userData.destructible = true;
     shrub.userData.destroyed = false;
     return shrub;
@@ -16668,6 +17267,44 @@ class AbandonedCityEnvironmentKit {
     group.add(mesh);
     return mesh;
   }
+  addInstancedBranches(group, branches, material, segments) {
+    if (branches.length === 0) return;
+    const mesh = new THREE.InstancedMesh(this.taperedCylinder(0.58, 1, 1, segments), material, branches.length);
+    mesh.name = "abandoned_city_connected_branches";
+    const dummy = new THREE.Object3D();
+    const up = new THREE.Vector3(0, 1, 0);
+    const direction = new THREE.Vector3();
+    branches.forEach((branch, index) => {
+      direction.subVectors(branch.end, branch.start);
+      const length = direction.length();
+      dummy.position.copy(branch.start).add(branch.end).multiplyScalar(0.5);
+      dummy.quaternion.setFromUnitVectors(up, direction.normalize());
+      dummy.scale.set(branch.radius, length, branch.radius);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(index, dummy.matrix);
+    });
+    mesh.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+    mesh.userData.sharedGeometry = true;
+    group.add(mesh);
+    return mesh;
+  }
+  addInstancedFoliage(group, transforms, material) {
+    if (transforms.length === 0) return;
+    const mesh = new THREE.InstancedMesh(this.foliageBlob(), material, transforms.length);
+    mesh.name = "abandoned_city_foliage_lobes";
+    const dummy = new THREE.Object3D();
+    transforms.forEach((transform, index) => {
+      dummy.position.set(transform.x, transform.y, transform.z);
+      dummy.rotation.set(transform.rx ?? 0, transform.ry ?? 0, transform.rz ?? 0);
+      dummy.scale.set(transform.sx ?? 1, transform.sy ?? 1, transform.sz ?? 1);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(index, dummy.matrix);
+    });
+    mesh.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+    mesh.userData.sharedGeometry = true;
+    group.add(mesh);
+    return mesh;
+  }
   addCylinder(group, radius, length, material, x, y, z, axis, segments) {
     const mesh = new THREE.Mesh(this.cylinder(radius, length, segments), material);
     mesh.position.set(x, y, z);
@@ -16749,6 +17386,24 @@ class AbandonedCityEnvironmentKit {
   sphere(radius, widthSegments, heightSegments) {
     return this.geometry(`sphere:${radius}:${widthSegments}:${heightSegments}`, () => new THREE.SphereGeometry(radius, widthSegments, heightSegments));
   }
+  foliageBlob() {
+    return this.geometry("foliage-blob:12:8", () => {
+      const geometry = new THREE.SphereGeometry(0.5, 12, 8);
+      const positions = geometry.getAttribute("position");
+      const vertex = new THREE.Vector3();
+      for (let index = 0; index < positions.count; index++) {
+        vertex.fromBufferAttribute(positions, index);
+        const irregularity = 1 + Math.sin(vertex.x * 17 + vertex.y * 11 + vertex.z * 23) * 0.07 + Math.sin(vertex.x * 31 - vertex.y * 19 + vertex.z * 13) * 0.035;
+        vertex.multiplyScalar(irregularity);
+        vertex.x += vertex.y * 0.045;
+        vertex.z -= vertex.x * 0.025;
+        positions.setXYZ(index, vertex.x, vertex.y, vertex.z);
+      }
+      positions.needsUpdate = true;
+      geometry.computeVertexNormals();
+      return geometry;
+    });
+  }
   torus(radius, tube) {
     return this.geometry(`torus:${radius}:${tube}`, () => new THREE.TorusGeometry(radius, tube, 6, 14));
   }
@@ -16773,6 +17428,7 @@ class AbandonedCityEnvironmentKit {
       this.rubble,
       this.steel,
       this.rust,
+      this.bark,
       this.boarding,
       this.foliage,
       this.foliageDeep,
@@ -16786,6 +17442,7 @@ class AbandonedCityEnvironmentKit {
 }
 const F = "shore-flat";
 const C$2 = "cliff-shelf";
+const V = "fishing-frontage";
 const S$1 = "sea-open";
 const B = "bridge-span";
 const T$1 = "bridge-tower";
@@ -16796,7 +17453,7 @@ const COAST_LAYOUTS = [
     [S$1, F],
     [S$1, C$2],
     [S$1, null],
-    [S$1, F],
+    [S$1, V],
     [S$1, C$2],
     [S$1, C$2],
     [S$1, null],
@@ -16814,14 +17471,14 @@ const COAST_LAYOUTS = [
     [S$1, F],
     [S$1, null],
     [S$1, C$2],
-    [S$1, F],
+    [S$1, V],
     [S$1, C$2],
     [S$1, F]
   ],
   // Layout 1: mirrored shoreline. The crossing arrives early, at rows 4-10, so
   // the loop does not read as the same run of coast in both directions.
   [
-    [F, S$1],
+    [V, S$1],
     [C$2, S$1],
     [null, S$1],
     [C$2, S$1],
@@ -16837,12 +17494,12 @@ const COAST_LAYOUTS = [
     [null, S$1],
     [C$2, S$1],
     [C$2, S$1],
-    [F, S$1],
+    [V, S$1],
     [null, S$1],
     [C$2, S$1],
     [F, S$1],
     [C$2, S$1],
-    [F, S$1],
+    [V, S$1],
     [null, S$1],
     [C$2, S$1]
   ],
@@ -16853,7 +17510,7 @@ const COAST_LAYOUTS = [
     [S$1, C$2],
     [S$1, C$2],
     [S$1, null],
-    [S$1, F],
+    [S$1, V],
     [S$1, C$2],
     [B, B],
     [T$1, T$1],
@@ -16865,13 +17522,13 @@ const COAST_LAYOUTS = [
     [T$1, T$1],
     [B, B],
     [S$1, C$2],
-    [S$1, F],
+    [S$1, V],
     [S$1, null],
     [S$1, C$2],
     [S$1, F],
     [S$1, C$2],
     [S$1, null],
-    [S$1, F],
+    [S$1, V],
     [S$1, C$2]
   ]
 ];
@@ -16916,10 +17573,12 @@ const BRIDGE_RAIL_TOP = 1.22;
 const BRIDGE_PIER_X = 5.45;
 const BRIDGE_PIER_FOOT_Y = -13.5;
 const BRIDGE_TOWER_X = 6.1;
-const BRIDGE_TOWER_TOP = 19;
+const BRIDGE_TOWER_TOP = 12.8;
 const RAIL_POST_Z = [-4.8, -2.4, 0, 2.4];
-const SEA_SHALLOW_BAND_NEAR = 13;
-const SEA_SHALLOW_BAND_FAR = 40;
+const SEA_SHALLOW_BAND_NEAR = 11.8;
+const SEA_SHALLOW_BAND_FAR = 29;
+const SEA_SHALLOW_MIX = 0.46;
+const SEA_REFLECTION_GAIN = 0.7;
 const SEA_SKY_GRADIENT_POWER = 0.42;
 const SEA_WHITECAP_START = 0.26;
 const SEA_WHITECAP_END = 0.44;
@@ -17048,14 +17707,18 @@ const COAST_PALETTES = {
     darkSteel: 4212554,
     paint: 15527656,
     sign: 3107678,
+    wood: 9073240,
+    woodDark: 5326652,
+    roof: 4155493,
+    opening: 1189677,
     trunk: 7165506,
     foliage: 6060623,
     distant: 11059142,
     distantCap: 9678519,
     lamp: 16769192,
     beacon: 16738893,
-    seaDeep: 871024,
-    seaShallow: 4174013,
+    seaDeep: 339787,
+    seaShallow: 1142139,
     seaFoam: 16054776,
     // Matches the city day clear background the coast profile inherits.
     skyZenith: 7315398,
@@ -17090,14 +17753,18 @@ const COAST_PALETTES = {
     darkSteel: 4275e3,
     paint: 15261650,
     sign: 3104603,
+    wood: 8414027,
+    woodDark: 4799025,
+    roof: 3693401,
+    opening: 1384742,
     trunk: 6244920,
     foliage: 5532230,
     distant: 12819078,
     distantCap: 11240311,
     lamp: 16765066,
     beacon: 16734780,
-    seaDeep: 1195094,
-    seaShallow: 4030348,
+    seaDeep: 535359,
+    seaShallow: 1727848,
     seaFoam: 16180950,
     // Matches the warm sunset background the integration note proposes. The zenith
     // stays a dusk violet so the water away from the sun path does not go orange too;
@@ -17140,6 +17807,10 @@ const COAST_PALETTES = {
     darkSteel: 2501679,
     paint: 9411228,
     sign: 2772812,
+    wood: 4407871,
+    woodDark: 2566956,
+    roof: 2704710,
+    opening: 331026,
     trunk: 3485740,
     foliage: 2898483,
     distant: 3097936,
@@ -17148,8 +17819,8 @@ const COAST_PALETTES = {
     beacon: 16736327,
     // Night water keeps a deliberate deep to horizon spread. Flattening it reads
     // as a void rather than as a sea.
-    seaDeep: 531244,
-    seaShallow: 1590876,
+    seaDeep: 201503,
+    seaShallow: 931143,
     seaFoam: 10467005,
     // Matches the night background the integration note proposes. The zenith is the
     // lighter of the two here, which is the one place the ramp runs the other way
@@ -17195,10 +17866,14 @@ class CoastEnvironmentKit {
     __publicField(this, "wetRock", new THREE.MeshStandardMaterial({ color: 6055264, roughness: 0.34, metalness: 0.06 }));
     __publicField(this, "concrete", new THREE.MeshStandardMaterial({ color: 13816780, roughness: 0.94, metalness: 0 }));
     __publicField(this, "concreteDark", new THREE.MeshStandardMaterial({ color: 10396058, roughness: 0.96, metalness: 0 }));
-    __publicField(this, "steel", new THREE.MeshStandardMaterial({ color: 11120817, roughness: 0.58, metalness: 0.48 }));
-    __publicField(this, "darkSteel", new THREE.MeshStandardMaterial({ color: 4212554, roughness: 0.7, metalness: 0.44 }));
+    __publicField(this, "steel", new THREE.MeshStandardMaterial({ color: 11120817, roughness: 0.62, metalness: 0.5 }));
+    __publicField(this, "darkSteel", new THREE.MeshStandardMaterial({ color: 4212554, roughness: 0.7, metalness: 0.48 }));
     __publicField(this, "paint", new THREE.MeshStandardMaterial({ color: 15527656, roughness: 0.72, metalness: 0.06 }));
     __publicField(this, "sign", new THREE.MeshStandardMaterial({ color: 3107678, roughness: 0.7, metalness: 0.1 }));
+    __publicField(this, "wood", new THREE.MeshStandardMaterial({ color: 9073240, roughness: 0.9, metalness: 0 }));
+    __publicField(this, "woodDark", new THREE.MeshStandardMaterial({ color: 5326652, roughness: 0.94, metalness: 0 }));
+    __publicField(this, "roof", new THREE.MeshStandardMaterial({ color: 4155493, roughness: 0.78, metalness: 0.08 }));
+    __publicField(this, "opening", new THREE.MeshBasicMaterial({ color: 1189677 }));
     __publicField(this, "trunk", new THREE.MeshStandardMaterial({ color: 7165506, roughness: 0.94, metalness: 0 }));
     __publicField(this, "foliage", new THREE.MeshStandardMaterial({ color: 6060623, roughness: 0.92, metalness: 0 }));
     // Far silhouettes are unlit on purpose, matching the city backdrop: shading a
@@ -17209,8 +17884,8 @@ class CoastEnvironmentKit {
     __publicField(this, "beacon", new THREE.MeshBasicMaterial({ color: 16738893, toneMapped: false }));
     __publicField(this, "seaTime", { value: 0 });
     __publicField(this, "seaTravel", { value: 0 });
-    __publicField(this, "seaDeepColor", { value: new THREE.Color(1003384) });
-    __publicField(this, "seaShallowColor", { value: new THREE.Color(3515828) });
+    __publicField(this, "seaDeepColor", { value: new THREE.Color(339787) });
+    __publicField(this, "seaShallowColor", { value: new THREE.Color(1142139) });
     __publicField(this, "seaFoamColor", { value: new THREE.Color(16054776) });
     __publicField(this, "skyZenithColor", { value: new THREE.Color(7315398) });
     __publicField(this, "skyHorizonColor", { value: new THREE.Color(15725298) });
@@ -17247,6 +17922,10 @@ class CoastEnvironmentKit {
     this.darkSteel.color.setHex(palette.darkSteel);
     this.paint.color.setHex(palette.paint);
     this.sign.color.setHex(palette.sign);
+    this.wood.color.setHex(palette.wood);
+    this.woodDark.color.setHex(palette.woodDark);
+    this.roof.color.setHex(palette.roof);
+    this.opening.color.setHex(palette.opening);
     this.trunk.color.setHex(palette.trunk);
     this.foliage.color.setHex(palette.foliage);
     this.distant.color.setHex(palette.distant);
@@ -17311,6 +17990,7 @@ class CoastEnvironmentKit {
     const destructibles = [];
     if (kind === "shore-flat") this.createShoreFlat(group, side, row, layoutVariant, destructibles);
     if (kind === "cliff-shelf") this.createCliffShelf(group, side, row, layoutVariant, destructibles);
+    if (kind === "fishing-frontage") this.createFishingFrontage(group, side, row, layoutVariant, destructibles);
     if (kind === "sea-open") this.createSeaOpen(group, side, row, layoutVariant, destructibles);
     if (kind === "bridge-span") this.createBridgeSpan(group, side, row, layoutVariant, destructibles);
     if (kind === "bridge-tower") this.createBridgeTower(group, side, row, layoutVariant, destructibles);
@@ -17328,6 +18008,9 @@ class CoastEnvironmentKit {
     this.addDune(group, side, 24.2, 1.6 - variant * 0.9, 14.8, 1.8, 8.6, -0.2);
     this.addScrubPatch(group, side, 9.4, -2.2 + variant * 1.5, variant);
     return group;
+  }
+  optimizeModule(group, destructibles = []) {
+    this.batchStaticMeshes(group, destructibles);
   }
   // Ground: shelf plus hinterland fill.
   // Where the shelf butts up against the crossing its end face is a clean cut in the
@@ -17432,15 +18115,152 @@ class CoastEnvironmentKit {
     }
     this.addDistantLand(group, side, row, layoutVariant);
   }
+  createFishingFrontage(group, side, row, layoutVariant, destructibles) {
+    this.addLandBase(group, side, row, layoutVariant);
+    const variant = wrapIndex(row + layoutVariant + (side > 0 ? 1 : 0), 3);
+    this.addSpan(
+      group,
+      this.concrete,
+      side,
+      ROAD_EDGE + 2.15,
+      18.7,
+      GROUND_TOP_Y,
+      GROUND_TOP_Y + 0.12,
+      8.15,
+      -0.1
+    );
+    this.addSpan(
+      group,
+      this.concreteDark,
+      side,
+      ROAD_EDGE + 2.15,
+      ROAD_EDGE + 2.5,
+      GROUND_TOP_Y,
+      GROUND_TOP_Y + 0.38,
+      8.15,
+      -0.1
+    );
+    this.addFishingHouse(group, side, 11.3 + variant * 0.18, -2.35, 3.95, 3.6, 2.85, variant, true);
+    this.addFishingHouse(group, side, 16.05, 2.1, 3.65, 3.45, 2.55, variant + 1, false);
+    const workNode = this.createFishingWorkNode(side, 7.35, variant === 1 ? -0.35 : 0.85, variant);
+    group.add(workNode);
+    destructibles.push(workNode);
+    this.addRetainingTerraces(group, side, 21.4, -0.6 + variant * 0.5, variant, 0.72);
+    this.addScrubPatch(group, side, 20.3, -2.8 + variant * 0.9, variant + 2);
+    this.addDistantLand(group, side, row, layoutVariant);
+  }
+  addFishingHouse(group, side, lateral, z, depth, frontage, bodyHeight, variant, hasAwning) {
+    const x = side * lateral;
+    const base = GROUND_TOP_Y + 0.12;
+    const facadeX = side * (lateral - depth / 2 - 0.045);
+    this.addBox(group, depth + 0.28, 0.5, frontage + 0.24, this.concreteDark, x, base + 0.25, z);
+    this.addBox(group, depth, bodyHeight, frontage, this.wood, x, base + 0.5 + bodyHeight / 2, z);
+    const beams = [];
+    for (const zOffset of [-frontage * 0.42, 0, frontage * 0.42]) {
+      beams.push({
+        x: facadeX - side * 0.035,
+        y: base + 0.5 + bodyHeight / 2,
+        z: z + zOffset,
+        sx: 0.1,
+        sy: bodyHeight,
+        sz: 0.13
+      });
+    }
+    for (const y of [base + 0.55, base + bodyHeight * 0.58, base + bodyHeight + 0.42]) {
+      beams.push({
+        x: facadeX - side * 0.04,
+        y,
+        z,
+        sx: 0.11,
+        sy: 0.13,
+        sz: frontage
+      });
+    }
+    this.addInstancedBoxes(group, beams, this.woodDark);
+    const doorZ = z + (wrapIndex(variant, 2) === 0 ? -frontage * 0.23 : frontage * 0.22);
+    const windowZ = z - (doorZ - z) * 0.95;
+    this.addBox(group, 0.09, 1.72, 0.88, this.opening, facadeX - side * 0.04, base + 1.36, doorZ);
+    this.addBox(group, 0.09, 0.86, 1.02, this.opening, facadeX - side * 0.04, base + 1.72, windowZ);
+    this.addBox(group, 0.12, 0.08, 1.14, this.paint, facadeX - side * 0.08, base + 1.72, windowZ);
+    this.addBox(group, 0.12, 0.92, 0.08, this.paint, facadeX - side * 0.08, base + 1.72, windowZ);
+    const roofY = base + bodyHeight + 0.72;
+    for (const roofSide of [-1, 1]) {
+      const panel = this.addBox(
+        group,
+        depth * 0.58,
+        0.16,
+        frontage + 0.56,
+        this.roof,
+        x + side * roofSide * depth * 0.24,
+        roofY,
+        z
+      );
+      panel.rotation.z = -side * roofSide * 0.34;
+    }
+    this.addBox(group, 0.18, 0.2, frontage + 0.62, this.roof, x, roofY + depth * 0.1, z);
+    if (hasAwning) {
+      const awning = this.addBox(
+        group,
+        1.25,
+        0.12,
+        1.7,
+        this.roof,
+        facadeX - side * 0.56,
+        base + 2.12,
+        doorZ
+      );
+      awning.rotation.z = side * 0.1;
+      for (const postZ of [-0.68, 0.68]) {
+        this.addBox(group, 0.08, 1.95, 0.08, this.darkSteel, facadeX - side * 1.05, base + 1, doorZ + postZ);
+      }
+    }
+    this.addBox(group, 0.16, 0.18, 0.28, this.lamp, facadeX - side * 0.13, base + 2.32, doorZ + 0.62);
+  }
+  createFishingWorkNode(side, lateral, z, variant) {
+    const node = new THREE.Group();
+    node.name = "coast_fishing_work_node";
+    const x = side * lateral;
+    const base = GROUND_TOP_Y + 0.12;
+    const crates = [
+      { dx: 0, dz: 0, sx: 0.8, sy: 0.58, sz: 0.72, ry: 0.08 },
+      { dx: 0.62, dz: 0.48, sx: 0.68, sy: 0.46, sz: 0.62, ry: -0.22 },
+      { dx: -0.48, dz: 0.72, sx: 0.62, sy: 0.42, sz: 0.58, ry: 0.28 }
+    ];
+    for (const crate of crates) {
+      const crateX = x + side * crate.dx;
+      this.addBox(node, crate.sx, crate.sy, crate.sz, this.woodDark, crateX, base + crate.sy / 2, z + crate.dz);
+      this.addBox(node, crate.sx + 0.04, 0.06, crate.sz + 0.04, this.wood, crateX, base + crate.sy * 0.72, z + crate.dz).rotation.y = side * crate.ry;
+    }
+    const rackX = x + side * 0.45;
+    const rackZ = z - 1.35;
+    for (const postZ of [-0.82, 0.82]) {
+      this.addCylinder(node, 0.055, 1.65, this.darkSteel, rackX, base + 0.825, rackZ + postZ, "y", 6);
+    }
+    this.addCylinder(node, 0.05, 1.72, this.darkSteel, rackX, base + 1.55, rackZ, "z", 6);
+    for (let index = 0; index < 4; index++) {
+      this.addBox(
+        node,
+        0.035,
+        1.08,
+        0.035,
+        this.sign,
+        rackX - side * 0.04,
+        base + 0.92,
+        rackZ - 0.62 + index * 0.42
+      ).rotation.z = side * (wrapIndex(index + variant, 2) === 0 ? 0.1 : -0.07);
+    }
+    node.userData.destructible = true;
+    node.userData.destroyed = false;
+    return node;
+  }
   createCliffShelf(group, side, row, layoutVariant, destructibles) {
     this.addLandBase(group, side, row, layoutVariant);
     const variant = wrapIndex(row * 2 + layoutVariant, 3);
-    this.addRockCluster(group, side, 9.1, -2.4 + variant * 1.6, 0.95, variant);
-    this.addRockCluster(group, side, 13.4, 2.2 - variant * 0.7, 1.5, variant + 1);
-    this.addCliffTerrace(group, side, 20.6, -1.1 + variant * 0.9, 5.4 + variant * 0.8, 5.8, variant);
-    this.addCliffTerrace(group, side, 28.8, 1.4 - variant * 0.8, 8.2 + variant * 0.7, 6.6, variant + 1);
+    this.addRockCluster(group, side, 9.35, -2.35 + variant * 1.5, 0.92, variant);
+    this.addRetainingTerraces(group, side, 13.1, 0.2 - variant * 0.55, variant, 1);
+    this.addCliffTerrace(group, side, 31.5, 1.2 - variant * 0.75, 7.2 + variant * 0.75, 6.4, variant + 1);
     if (variant === 2) {
-      const tree = this.createWindTree(side, 8.9, -2.2, 2.7);
+      const tree = this.createWindTree(side, 10.3, -2.2, 2.9);
       group.add(tree);
       destructibles.push(tree);
     }
@@ -17481,6 +18301,91 @@ class CoastEnvironmentKit {
       mesh.rotation.y = side * (0.16 + index * 0.24);
     }
   }
+  addRetainingTerraces(group, side, lateral, z, variant, scale) {
+    const heights = [0.8, 1.75, 2.9];
+    for (let level = 0; level < heights.length; level++) {
+      const inner = lateral + level * 3.25 * scale;
+      const outer = inner + (6.4 - level * 0.45) * scale;
+      const top = GROUND_TOP_Y + heights[level] * scale;
+      const length = (8.1 - level * 0.65) * scale;
+      const levelZ = z + (level - 1) * 0.28 * (variant % 2 === 0 ? 1 : -1);
+      this.addSpan(
+        group,
+        level === 2 ? this.rock : this.heath,
+        side,
+        inner + 0.34 * scale,
+        outer,
+        GROUND_TOP_Y,
+        top,
+        length,
+        levelZ
+      );
+      this.addSpan(
+        group,
+        level % 2 === 0 ? this.concrete : this.concreteDark,
+        side,
+        inner,
+        inner + 0.42 * scale,
+        GROUND_TOP_Y,
+        top + 0.08,
+        length + 0.12,
+        levelZ
+      );
+      this.addSpan(
+        group,
+        this.concreteDark,
+        side,
+        inner - 0.08,
+        inner + 0.5 * scale,
+        top + 0.02,
+        top + 0.15,
+        length + 0.22,
+        levelZ
+      );
+      for (const drainZ of [-2.1, 0.4, 2.55]) {
+        if (wrapIndex(level + variant + Math.round(drainZ), 4) === 0) continue;
+        this.addBox(
+          group,
+          0.05,
+          0.12,
+          0.26,
+          this.opening,
+          side * (inner - 0.045),
+          top * 0.42 + GROUND_TOP_Y * 0.58,
+          levelZ + drainZ * scale
+        );
+      }
+      const shrubX = side * (inner + (1.35 + level * 0.3) * scale);
+      const shrubZ = levelZ + (level % 2 === 0 ? -1.35 : 1.15) * scale;
+      const shrubBase = new THREE.Vector3(shrubX, top + 0.02, shrubZ);
+      const tips = [
+        shrubBase.clone().add(new THREE.Vector3(-side * 0.18, 0.55, -0.18).multiplyScalar(scale)),
+        shrubBase.clone().add(new THREE.Vector3(side * 0.28, 0.48, 0.22).multiplyScalar(scale)),
+        shrubBase.clone().add(new THREE.Vector3(side * 0.05, 0.68, 0.05).multiplyScalar(scale))
+      ];
+      for (const [tipIndex, tip] of tips.entries()) {
+        this.addTaperedStrut(
+          group,
+          this.trunk,
+          shrubBase,
+          tip,
+          0.045 * scale,
+          0.018 * scale,
+          6
+        );
+        const crown = new THREE.Mesh(this.sphere(0.5, 7, 5), this.scrub);
+        crown.position.copy(tip);
+        crown.scale.set(
+          (0.72 - tipIndex * 0.08) * scale,
+          (0.42 - tipIndex * 0.035) * scale,
+          (0.64 + tipIndex % 2 * 0.08) * scale
+        );
+        crown.rotation.y = side * (variant * 0.31 + tipIndex * 0.47);
+        crown.userData.sharedGeometry = true;
+        group.add(crown);
+      }
+    }
+  }
   addRockCluster(group, side, lateral, z, scale, variant) {
     const layers = [
       { lift: 0.2, top: 1.1, bottom: 1.28, height: 0.42, material: this.rockDark },
@@ -17510,14 +18415,66 @@ class CoastEnvironmentKit {
       { x: -0.95, z: -1.4, scale: 0.62 },
       { x: 2.1, z: -0.7, scale: 0.54 }
     ];
-    for (const [index, offset] of offsets.entries()) {
-      if (wrapIndex(variant + index, 4) === 3) continue;
-      const bush = new THREE.Mesh(this.sphere(0.52, 8, 6), this.scrub);
-      bush.position.set(side * (lateral + offset.x), GROUND_TOP_Y + 0.2 * offset.scale, z + offset.z);
-      bush.scale.set(offset.scale, offset.scale * 0.5, offset.scale * 0.86);
-      bush.userData.sharedGeometry = true;
-      group.add(bush);
+    const carried = offsets.filter((_, index) => wrapIndex(variant + index, 4) !== 3);
+    const branchCount = carried.length * 3;
+    const branches = new THREE.InstancedMesh(
+      this.taperedCylinder(0.55, 1, 1, 6),
+      this.trunk,
+      branchCount
+    );
+    const foliage = new THREE.InstancedMesh(this.sphere(0.5, 7, 5), this.scrub, branchCount);
+    const branchDummy = new THREE.Object3D();
+    const foliageDummy = new THREE.Object3D();
+    const up = new THREE.Vector3(0, 1, 0);
+    const wind = oppositeSide(side);
+    let instance = 0;
+    for (const [shrubIndex, offset] of carried.entries()) {
+      const scale = offset.scale;
+      const base = new THREE.Vector3(
+        side * (lateral + offset.x),
+        GROUND_TOP_Y - 0.015,
+        z + offset.z
+      );
+      const height = (0.72 + shrubIndex % 2 * 0.12) * scale;
+      const tips = [
+        base.clone().add(new THREE.Vector3(wind * 0.2 * scale, height, 0.02)),
+        base.clone().add(new THREE.Vector3(wind * 0.38 * scale, height * 0.76, -0.42 * scale)),
+        base.clone().add(new THREE.Vector3(wind * 0.3 * scale, height * 0.68, 0.46 * scale))
+      ];
+      for (const [tipIndex, tip] of tips.entries()) {
+        const direction = tip.clone().sub(base);
+        const length = direction.length();
+        const radius = (0.045 - tipIndex * 6e-3) * scale;
+        branchDummy.position.copy(base).addScaledVector(direction, 0.5);
+        branchDummy.quaternion.setFromUnitVectors(up, direction.normalize());
+        branchDummy.scale.set(radius, length, radius);
+        branchDummy.updateMatrix();
+        branches.setMatrixAt(instance, branchDummy.matrix);
+        foliageDummy.position.copy(tip).add(new THREE.Vector3(
+          wind * (0.08 + tipIndex * 0.035) * scale,
+          0.01 + tipIndex * 0.025,
+          0
+        ));
+        foliageDummy.rotation.set(
+          tipIndex === 1 ? -0.12 : 0.08,
+          side * (0.24 + shrubIndex * 0.19 + tipIndex * 0.31),
+          wind * 0.1
+        );
+        foliageDummy.scale.set(
+          (0.68 - tipIndex * 0.08) * scale,
+          (0.34 - tipIndex * 0.025) * scale,
+          (0.58 + tipIndex % 2 * 0.08) * scale
+        );
+        foliageDummy.updateMatrix();
+        foliage.setMatrixAt(instance, foliageDummy.matrix);
+        instance++;
+      }
     }
+    branches.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+    foliage.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+    branches.userData.sharedGeometry = true;
+    foliage.userData.sharedGeometry = true;
+    group.add(branches, foliage);
   }
   addDune(group, side, lateral, z, width, height, depth, lean) {
     const mesh = new THREE.Mesh(this.ridge(width, height, depth, lean), this.sandLight);
@@ -17606,8 +18563,25 @@ class CoastEnvironmentKit {
       }
     }
     this.addBox(shelter, 0.08, 2.16, 3.3, this.sign, x + side * 1.08, GROUND_TOP_Y + 1.2, z);
-    this.addBox(shelter, 2.75, 0.14, 3.65, this.paint, x, GROUND_TOP_Y + 2.34, z);
-    this.addBox(shelter, 1.3, 0.44, 2.6, this.paint, x + side * 0.5, GROUND_TOP_Y + 0.34, z);
+    this.addBox(shelter, 2.12, 1.96, 0.07, this.sign, x, GROUND_TOP_Y + 1.18, z + 1.52);
+    this.addBox(shelter, 0.12, 2.22, 3.36, this.darkSteel, x + side * 1.13, GROUND_TOP_Y + 1.21, z);
+    this.addBox(shelter, 2.24, 0.1, 0.12, this.darkSteel, x, GROUND_TOP_Y + 2.18, z + 1.55);
+    const roof = this.addBox(shelter, 2.86, 0.14, 3.72, this.paint, x, GROUND_TOP_Y + 2.36, z);
+    roof.rotation.z = side * 0.055;
+    this.addBox(shelter, 0.14, 0.2, 3.74, this.darkSteel, x - side * 1.42, GROUND_TOP_Y + 2.28, z);
+    const seatX = x + side * 0.36;
+    for (const xOffset of [-0.38, 0, 0.38]) {
+      this.addBox(shelter, 0.3, 0.1, 2.62, this.paint, seatX + side * xOffset, GROUND_TOP_Y + 0.52, z);
+    }
+    for (const y of [0.78, 1.02]) {
+      this.addBox(shelter, 0.1, 0.17, 2.62, this.paint, x + side * 0.86, GROUND_TOP_Y + y, z);
+    }
+    for (const zOffset of [-0.98, 0.98]) {
+      this.addBox(shelter, 0.1, 0.5, 0.1, this.darkSteel, x + side * 0.18, GROUND_TOP_Y + 0.28, z + zOffset);
+      this.addBox(shelter, 0.1, 0.88, 0.1, this.darkSteel, x + side * 0.86, GROUND_TOP_Y + 0.48, z + zOffset);
+    }
+    this.addBox(shelter, 0.06, 0.72, 0.46, this.paint, x - side * 1.09, GROUND_TOP_Y + 1.58, z - 1.08);
+    this.addBox(shelter, 0.035, 0.12, 0.34, this.sign, x - side * 1.13, GROUND_TOP_Y + 1.72, z - 1.08);
     this.addBox(shelter, 0.5, 0.1, 0.9, this.lamp, x, GROUND_TOP_Y + 2.2, z);
     shelter.userData.destructible = true;
     shelter.userData.destroyed = false;
@@ -17651,6 +18625,9 @@ class CoastEnvironmentKit {
   createSeaOpen(group, side, row, layoutVariant, destructibles) {
     const variant = wrapIndex(row + layoutVariant, 3);
     this.addRevetment(group, side, variant);
+    const layout = COAST_LAYOUTS[wrapIndex(layoutVariant, COAST_LAYOUTS.length)];
+    const oppositeKind = layout[wrapIndex(row, layout.length)][side === -1 ? 1 : 0];
+    if (oppositeKind === "fishing-frontage") this.addFishingLanding(group, side, variant);
     const rail = this.createGuardrail(side, ROAD_EDGE + 0.35, BRIDGE_RAIL_TOP - GROUND_TOP_Y);
     group.add(rail);
     destructibles.push(rail);
@@ -17666,6 +18643,73 @@ class CoastEnvironmentKit {
     const next = this.neighbourKind(layoutVariant, row, 1, side);
     if (isBridgeKind(previous)) this.addApproach(group, side, 1);
     if (isBridgeKind(next)) this.addApproach(group, side, -1);
+  }
+  addFishingLanding(group, side, variant) {
+    const landingZ = variant === 1 ? -1.35 : 1.2;
+    this.addSpan(
+      group,
+      this.wood,
+      side,
+      REVETMENT_OUTER - 0.3,
+      REVETMENT_OUTER + 2.1,
+      GROUND_TOP_Y - 0.12,
+      GROUND_TOP_Y + 0.08,
+      3.25,
+      landingZ
+    );
+    for (const postZ of [-1.3, 1.3]) {
+      this.addCylinder(
+        group,
+        0.09,
+        SEA_DROP + 0.35,
+        this.woodDark,
+        side * (REVETMENT_OUTER + 1.75),
+        -SEA_DROP / 2 - 0.08,
+        landingZ + postZ,
+        "y",
+        7
+      );
+    }
+    for (let step = 0; step < 6; step++) {
+      const inner = REVETMENT_OUTER + 0.9 + step * 0.7;
+      const top = GROUND_TOP_Y - 0.48 - step * 0.56;
+      this.addSpan(
+        group,
+        step >= 4 ? this.wetRock : this.concreteDark,
+        side,
+        inner,
+        inner + 0.82,
+        top - 0.44,
+        top,
+        1.35,
+        landingZ
+      );
+    }
+    const fender = new THREE.Mesh(this.torus(0.42, 0.12), this.darkSteel);
+    fender.position.set(side * (REVETMENT_OUTER + 2.18), -2.35, landingZ - 1.08);
+    fender.rotation.y = Math.PI / 2;
+    fender.userData.sharedGeometry = true;
+    group.add(fender);
+    this.addBox(
+      group,
+      0.16,
+      1.25,
+      0.16,
+      this.darkSteel,
+      side * (REVETMENT_OUTER + 0.35),
+      GROUND_TOP_Y + 0.55,
+      landingZ - 1.34
+    );
+    this.addBox(
+      group,
+      0.12,
+      0.12,
+      1.46,
+      this.darkSteel,
+      side * (REVETMENT_OUTER + 0.35),
+      GROUND_TOP_Y + 1.12,
+      landingZ - 0.67
+    );
   }
   addRevetment(group, side, variant) {
     this.addSpan(
@@ -17782,7 +18826,7 @@ class CoastEnvironmentKit {
     const rail = new THREE.Group();
     rail.name = "coast_guardrail";
     const top = GROUND_TOP_Y + height;
-    const postBottom = BRIDGE_PARAPET_BASE_TOP - 0.06;
+    const postBottom = GROUND_TOP_Y - 0.06;
     for (const z of RAIL_POST_Z) {
       this.addSpan(rail, this.darkSteel, side, lateral - 0.075, lateral + 0.075, postBottom, top, 0.16, z);
     }
@@ -17852,7 +18896,7 @@ class CoastEnvironmentKit {
   // Crossing modules.
   createBridgeSpan(group, side, row, layoutVariant, destructibles) {
     this.addBridgeEdge(group, side, destructibles);
-    if (wrapIndex(row + layoutVariant, 3) === 0) this.addBridgePier(group, side);
+    if (wrapIndex(row + layoutVariant, 4) === 0) this.addBridgePier(group, side);
     if (wrapIndex(row + layoutVariant, 3) === 1) this.addBridgeLamp(group, side);
     this.addBridgeEnds(group, side, row, layoutVariant);
   }
@@ -17938,66 +18982,97 @@ class CoastEnvironmentKit {
       group,
       this.concrete,
       side,
-      BRIDGE_DECK_EDGE,
-      7,
-      -1.62,
-      -1.18,
-      2.6
+      BRIDGE_DECK_EDGE - 0.08,
+      6.65,
+      -1.06,
+      -0.58,
+      2.8
+    );
+    const columnTop = -0.98;
+    this.addTaperedCylinder(
+      group,
+      0.9,
+      1.24,
+      columnTop - BRIDGE_PIER_FOOT_Y,
+      this.concrete,
+      side * BRIDGE_PIER_X,
+      (columnTop + BRIDGE_PIER_FOOT_Y) / 2,
+      0,
+      12
     );
     this.addTaperedCylinder(
       group,
-      0.95,
-      1.28,
-      -1.3 - BRIDGE_PIER_FOOT_Y,
-      this.concrete,
+      1.18,
+      0.88,
+      0.72,
+      this.concreteDark,
       side * BRIDGE_PIER_X,
-      (-1.3 + BRIDGE_PIER_FOOT_Y) / 2,
+      -0.96,
       0,
-      12
+      10
     );
     this.addCylinder(group, 1.16, 1.3, this.wetRock, side * BRIDGE_PIER_X, -SEA_DROP, 0, "y", 12);
     this.addFoamRing(group, BRIDGE_PIER_X * side, 0, 1.1, 3.1);
   }
   addBridgeTowerMass(group, side) {
     const x = side * BRIDGE_TOWER_X;
-    this.addTaperedCylinder(group, 2, 2.5, 11.4, this.concrete, x, -8.1, 0, 12);
+    const foundation = this.addTaperedCylinder(group, 2, 2.5, 11.4, this.concrete, x, -8.1, 0, 4);
+    foundation.rotation.y = Math.PI / 4;
     this.addCylinder(group, 2.22, 1.5, this.wetRock, x, -SEA_DROP, 0, "y", 12);
     this.addFoamRing(group, x, 0, 2.15, 4.6);
-    const segments = [
-      { bottom: -2.4, top: 5, halfWidth: 1.15, halfDepth: 1.3 },
-      { bottom: 5, top: 12, halfWidth: 0.9, halfDepth: 1.05 },
-      { bottom: 12, top: BRIDGE_TOWER_TOP, halfWidth: 0.68, halfDepth: 0.8 }
-    ];
-    for (const segment of segments) {
-      this.addBox(
-        group,
-        segment.halfWidth * 2,
-        segment.top - segment.bottom,
-        segment.halfDepth * 2,
-        this.concrete,
-        x,
-        (segment.bottom + segment.top) / 2,
-        0
-      );
-    }
-    this.addBox(group, 1.9, 0.34, 2.1, this.concreteDark, x, BRIDGE_TOWER_TOP + 0.17, 0);
-    this.addBox(group, 0.5, 0.5, 0.5, this.beacon, x, BRIDGE_TOWER_TOP + 0.6, 0);
-    const anchorX = side * (BRIDGE_DECK_EDGE + 0.28);
+    this.addTaperedBox(
+      group,
+      2.3,
+      2.6,
+      1.18,
+      1.38,
+      BRIDGE_TOWER_TOP + 2.4,
+      this.concrete,
+      x,
+      (BRIDGE_TOWER_TOP - 2.4) / 2,
+      0
+    );
+    this.addBox(group, 2.65, 0.72, 2.9, this.concreteDark, x, BRIDGE_TOWER_TOP - 0.24, 0);
+    this.addBox(group, 1.66, 1.6, 0.32, this.darkSteel, x - side * 0.62, BRIDGE_TOWER_TOP - 1.45, -1.05);
+    this.addBox(group, 1.66, 1.6, 0.32, this.darkSteel, x - side * 0.62, BRIDGE_TOWER_TOP - 1.45, 1.05);
+    this.addBox(group, 0.42, 0.42, 0.42, this.beacon, x, BRIDGE_TOWER_TOP + 0.3, 0);
+    this.addBox(group, 2.75, 0.32, 1.7, this.concreteDark, x, -0.7, 0);
+    this.addBox(group, 1.7, 0.28, 1.22, this.darkSteel, x - side * 0.42, -0.48, 0);
+    const anchorX = side * (BRIDGE_FASCIA_OUTER + 0.25);
+    const towerAnchorX = x - side * 0.62;
     const stays = [
-      { height: 17.4, z: -4.3 },
-      { height: 15.1, z: -2.6 },
-      { height: 12.9, z: -0.9 },
-      { height: 12.9, z: 0.9 },
-      { height: 15.1, z: 2.6 },
-      { height: 17.4, z: 4.3 }
+      { height: 11.85, z: -13.6 },
+      { height: 10.9, z: -10 },
+      { height: 9.9, z: -6.4 },
+      { height: 8.9, z: -3.1 },
+      { height: 8.9, z: 3.1 },
+      { height: 9.9, z: 6.4 },
+      { height: 10.9, z: 10 },
+      { height: 11.85, z: 13.6 }
     ];
+    const anchorPedestals = new THREE.InstancedMesh(
+      this.box(0.34, 1.1, 0.48),
+      this.darkSteel,
+      stays.length
+    );
+    const anchorDummy = new THREE.Object3D();
+    for (const [index, stay] of stays.entries()) {
+      anchorDummy.position.set(anchorX, 0.09, stay.z);
+      anchorDummy.updateMatrix();
+      anchorPedestals.setMatrixAt(index, anchorDummy.matrix);
+    }
+    anchorPedestals.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+    anchorPedestals.userData.sharedGeometry = true;
+    group.add(anchorPedestals);
     for (const stay of stays) {
-      this.addStrut(
+      this.addTaperedStrut(
         group,
         this.darkSteel,
-        new THREE.Vector3(x, stay.height, 0),
-        new THREE.Vector3(anchorX, BRIDGE_PARAPET_BASE_TOP + 0.08, stay.z),
-        0.055
+        new THREE.Vector3(towerAnchorX, stay.height, 0),
+        new THREE.Vector3(anchorX, BRIDGE_PARAPET_BASE_TOP + 0.1, stay.z),
+        0.04,
+        0.07,
+        6
       );
     }
   }
@@ -18056,7 +19131,6 @@ class CoastEnvironmentKit {
     this.addFoamRing(group, side * 6.4, center, 2.6, 4.6);
   }
   addApproach(group, side, towardBridge) {
-    const center = towardBridge * 3.3;
     this.addSpan(
       group,
       this.concrete,
@@ -18065,20 +19139,30 @@ class CoastEnvironmentKit {
       ROAD_EDGE + 0.65,
       GROUND_TOP_Y,
       BRIDGE_PARAPET_BASE_TOP,
-      3.2,
-      center
+      ROADSIDE_GROUND_LENGTH
     );
-    this.addSpan(
+    const bridgePoint = new THREE.Vector3(
+      side * (BRIDGE_FASCIA_OUTER + 0.2),
+      -1.35,
+      towardBridge * 4.45
+    );
+    const shorePoint = new THREE.Vector3(
+      side * (REVETMENT_OUTER + 0.25),
+      -1.35,
+      -towardBridge * 1.8
+    );
+    const wingDelta = new THREE.Vector3().subVectors(shorePoint, bridgePoint);
+    const wingWall = this.addBox(
       group,
+      0.46,
+      2.6,
+      Math.hypot(wingDelta.x, wingDelta.z),
       this.concreteDark,
-      side,
-      REVETMENT_OUTER - 1.4,
-      9.2,
-      -2.8,
-      GROUND_TOP_Y,
-      3,
-      center
+      (bridgePoint.x + shorePoint.x) / 2,
+      bridgePoint.y,
+      (bridgePoint.z + shorePoint.z) / 2
     );
+    wingWall.rotation.y = Math.atan2(wingDelta.x, wingDelta.z);
   }
   neighbourKind(layoutVariant, row, offset, side) {
     const layout = COAST_LAYOUTS[wrapIndex(layoutVariant, COAST_LAYOUTS.length)];
@@ -18115,6 +19199,7 @@ class CoastEnvironmentKit {
         [
           "#include <common>",
           "varying vec3 vSeaWorld;",
+          "varying vec3 vSeaSwell;",
           SEA_WAVE_CHUNK
         ].join("\n")
       ).replace(
@@ -18122,10 +19207,12 @@ class CoastEnvironmentKit {
         [
           "#include <begin_vertex>",
           "vec4 seaWorld = modelMatrix * vec4( transformed, 1.0 );",
-          "float seaCrest = coastSeaSwell( seaWorld.xz, uSeaTime, uSeaTravel ).x;",
+          "vec3 seaSwellVertex = coastSeaSwell( seaWorld.xz, uSeaTime, uSeaTravel );",
+          "float seaCrest = seaSwellVertex.x;",
           "transformed.y += seaCrest;",
           "seaWorld.y += seaCrest;",
-          "vSeaWorld = seaWorld.xyz;"
+          "vSeaWorld = seaWorld.xyz;",
+          "vSeaSwell = seaSwellVertex;"
         ].join("\n")
       );
       shader.fragmentShader = shader.fragmentShader.replace(
@@ -18133,6 +19220,7 @@ class CoastEnvironmentKit {
         [
           "#include <common>",
           "varying vec3 vSeaWorld;",
+          "varying vec3 vSeaSwell;",
           "uniform vec3 uSeaDeepColor;",
           "uniform vec3 uSeaShallowColor;",
           "uniform vec3 uSeaFoamColor;",
@@ -18151,7 +19239,10 @@ class CoastEnvironmentKit {
           "#include <color_fragment>",
           "vec2 seaPlane = vSeaWorld.xz;",
           "float seaDistance = length( vSeaWorld - cameraPosition );",
-          "vec3 seaSwellTerm = coastSeaSwell( seaPlane, uSeaTime, uSeaTravel );",
+          "// The vertex stage already evaluated all three long swells for",
+          "// displacement. Interpolating that height and slope removes six",
+          "// trigonometric evaluations from every water pixel.",
+          "vec3 seaSwellTerm = vSeaSwell;",
           "// Two ripple scales are mixed because a single scale moires and smears",
           "// badly at the grazing angles this camera reads the water at. The fine",
           "// scale is faded out with distance and the mid scale is weighted up.",
@@ -18180,7 +19271,7 @@ class CoastEnvironmentKit {
           "// has open water at the same offsets a revetment occupies elsewhere and a",
           "// hard band would draw a false shoreline alongside the deck.",
           `float seaShore = 1.0 - smoothstep( ${SEA_SHALLOW_BAND_NEAR.toFixed(2)}, ${SEA_SHALLOW_BAND_FAR.toFixed(2)}, abs( vSeaWorld.x ) );`,
-          "vec3 seaTint = mix( uSeaDeepColor, uSeaShallowColor, seaShore * 0.8 );",
+          `vec3 seaTint = mix( uSeaDeepColor, uSeaShallowColor, seaShore * ${SEA_SHALLOW_MIX.toFixed(2)} );`,
           "// Whitecaps reuse the crest height and slope already computed for the normal,",
           "// so they stay pinned to the waves. Both gates are needed: height alone put a",
           "// broad smear on every long swell back, and the distance fade stops the far",
@@ -18230,7 +19321,7 @@ class CoastEnvironmentKit {
           "float seaDiscGain = sqrt( ( seaDiscPower + 2.0 ) / ( uSunPower.y + 2.0 ) );",
           "// Foam is scattering, not a mirror, so the reflection is masked out of it.",
           "totalEmissiveRadiance += coastSkyRadiance( seaReflectDir, seaDiscPower, seaDiscGain )",
-          "    * seaReflectance * ( 1.0 - seaWhitecap );",
+          `    * seaReflectance * ${SEA_REFLECTION_GAIN.toFixed(2)} * ( 1.0 - seaWhitecap );`,
           "// Subsurface scattering. The dot is against the sun facing away from the",
           "// surface, which is the configuration that actually occurs here: the sun is",
           "// authored down the travel direction, so the camera is driving into it and",
@@ -18302,6 +19393,53 @@ class CoastEnvironmentKit {
     return material;
   }
   // Geometry helpers.
+  batchStaticMeshes(group, excludedRoots) {
+    group.updateWorldMatrix(true, true);
+    const rootInverse = new THREE.Matrix4().copy(group.matrixWorld).invert();
+    const excluded = /* @__PURE__ */ new Set();
+    for (const root of excludedRoots) root.traverse((child) => excluded.add(child));
+    const batches = /* @__PURE__ */ new Map();
+    const sources = [];
+    const instanceMatrix = new THREE.Matrix4();
+    const relativeMatrix = new THREE.Matrix4();
+    const addInstance = (geometry, material, matrix) => {
+      let materialBatches = batches.get(geometry);
+      if (!materialBatches) {
+        materialBatches = /* @__PURE__ */ new Map();
+        batches.set(geometry, materialBatches);
+      }
+      const matrices = materialBatches.get(material);
+      if (matrices) matrices.push(matrix);
+      else materialBatches.set(material, [matrix]);
+    };
+    group.traverse((child) => {
+      if (excluded.has(child) || !(child instanceof THREE.Mesh) || Array.isArray(child.material)) return;
+      if (child instanceof THREE.InstancedMesh) {
+        for (let index = 0; index < child.count; index++) {
+          child.getMatrixAt(index, instanceMatrix);
+          relativeMatrix.multiplyMatrices(rootInverse, child.matrixWorld).multiply(instanceMatrix);
+          addInstance(child.geometry, child.material, relativeMatrix.clone());
+        }
+      } else {
+        relativeMatrix.multiplyMatrices(rootInverse, child.matrixWorld);
+        addInstance(child.geometry, child.material, relativeMatrix.clone());
+      }
+      sources.push(child);
+    });
+    for (const source of sources) source.removeFromParent();
+    for (const [geometry, materialBatches] of batches) {
+      for (const [material, matrices] of materialBatches) {
+        const mesh = new THREE.InstancedMesh(geometry, material, matrices.length);
+        matrices.forEach((matrix, index) => mesh.setMatrixAt(index, matrix));
+        mesh.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+        mesh.instanceMatrix.needsUpdate = true;
+        mesh.computeBoundingBox();
+        mesh.computeBoundingSphere();
+        mesh.userData.sharedGeometry = true;
+        group.add(mesh);
+      }
+    }
+  }
   addSpan(group, material, side, innerX, outerX, bottomY, topY, length, z = 0) {
     const width = outerX - innerX;
     const height = topY - bottomY;
@@ -18334,16 +19472,6 @@ class CoastEnvironmentKit {
     group.add(mesh);
     return mesh;
   }
-  addStrut(group, material, from, to, radius) {
-    const direction = new THREE.Vector3().subVectors(to, from);
-    const length = Math.round(direction.length() * 20) / 20;
-    const mesh = new THREE.Mesh(this.cylinder(radius, length, 5), material);
-    mesh.position.copy(from).addScaledVector(direction, 0.5);
-    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
-    mesh.userData.sharedGeometry = true;
-    group.add(mesh);
-    return mesh;
-  }
   addTaperedStrut(group, material, from, to, radiusFrom, radiusTo, segments) {
     const direction = new THREE.Vector3().subVectors(to, from);
     const length = Math.round(direction.length() * 50) / 50;
@@ -18366,8 +19494,25 @@ class CoastEnvironmentKit {
     return mesh;
   }
   addBox(group, width, height, depth, material, x, y, z) {
-    const mesh = new THREE.Mesh(this.box(width, height, depth), material);
+    const mesh = new THREE.Mesh(this.box(1, 1, 1), material);
     mesh.position.set(x, y, z);
+    mesh.scale.set(width, height, depth);
+    mesh.userData.sharedGeometry = true;
+    group.add(mesh);
+    return mesh;
+  }
+  addInstancedBoxes(group, transforms, material) {
+    if (transforms.length === 0) return;
+    const mesh = new THREE.InstancedMesh(this.box(1, 1, 1), material, transforms.length);
+    const dummy = new THREE.Object3D();
+    transforms.forEach((transform, index) => {
+      dummy.position.set(transform.x, transform.y, transform.z);
+      dummy.rotation.set(transform.rx ?? 0, transform.ry ?? 0, transform.rz ?? 0);
+      dummy.scale.set(transform.sx ?? 1, transform.sy ?? 1, transform.sz ?? 1);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(index, dummy.matrix);
+    });
+    mesh.instanceMatrix.setUsage(THREE.StaticDrawUsage);
     mesh.userData.sharedGeometry = true;
     group.add(mesh);
     return mesh;
@@ -18383,6 +19528,16 @@ class CoastEnvironmentKit {
   }
   addTaperedCylinder(group, radiusTop, radiusBottom, height, material, x, y, z, segments) {
     const mesh = new THREE.Mesh(this.taperedCylinder(radiusTop, radiusBottom, height, segments), material);
+    mesh.position.set(x, y, z);
+    mesh.userData.sharedGeometry = true;
+    group.add(mesh);
+    return mesh;
+  }
+  addTaperedBox(group, bottomWidth, bottomDepth, topWidth, topDepth, height, material, x, y, z) {
+    const mesh = new THREE.Mesh(
+      this.taperedBox(bottomWidth, bottomDepth, topWidth, topDepth, height),
+      material
+    );
     mesh.position.set(x, y, z);
     mesh.userData.sharedGeometry = true;
     group.add(mesh);
@@ -18406,10 +19561,96 @@ class CoastEnvironmentKit {
       () => new THREE.CylinderGeometry(radiusTop, radiusBottom, height, segments)
     );
   }
+  taperedBox(bottomWidth, bottomDepth, topWidth, topDepth, height) {
+    const key = [bottomWidth, bottomDepth, topWidth, topDepth, height].map((value) => value.toFixed(4)).join(":");
+    return this.geometry(`tapered-box:${key}`, () => {
+      const bx = bottomWidth / 2;
+      const bz = bottomDepth / 2;
+      const tx = topWidth / 2;
+      const tz = topDepth / 2;
+      const hy = height / 2;
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute("position", new THREE.Float32BufferAttribute([
+        -bx,
+        -hy,
+        -bz,
+        bx,
+        -hy,
+        -bz,
+        bx,
+        -hy,
+        bz,
+        -bx,
+        -hy,
+        bz,
+        -tx,
+        hy,
+        -tz,
+        tx,
+        hy,
+        -tz,
+        tx,
+        hy,
+        tz,
+        -tx,
+        hy,
+        tz
+      ], 3));
+      geometry.setIndex([
+        0,
+        1,
+        2,
+        0,
+        2,
+        3,
+        4,
+        7,
+        6,
+        4,
+        6,
+        5,
+        0,
+        4,
+        5,
+        0,
+        5,
+        1,
+        1,
+        5,
+        6,
+        1,
+        6,
+        2,
+        2,
+        6,
+        7,
+        2,
+        7,
+        3,
+        3,
+        7,
+        4,
+        3,
+        4,
+        0
+      ]);
+      const faceted = geometry.toNonIndexed();
+      geometry.dispose();
+      faceted.computeVertexNormals();
+      faceted.computeBoundingSphere();
+      return faceted;
+    });
+  }
   sphere(radius, widthSegments, heightSegments) {
     return this.geometry(
       `sphere:${radius.toFixed(4)}:${widthSegments}:${heightSegments}`,
       () => new THREE.SphereGeometry(radius, widthSegments, heightSegments)
+    );
+  }
+  torus(radius, tube) {
+    return this.geometry(
+      `torus:${radius.toFixed(4)}:${tube.toFixed(4)}`,
+      () => new THREE.TorusGeometry(radius, tube, 7, 16)
     );
   }
   // A smooth crest that fades at both ends along z, used for dunes, headlands and
@@ -18561,6 +19802,10 @@ class CoastEnvironmentKit {
       this.darkSteel,
       this.paint,
       this.sign,
+      this.wood,
+      this.woodDark,
+      this.roof,
+      this.opening,
       this.trunk,
       this.foliage,
       this.distant,
@@ -18669,29 +19914,33 @@ class DesertEnvironmentKit {
     __publicField(this, "sand", new THREE.MeshStandardMaterial({ color: 11096885, roughness: 1, metalness: 0 }));
     __publicField(this, "sandLight", new THREE.MeshStandardMaterial({ color: 12149055, roughness: 1, metalness: 0 }));
     __publicField(this, "gravel", new THREE.MeshStandardMaterial({ color: 8142637, roughness: 1, metalness: 0 }));
-    __publicField(this, "rock", new THREE.MeshStandardMaterial({ color: 9519151, roughness: 0.98, metalness: 0 }));
+    // Rock base matches the obstacle sandstone and the chasm wall (0x8F3F2D) so
+    // terrain, props, and gap faces read as one ground mass.
+    __publicField(this, "rock", new THREE.MeshStandardMaterial({ color: 9387821, roughness: 0.98, metalness: 0 }));
     __publicField(this, "rockLight", new THREE.MeshStandardMaterial({ color: 11095605, roughness: 0.98, metalness: 0 }));
     __publicField(this, "rockDark", new THREE.MeshStandardMaterial({ color: 7878443, roughness: 1, metalness: 0 }));
     __publicField(this, "cactus", new THREE.MeshStandardMaterial({ color: 4745035, roughness: 0.92, metalness: 0 }));
     __publicField(this, "weatheredMetal", new THREE.MeshStandardMaterial({ color: 7170658, roughness: 0.82, metalness: 0.38 }));
-    __publicField(this, "darkMetal", new THREE.MeshStandardMaterial({ color: 3422005, roughness: 0.72, metalness: 0.5 }));
+    __publicField(this, "darkMetal", new THREE.MeshStandardMaterial({ color: 3422005, roughness: 0.7, metalness: 0.48 }));
     __publicField(this, "fadedPanel", new THREE.MeshStandardMaterial({ color: 7239536, roughness: 0.68, metalness: 0.28 }));
-    __publicField(this, "marker", new THREE.MeshStandardMaterial({ color: 11963209, roughness: 0.86, metalness: 0.08 }));
-    __publicField(this, "lamp", new THREE.MeshBasicMaterial({ color: 15251306, toneMapped: false }));
+    // Survey markers use the global safety-paint amber (#B88E31).
+    __publicField(this, "marker", new THREE.MeshStandardMaterial({ color: 12095025, roughness: 0.84, metalness: 0.08 }));
+    // Warm lamp beacons share one desert value with the obstacle lamps (0xEFA851).
+    __publicField(this, "lamp", new THREE.MeshBasicMaterial({ color: 15706193, toneMapped: false }));
   }
   setTheme(theme) {
     const night = theme === "night";
     this.sand.color.setHex(night ? 4860199 : 11096885);
     this.sandLight.color.setHex(night ? 5779501 : 12149055);
     this.gravel.color.setHex(night ? 3482406 : 8142637);
-    this.rock.color.setHex(night ? 5188396 : 9519151);
+    this.rock.color.setHex(night ? 5188396 : 9387821);
     this.rockLight.color.setHex(night ? 6107184 : 11095605);
     this.rockDark.color.setHex(night ? 4204330 : 7878443);
     this.cactus.color.setHex(night ? 3163452 : 4745035);
     this.weatheredMetal.color.setHex(night ? 5593171 : 7170658);
     this.fadedPanel.color.setHex(night ? 5069657 : 7239536);
-    this.marker.color.setHex(night ? 9201213 : 11963209);
-    this.lamp.color.setHex(night ? 16763256 : 15251306);
+    this.marker.color.setHex(night ? 9071150 : 12095025);
+    this.lamp.color.setHex(night ? 16763256 : 15706193);
   }
   createModule(kind, side, row, layoutVariant) {
     const group = new THREE.Group();
@@ -18997,6 +20246,10 @@ class DesertEnvironmentKit {
     ]) material.dispose();
   }
 }
+function hash01$1(seed) {
+  const x = Math.sin(seed) * 43758.5453;
+  return x - Math.floor(x);
+}
 const P = "pipe-transfer";
 const T = "tank-farm";
 const A = "assembly-yard";
@@ -19097,14 +20350,22 @@ class FactoryEnvironmentKit {
     __publicField(this, "darkSteel", new THREE.MeshStandardMaterial({ color: 3421746, roughness: 0.7, metalness: 0.48 }));
     __publicField(this, "steel", new THREE.MeshStandardMaterial({ color: 6581095, roughness: 0.62, metalness: 0.5 }));
     __publicField(this, "pipe", new THREE.MeshStandardMaterial({ color: 9079680, roughness: 0.72, metalness: 0.34 }));
-    __publicField(this, "fadedYellow", new THREE.MeshStandardMaterial({ color: 11701301, roughness: 0.82, metalness: 0.08 }));
+    __publicField(this, "fadedYellow", new THREE.MeshStandardMaterial({ color: 12095025, roughness: 0.84, metalness: 0.08 }));
     __publicField(this, "rust", new THREE.MeshStandardMaterial({ color: 7621941, roughness: 0.94, metalness: 0.12 }));
     __publicField(this, "roof", new THREE.MeshStandardMaterial({ color: 4803656, roughness: 0.82, metalness: 0.22 }));
     __publicField(this, "glass", new THREE.MeshStandardMaterial({ color: 5401706, roughness: 0.48, metalness: 0.12 }));
     __publicField(this, "cable", new THREE.MeshStandardMaterial({ color: 2434851, roughness: 0.78, metalness: 0.28 }));
-    __publicField(this, "warning", new THREE.MeshBasicMaterial({ color: 14855485, toneMapped: false }));
-    __publicField(this, "lamp", new THREE.MeshBasicMaterial({ color: 16762475, toneMapped: false }));
+    // Safety paint (#B88E31) and emissive warning lamps (0xE6AD36) match the global
+    // hazard pair used by every biome's obstacles and barricades.
+    __publicField(this, "warning", new THREE.MeshBasicMaterial({ color: 15117622, toneMapped: false }));
+    __publicField(this, "lamp", new THREE.MeshBasicMaterial({ color: 16760153, toneMapped: false }));
     __publicField(this, "darkOpening", new THREE.MeshBasicMaterial({ color: 1514008 }));
+    // Factory hall clerestory glazing splits into lit/dim like the city building
+    // windows: both derive from the glass tone (brightness/opacity only, no new
+    // hue), so the night hall reads as a lived-in lit/unlit mix instead of one
+    // uniform glow or a black mass. Only createFactoryHall references these.
+    __publicField(this, "hallWindowLit", new THREE.MeshBasicMaterial({ color: 8037278, transparent: true, opacity: 0.5 }));
+    __publicField(this, "hallWindowDim", new THREE.MeshBasicMaterial({ color: 3821132, transparent: true, opacity: 0.85 }));
   }
   setTheme(theme) {
     const night = theme === "night";
@@ -19114,12 +20375,16 @@ class FactoryEnvironmentKit {
     this.darkSteel.color.setHex(night ? 2699053 : 3421746);
     this.steel.color.setHex(night ? 5266264 : 6581095);
     this.pipe.color.setHex(night ? 6844780 : 9079680);
-    this.fadedYellow.color.setHex(night ? 10452017 : 11701301);
+    this.fadedYellow.color.setHex(night ? 10452017 : 12095025);
     this.rust.color.setHex(night ? 6176816 : 7621941);
     this.roof.color.setHex(night ? 3422775 : 4803656);
     this.glass.color.setHex(night ? 4217946 : 5401706);
-    this.warning.color.setHex(night ? 15776068 : 14855485);
+    this.warning.color.setHex(night ? 15776068 : 15117622);
     this.lamp.color.setHex(night ? 16765322 : 16760153);
+    this.hallWindowLit.color.setHex(night ? 10275268 : 8037278);
+    this.hallWindowLit.opacity = night ? 0.85 : 0.5;
+    this.hallWindowDim.color.setHex(night ? 2898746 : 3821132);
+    this.hallWindowDim.opacity = night ? 0.9 : 0.85;
   }
   createModule(kind, side, row, layoutVariant) {
     const group = new THREE.Group();
@@ -19239,8 +20504,10 @@ class FactoryEnvironmentKit {
       group.add(debris);
       destructibles.push(debris);
     }
-    this.addCylinder(group, 0.62, 8.6, this.roof, side * 22.2, 4.3, -2.2, "y", 12);
-    this.addCylinder(group, 0.48, 10.5, this.darkSteel, side * 24, 5.25, 2.4, "y", 12);
+    this.createFlueStack(group, side, side * 22.2, -2.2, 0.62, 8.6, this.roof, { mount: "yard", bands: [4.9], stub: true });
+    if (!reversed) {
+      this.createFlueStack(group, side, side * 24, 2.4, 0.48, 10.5, this.darkSteel, { mount: "yard", bands: [5.6, 8.1], beacon: true });
+    }
   }
   createAssemblyYard(group, side, row, destructibles) {
     this.createFactoryHall(group, side, 18.4, 7.6, 6.1, 8.8, row % 3);
@@ -19269,11 +20536,6 @@ class FactoryEnvironmentKit {
     this.addBox(group, 4.8, 3.8, 5.7, this.shell, side * 18.7, 1.9, 0.5);
     this.addBox(group, 5.05, 0.32, 5.95, this.roof, side * 18.7, 3.82, 0.5);
     for (const z of [-1.2, 0.4, 2]) this.addBox(group, 0.08, 0.82, 0.85, this.darkOpening, side * 16.26, 2.1, z);
-    for (const [index, [x, height]] of [[21.8, 7.8], [23.4, 9.2]].entries()) {
-      const z = (reversed ? -1 : 1) * (-1.7 + index * 3.2);
-      this.addCylinder(group, 0.46, height, this.darkSteel, side * x, height / 2, z, "y", 10);
-      this.addCylinder(group, 0.58, 0.24, this.rust, side * x, height - 0.3, z, "y", 10);
-    }
     const broken = new THREE.Group();
     broken.name = "broken_pipe_section";
     this.addCylinder(broken, 0.34, 2.65, this.pipe, side * 7.8, 0.72, -1.4, "x", 12).rotation.z += side * 0.06;
@@ -19302,41 +20564,211 @@ class FactoryEnvironmentKit {
     this.addBox(group, 0.06, 0.6, 0.9, this.glass, side * 14.32, 6.68, 0);
     this.addCylinder(group, 0.05, 4.65, this.cable, side * 20.6, 5.1, 0, "y", 6);
     this.addBox(group, 0.7, 0.45, 0.55, this.darkSteel, side * 20.6, 2.72, 0);
-    for (const [x, z, height] of [[25, -2.8, 11.5], [26.6, 0, 9.4], [25.4, 2.8, 12.8]]) {
-      this.addCylinder(group, 0.52, height, this.darkSteel, side * x, height / 2, z, "y", 12);
-      this.addCylinder(group, 0.66, 0.28, this.rust, side * x, height - 0.28, z, "y", 12);
+    for (const [index, [x, z, height]] of [[25, -2.8, 11.5], [26.6, 0, 9.4], [25.4, 2.8, 12.8]].entries()) {
+      this.createFlueStack(group, side, side * x, z, 0.52, height, this.darkSteel, {
+        mount: index === 1 ? "yard" : "roof",
+        roofY: 7.92,
+        bands: index === 0 ? [9.8] : index === 1 ? [4.4] : [9.6, 11.2],
+        beacon: index === 2
+      });
     }
   }
   createFactoryHall(group, side, lateral, depth, height, width, variant) {
     this.addBox(group, depth, height, width, this.shell, side * lateral, height / 2, 0);
     this.addBox(group, depth + 0.35, 0.32, width + 0.35, this.roof, side * lateral, height + 0.16, 0);
-    const facadeX = side * (lateral - depth / 2 - 0.035);
-    this.addBox(group, 0.07, 3.2, 3.5, this.darkOpening, facadeX, 1.65, variant % 2 === 0 ? -1.65 : 1.45);
+    const wallFaceX = side * (lateral - depth / 2);
+    const doorZ = variant % 2 === 0 ? -1.65 : 1.45;
+    const serviceZ = variant % 2 === 0 ? 2.5 : -2.45;
+    const halfW = width / 2;
+    this.addBox(group, 0.05, 0.5, width, this.concrete, wallFaceX - side * 0.035, 0.25, 0);
+    this.addBox(group, 0.12, 3.4, 3.6, this.darkOpening, wallFaceX + side * 0.07, 1.78, doorZ);
     const slats = [];
-    for (let index = 0; index < 7; index++) slats.push({ x: facadeX - side * 0.018, y: 0.35 + index * 0.46, z: variant % 2 === 0 ? -1.65 : 1.45, sx: 0.035, sy: 0.035, sz: 3.25 });
+    for (let index = 0; index < 8; index++) slats.push({ x: wallFaceX - side * 0.03, y: 0.4 + index * 0.38, z: doorZ, sx: 0.03, sy: 0.05, sz: 3.3 });
     this.addInstancedBoxes(group, slats, this.steel);
-    this.addBox(group, 0.09, 0.82, 1, this.fadedYellow, facadeX - side * 0.02, 1.1, variant % 2 === 0 ? 2.5 : -2.45);
+    for (const z of [doorZ - 1.88, doorZ + 1.88]) {
+      this.addBox(group, 0.06, 3.55, 0.16, this.steel, wallFaceX - side * 0.045, 1.78, z);
+    }
+    this.addBox(group, 0.06, 0.22, 3.8, this.steel, wallFaceX - side * 0.045, 3.56, doorZ);
+    this.addBox(group, 0.06, 0.12, 3.8, this.concrete, wallFaceX - side * 0.045, 0.06, doorZ);
+    this.addBox(group, 0.12, 1.9, 1.25, this.darkOpening, wallFaceX + side * 0.07, 1.1, serviceZ);
+    this.addBox(group, 0.035, 1.7, 0.95, this.fadedYellow, wallFaceX - side * 0.015, 1.1, serviceZ);
+    for (const z of [serviceZ - 0.72, serviceZ + 0.72]) {
+      this.addBox(group, 0.06, 1.85, 0.1, this.darkSteel, wallFaceX - side * 0.045, 1.1, z);
+    }
+    this.addBox(group, 0.06, 0.1, 1.35, this.darkSteel, wallFaceX - side * 0.045, 2.1, serviceZ);
+    const bandY0 = Math.max(3.75, height * 0.42);
+    const bandY1 = height * 0.84;
+    const bandH = bandY1 - bandY0;
+    const bandCenterY = (bandY0 + bandY1) / 2;
+    const bandZ0 = -halfW + 0.6;
+    const bandZ1 = halfW - 0.6;
+    const bandW = bandZ1 - bandZ0;
+    const cols = Math.min(8, Math.max(5, Math.floor(bandW / 1.2)));
+    const slotSpan = bandW / cols;
+    const paneW = Math.min(0.78, slotSpan * 0.6);
+    const paneH = Math.min(0.5, bandH * 0.3);
+    const rowSpacing = (bandH - paneH) / 2 - 0.06;
+    this.addBox(group, 0.04, bandH, bandW, this.darkSteel, wallFaceX - side * 0.03, bandCenterY, 0);
+    const litRatio = 0.4 + hash01$1(variant * 7.31 + Math.abs(lateral) * 0.13) * 0.3;
+    const litPanes = [];
+    const dimPanes = [];
+    for (let row = 0; row < 2; row++) {
+      const y = bandCenterY + (row === 0 ? -rowSpacing : rowSpacing);
+      for (let col = 0; col < cols; col++) {
+        const z = bandZ0 + slotSpan * (col + 0.5);
+        const roll = hash01$1(variant * 13.17 + row * 7.77 + col * 2.89);
+        const lit = roll < Math.min(0.85, Math.max(0.15, litRatio + (hash01$1(variant * 5.13 + row * 3.17) - 0.5) * 0.3));
+        (lit ? litPanes : dimPanes).push({ x: wallFaceX - side * 0.075, y, z, sx: 0.03, sy: paneH, sz: paneW });
+      }
+    }
+    this.addInstancedBoxes(group, litPanes, this.hallWindowLit);
+    this.addInstancedBoxes(group, dimPanes, this.hallWindowDim);
+    const mullions = [];
+    for (let col = 0; col <= cols; col++) {
+      mullions.push({ x: wallFaceX - side * 0.125, y: bandCenterY, z: bandZ0 + slotSpan * col, sx: 0.04, sy: bandH, sz: 0.06 });
+    }
+    this.addInstancedBoxes(group, mullions, this.steel);
+    this.addBox(group, 0.04, 0.09, bandW + 0.1, this.steel, wallFaceX - side * 0.125, bandY0 - 0.055, 0);
+    this.addBox(group, 0.04, 0.09, bandW + 0.1, this.steel, wallFaceX - side * 0.125, bandY1 + 0.055, 0);
+    for (const szface of [-1, 1]) {
+      const bandX0 = wallFaceX + side * 0.6;
+      const bandX1 = side * (lateral + depth / 2) - side * 0.6;
+      const bandLen = Math.abs(bandX1 - bandX0);
+      this.addBox(group, bandLen, bandH, 0.04, this.darkSteel, side * lateral, bandCenterY, szface * (halfW + 0.03));
+      const sCols = Math.min(6, Math.max(3, Math.floor(bandLen / 1.3)));
+      const sSlot = bandLen / sCols;
+      const sPaneW = Math.min(0.8, sSlot * 0.6);
+      const sLit = [];
+      const sDim = [];
+      for (let row = 0; row < 2; row++) {
+        const y = bandCenterY + (row === 0 ? -rowSpacing : rowSpacing);
+        for (let col = 0; col < sCols; col++) {
+          const x = bandX0 + side * (sSlot * (col + 0.5));
+          const roll = hash01$1((szface + 1) * 19.31 + variant * 7.13 + row * 5.77 + col * 3.11);
+          const lit = roll < Math.min(0.85, Math.max(0.15, litRatio + (hash01$1(variant * 4.19 + col * 2.33) - 0.5) * 0.25));
+          (lit ? sLit : sDim).push({ x, y, z: szface * (halfW + 0.075), sx: sPaneW, sy: paneH, sz: 0.03 });
+        }
+      }
+      this.addInstancedBoxes(group, sLit, this.hallWindowLit);
+      this.addInstancedBoxes(group, sDim, this.hallWindowDim);
+      const sMullions = [];
+      for (let col = 0; col <= sCols; col++) {
+        sMullions.push({ x: bandX0 + side * (sSlot * col), y: bandCenterY, z: szface * (halfW + 0.125), sx: 0.06, sy: bandH, sz: 0.04 });
+      }
+      this.addInstancedBoxes(group, sMullions, this.steel);
+      this.addBox(group, bandLen + 0.1, 0.09, 0.04, this.steel, side * lateral, bandY0 - 0.055, szface * (halfW + 0.125));
+      this.addBox(group, bandLen + 0.1, 0.09, 0.04, this.steel, side * lateral, bandY1 + 0.055, szface * (halfW + 0.125));
+    }
+    this.addInstancedBoxes(group, [
+      { x: side * (lateral - depth / 2), y: height / 2, z: -halfW, sx: 0.14, sy: height, sz: 0.14 },
+      { x: side * (lateral - depth / 2), y: height / 2, z: halfW, sx: 0.14, sy: height, sz: 0.14 },
+      { x: side * (lateral + depth / 2), y: height / 2, z: -halfW, sx: 0.14, sy: height, sz: 0.14 },
+      { x: side * (lateral + depth / 2), y: height / 2, z: halfW, sx: 0.14, sy: height, sz: 0.14 }
+    ], this.darkSteel);
+    const litLouvers = [];
+    const dimLouvers = [];
     for (const z of [-2.35, 0, 2.35]) {
       this.addBox(group, depth * 0.64, 0.58, 0.85, this.roof, side * lateral, height + 0.54, z);
-      this.addBox(group, depth * 0.3, 0.045, 0.58, this.glass, side * (lateral - 0.2), height + 0.55, z);
+      const monitorFrontX = side * (lateral - depth * 0.32);
+      this.addBox(group, 0.07, 0.52, 0.95, this.darkSteel, monitorFrontX - side * 0.04, height + 0.54, z);
+      for (let index = 0; index < 3; index++) {
+        const lz = -0.24 + index * 0.24;
+        const lit = (variant + index) % 3 === 0;
+        (lit ? litLouvers : dimLouvers).push({
+          x: monitorFrontX - side * 0.075,
+          y: height + 0.54,
+          z: z + lz,
+          sx: 0.025,
+          sy: 0.42,
+          sz: 0.18
+        });
+      }
+      this.addBox(group, depth * 0.64 - 0.1, 0.05, 0.95, this.darkSteel, side * lateral, height + 0.87, z);
+    }
+    this.addInstancedBoxes(group, litLouvers, this.hallWindowLit);
+    this.addInstancedBoxes(group, dimLouvers, this.hallWindowDim);
+  }
+  // Industrial flue stack grammar shared by tank-farm, utility-yard and
+  // crane-landmark: grounded plinth (or roof flashing collar), banded barrel,
+  // taper neck and a rain cap floating on an open vent gap. One optional beacon
+  // marks the tallest stack of a module; spawn positions and counts stay owned
+  // by the calling modules.
+  createFlueStack(group, side, x, z, radius, height, bodyMaterial, options) {
+    const neck = Math.max(0.7, height * 0.085);
+    const bodyTop = height - neck;
+    const capGap = 0.03;
+    const capRadius = radius * 1.34;
+    if (options.mount === "roof") {
+      const roofY = options.roofY ?? 0;
+      this.addCylinderTaper(group, radius * 1.04, radius * 1.55, 0.9, this.darkSteel, x, roofY + 0.41, z, 12);
+    } else {
+      this.addCylinder(group, radius * 1.42, 0.5, this.concrete, x, 0.22, z, "y", 12);
+      if (options.stub) {
+        const stubY = Math.max(1.35, radius * 2.2);
+        this.addCylinder(group, radius * 0.34, radius * 2.3, this.pipe, x - side * radius * 2.45, stubY, z, "x", 8);
+        this.addCylinder(group, radius * 0.46, 0.07, this.darkSteel, x - side * radius * 3.6, stubY, z, "x", 8);
+      }
+    }
+    this.addCylinder(group, radius, bodyTop - 0.38, bodyMaterial, x, (bodyTop + 0.38) / 2, z, "y", 12);
+    this.addCylinderTaper(group, radius * 0.78, radius * 1.01, neck + 0.02, bodyMaterial, x, bodyTop + neck / 2, z, 12);
+    for (const bandY of options.bands) {
+      const band = this.addTorus(group, radius + 0.035, 0.055, this.rust, x, bandY, z);
+      band.rotation.x = Math.PI / 2;
+    }
+    const capMaterial = bodyMaterial === this.roof ? this.darkSteel : this.roof;
+    this.addCylinderTaper(group, capRadius * 0.24, capRadius, 0.3, capMaterial, x, height + capGap + 0.15, z, 12);
+    if (options.beacon) {
+      const capTop = height + capGap + 0.3;
+      this.addCylinder(group, 0.045, 0.42, this.darkSteel, x, capTop + 0.21, z, "y", 6);
+      this.addCylinder(group, 0.075, 0.16, this.lamp, x, capTop + 0.44, z, "y", 8);
     }
   }
   createTank(group, side, lateral, z, radius, height, breached) {
     this.addCylinder(group, radius * 0.88, 0.18, this.concrete, side * lateral, 0.06, z, "y", 16);
-    const tank = this.addCylinder(group, radius, height, breached ? this.rust : this.shell, side * lateral, height / 2 + 0.08, z, "y", 16);
+    const tank = new THREE.Group();
+    tank.name = breached ? "factory_tank_breached" : "factory_tank";
+    tank.position.set(side * lateral, 0, z);
     if (breached) tank.rotation.z = side * 0.08;
-    this.addCylinder(group, radius * 0.75, 0.32, this.roof, side * lateral, height + 0.23, z, "y", 16);
-    for (const y of [1, 2.35, height - 0.55]) {
-      const band = this.addTorus(group, radius + 0.025, 0.045, this.darkSteel, side * lateral, y, z);
+    group.add(tank);
+    this.addCylinder(tank, radius, height, breached ? this.rust : this.shell, 0, height / 2 + 0.08, 0, "y", 16);
+    const eaveY = height + 0.06;
+    const coneH = Math.max(0.34, radius * 0.26);
+    this.addCylinderTaper(tank, radius * 0.12, radius * 1.05, coneH, this.roof, 0, eaveY + coneH / 2 - 0.02, 0, 16);
+    const girder = this.addTorus(tank, radius + 0.05, 0.075, this.steel, 0, height - 0.18, 0);
+    girder.rotation.x = Math.PI / 2;
+    for (const y of [1, 2.35]) {
+      const band = this.addTorus(tank, radius + 0.025, 0.045, this.darkSteel, 0, y, 0);
       band.rotation.x = Math.PI / 2;
     }
-    const ladderX = side * (lateral - radius - 0.12);
-    for (const zOffset of [-0.24, 0.24]) this.addBox(group, 0.08, height - 0.45, 0.08, this.darkSteel, ladderX, height / 2, z + zOffset);
+    const roadX = -side;
+    const coneSurfaceY = (dist) => eaveY + coneH * (1 - dist / (radius * 1.05));
+    const manholeDist = radius * 0.42;
+    const manholeY = coneSurfaceY(manholeDist);
+    this.addCylinder(tank, radius * 0.17, 0.18, this.steel, roadX * manholeDist * 0.82, manholeY - 0.02, radius * 0.24, "y", 10);
+    this.addCylinder(tank, radius * 0.14, 0.05, this.darkOpening, roadX * manholeDist * 0.82, manholeY + 0.105, radius * 0.24, "y", 10);
+    const ventDist = radius * 0.43;
+    const ventY = coneSurfaceY(ventDist);
+    this.addCylinder(tank, radius * 0.075, 0.55, this.pipe, roadX * radius * 0.1, ventY + 0.13, -radius * 0.42, "y", 8);
+    this.addCylinder(tank, radius * 0.125, 0.05, this.darkSteel, roadX * radius * 0.1, ventY + 0.455, -radius * 0.42, "y", 8);
+    const railRadius = radius * 0.86;
+    for (const railY of [eaveY + 0.28, eaveY + 0.46]) {
+      const rail = this.addTorus(tank, railRadius, 0.028, this.darkSteel, 0, railY, 0);
+      rail.rotation.x = Math.PI / 2;
+    }
+    const posts = [];
+    for (let index = 0; index < 10; index++) {
+      const angle = index / 10 * Math.PI * 2;
+      posts.push({ x: Math.cos(angle) * railRadius, y: eaveY + 0.19, z: Math.sin(angle) * railRadius, sx: 0.04, sy: 0.52, sz: 0.04 });
+    }
+    this.addInstancedBoxes(tank, posts, this.darkSteel);
+    const ladderX = roadX * (radius + 0.12);
+    const railTop = eaveY + 0.32;
+    for (const zOffset of [-0.24, 0.24]) this.addBox(tank, 0.08, railTop - 0.225, 0.08, this.darkSteel, ladderX, (railTop + 0.225) / 2, zOffset);
     const rungs = [];
-    for (let y = 0.45; y < height - 0.2; y += 0.42) rungs.push({ x: ladderX - side * 0.03, y, z, sx: 0.08, sy: 0.06, sz: 0.55 });
-    this.addInstancedBoxes(group, rungs, this.darkSteel);
+    for (let y = 0.45; y < railTop - 0.14; y += 0.42) rungs.push({ x: ladderX - side * 0.03, y, z: 0, sx: 0.08, sy: 0.06, sz: 0.55 });
+    this.addInstancedBoxes(tank, rungs, this.darkSteel);
     if (breached) {
-      this.addBox(group, 0.06, 1.35, 1.25, this.darkOpening, side * (lateral - radius - 0.04), 1.55, z + 0.35).rotation.z = side * 0.22;
+      this.addBox(tank, 0.06, 1.35, 1.25, this.darkOpening, roadX * (radius + 0.04), 1.55, 0.35).rotation.z = side * 0.22;
     }
   }
   createPumpSkid(group, side, lateral, z) {
@@ -19464,6 +20896,17 @@ class FactoryEnvironmentKit {
     group.add(mesh);
     return mesh;
   }
+  addCylinderTaper(group, radiusTop, radiusBottom, length, material, x, y, z, segments) {
+    const geometry = this.geometry(
+      `cylinderTaper:${radiusTop}:${radiusBottom}:${length}:${segments}`,
+      () => new THREE.CylinderGeometry(radiusTop, radiusBottom, length, segments)
+    );
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(x, y, z);
+    mesh.userData.sharedGeometry = true;
+    group.add(mesh);
+    return mesh;
+  }
   addTorus(group, radius, tube, material, x, y, z) {
     const mesh = new THREE.Mesh(this.torus(radius, tube), material);
     mesh.position.set(x, y, z);
@@ -19521,7 +20964,9 @@ class FactoryEnvironmentKit {
       this.cable,
       this.warning,
       this.lamp,
-      this.darkOpening
+      this.darkOpening,
+      this.hallWindowLit,
+      this.hallWindowDim
     ]) material.dispose();
   }
 }
@@ -19606,10 +21051,14 @@ const ROAD_DECK_TRIM_PROFILES = [
 ];
 const ROAD_DASH_PERIOD = 4;
 const ROAD_DASH_LATERALS = [-ROAD_DIVIDER_OFFSET, ROAD_DIVIDER_OFFSET];
+const hash01 = (seed) => {
+  const value = Math.sin(seed) * 43758.5453;
+  return value - Math.floor(value);
+};
 const CITY_LAYOUTS = [
-  [[0, 0], [3, 3], [1, 2], [11, 11], [5, 4], [3, 3], [2, 1], [0, 0], [9, 10], [3, 3], [6, 8], [11, 11]],
-  [[11, 11], [3, 3], [2, 2], [0, 0], [4, 5], [3, 3], [1, 1], [11, 11], [10, 9], [3, 3], [8, 6], [0, 0]],
-  [[0, 0], [3, 3], [1, 1], [11, 11], [5, 4], [3, 3], [2, 2], [0, 0], [9, 9], [3, 3], [6, 8], [11, 11]]
+  [[0, 0], [4, 4], [4, 6], [11, 11], [5, 4], [4, 4], [6, 4], [0, 0], [9, 9], [4, 4], [6, 8], [11, 11]],
+  [[11, 11], [4, 4], [6, 6], [0, 0], [4, 5], [4, 4], [4, 4], [11, 11], [9, 9], [4, 4], [8, 6], [0, 0]],
+  [[0, 0], [4, 4], [4, 4], [11, 11], [5, 4], [4, 4], [6, 6], [0, 0], [9, 9], [4, 4], [6, 8], [11, 11]]
 ];
 class Environment {
   constructor(scene) {
@@ -19707,16 +21156,18 @@ class Environment {
     __publicField(this, "coastSea");
     __publicField(this, "bodyMaterial", new THREE.MeshStandardMaterial({ color: 14341838, roughness: 0.86 }));
     __publicField(this, "darkMaterial", new THREE.MeshStandardMaterial({ color: 2829875, roughness: 0.72 }));
-    __publicField(this, "cyanMaterial", new THREE.MeshBasicMaterial({ color: 2084834 }));
+    __publicField(this, "cyanMaterial", new THREE.MeshBasicMaterial({ color: 2084834, toneMapped: false }));
     __publicField(this, "laneDividerMaterial", new THREE.MeshBasicMaterial({
       color: 5683908,
       transparent: true,
       opacity: 0.72
     }));
-    __publicField(this, "orangeMaterial", new THREE.MeshBasicMaterial({ color: 16742938 }));
-    __publicField(this, "magentaMaterial", new THREE.MeshBasicMaterial({ color: 16727928 }));
+    __publicField(this, "magentaMaterial", new THREE.MeshBasicMaterial({ color: 16727928, toneMapped: false }));
     __publicField(this, "glassMaterial", new THREE.MeshBasicMaterial({ color: 9353665, transparent: true, opacity: 0.28, depthWrite: false }));
     __publicField(this, "windowMaterial", new THREE.MeshBasicMaterial({ color: 7314853, transparent: true, opacity: 0.52 }));
+    // Unlit panes derive from the same hue at lower brightness, so night skylines read as a
+    // lived-in lit/unlit mix instead of one uniform LED grid.
+    __publicField(this, "windowDimMaterial", new THREE.MeshBasicMaterial({ color: 3031621, transparent: true, opacity: 0.88 }));
     // Deliberately biased toward the sky rather than toward the near buildings, so the
     // backdrop already reads as aerial distance before fog is applied.
     __publicField(this, "backdropMaterial", new THREE.MeshBasicMaterial({ color: 14673382 }));
@@ -20688,6 +22139,7 @@ class Environment {
         const sideIndex = side === 1 ? 1 : 0;
         const type = layout[row][sideIndex];
         const built = type === null ? { group: this.coastKit.createGroundOnlyModule(side, row, this.coastLayoutIndex), destructibles: [] } : this.coastKit.createModule(type, side, row, this.coastLayoutIndex);
+        this.coastKit.optimizeModule(built.group, built.destructibles);
         built.group.position.z = -8 - row * this.roadsideSpacing;
         this.roadsideProps.push({ group: built.group, side, shoulder: 0 });
         this.destructibleProps.push(...built.destructibles);
@@ -20702,7 +22154,7 @@ class Environment {
       for (const side of [-1, 1]) {
         const light = this.createRoadsideProp(3, side);
         light.position.z = -5 - index * spacing;
-        this.attachStreetlightIllumination(light, side, index, false);
+        this.attachStreetlightIllumination(light, side, index, false, 2.05, 3.55);
         this.roadsideProps.push({
           group: light,
           side,
@@ -20752,7 +22204,7 @@ class Environment {
     texture.colorSpace = THREE.SRGBColorSpace;
     return texture;
   }
-  attachStreetlightIllumination(group, side, index, factory) {
+  attachStreetlightIllumination(group, side, index, factory, lampLateral = 1.25, lampY = 3.05) {
     const poolMaterial = new THREE.MeshBasicMaterial({
       color: factory ? 16760163 : 11990779,
       map: this.streetLightPoolTexture,
@@ -20775,7 +22227,7 @@ class Environment {
     this.streetLightPools.push(pool);
     if (index % 2 !== 0) return;
     const light = new THREE.PointLight(factory ? 16760178 : 11138559, 0, factory ? 20 : 18, 2);
-    light.position.set(-side * 1.25, 3.05, 0);
+    light.position.set(-side * lampLateral, lampY, 0);
     group.add(light);
     this.streetLights.push(light);
   }
@@ -20830,7 +22282,7 @@ class Environment {
     );
     serviceLane.position.set(side * (roadEdge + 3.35), -5e-3, 0);
     group.add(serviceLane);
-    const featureType = this.getCityFeatureType(type, row);
+    const featureType = type;
     const featureZ = ((row + (side === 1 ? 1 : 0)) % 3 - 1) * 2.1;
     const featureOffset = this.getCityFeatureOffset(featureType, roadEdge, facilityCenter);
     const feature = this.createRoadsideProp(featureType, side);
@@ -20929,13 +22381,6 @@ class Environment {
       group.add(cap);
     }
   }
-  getCityFeatureType(type, row) {
-    if (type === 1) return row % 2 === 0 ? 4 : 9;
-    if (type === 2) return row % 2 === 0 ? 6 : 5;
-    if (type === 3) return row % 2 === 0 ? 7 : 4;
-    if (type === 10) return row % 2 === 0 ? 9 : 5;
-    return type;
-  }
   getCityFeatureOffset(type, roadEdge, facilityCenter) {
     if (type === 0) return roadEdge + 0.25;
     if (type === 6 || type === 8) return facilityCenter;
@@ -20975,47 +22420,60 @@ class Environment {
       0,
       true
     );
-    addBox(
-      0.045,
-      shaftHeight * 0.79,
-      shaftWidth * 0.76,
-      this.darkMaterial,
-      facadeX,
-      shaftBottom + shaftHeight * 0.52,
-      0
-    );
     const windowColumns = shaftWidth > 4 ? 4 : 3;
     const floorCount = Math.max(3, Math.floor((shaftHeight - 0.5) / 0.86));
-    const windowCount = floorCount * windowColumns;
-    const windowGeometry = new THREE.BoxGeometry(0.038, 0.22, Math.min(0.52, shaftWidth / (windowColumns + 1) * 0.62));
-    const windows = new THREE.InstancedMesh(windowGeometry, this.windowMaterial, windowCount);
-    const windowMatrix = new THREE.Matrix4();
+    const floorSpacing = Math.max(0.68, (shaftHeight - 1.15) / Math.max(1, floorCount - 1));
+    const firstFloorY = shaftBottom + 0.66;
+    const topFloorY = firstFloorY + (floorCount - 1) * floorSpacing;
+    const fieldHalfZ = shaftWidth * 0.28;
+    const slotSpan = fieldHalfZ * 2 / windowColumns;
+    const paneWidth = Math.min(0.52, slotSpan * 0.62);
+    const bayBottomY = firstFloorY - 0.44;
+    const bayTopY = Math.min(topFloorY + 0.42, shaftBottom + shaftHeight - 0.1);
+    const bayCenterY = (bayTopY + bayBottomY) / 2;
+    const bayWidthZ = fieldHalfZ * 2 + 0.1;
+    addBox(0.045, bayTopY - bayBottomY, bayWidthZ, this.darkMaterial, facadeX, bayCenterY, 0);
+    const windowGeometry = new THREE.BoxGeometry(0.038, 0.22, paneWidth);
+    const litRatio = 0.4 + hash01(variant * 7.31 + side * 3.7) * 0.3;
+    const litMatrices = [];
+    const dimMatrices = [];
     for (let floor = 0; floor < floorCount; floor++) {
-      const y = shaftBottom + 0.66 + floor * Math.max(0.68, (shaftHeight - 1.15) / Math.max(1, floorCount - 1));
+      const y = firstFloorY + floor * floorSpacing;
+      const floorBias = (hash01(variant * 13.17 + floor * 7.77) - 0.5) * 0.36;
       for (let column = 0; column < windowColumns; column++) {
-        const z = (column - (windowColumns - 1) / 2) * shaftWidth * 0.72 / Math.max(1, windowColumns - 1);
-        windowMatrix.makeTranslation(facadeX - side * 0.028, y, z);
-        windows.setMatrixAt(floor * windowColumns + column, windowMatrix);
+        const z = -fieldHalfZ + slotSpan * (column + 0.5);
+        const matrix = new THREE.Matrix4().makeTranslation(facadeX - side * 0.0155, y, z);
+        const paneRoll = hash01(floor * 5.13 + column * 2.89 + variant * 11.71);
+        const lit = paneRoll < Math.min(0.85, Math.max(0.15, litRatio + floorBias));
+        (lit ? litMatrices : dimMatrices).push(matrix);
       }
     }
-    windows.instanceMatrix.needsUpdate = true;
-    group.add(windows);
+    for (const [matrices, material] of [
+      [litMatrices, this.windowMaterial],
+      [dimMatrices, this.windowDimMaterial]
+    ]) {
+      if (!matrices.length) continue;
+      const windows = new THREE.InstancedMesh(windowGeometry, material, matrices.length);
+      matrices.forEach((matrix, index) => windows.setMatrixAt(index, matrix));
+      windows.instanceMatrix.needsUpdate = true;
+      group.add(windows);
+    }
     for (let column = 0; column <= windowColumns; column++) {
-      const z = (column - windowColumns / 2) * shaftWidth * 0.76 / windowColumns;
-      addBox(0.075, shaftHeight * 0.82, 0.065, this.bodyMaterial, facadeX - side * 0.052, shaftBottom + shaftHeight * 0.52, z);
+      const z = -fieldHalfZ + slotSpan * column;
+      addBox(0.075, bayTopY - bayBottomY + 0.06, 0.065, this.bodyMaterial, facadeX - side * 0.052, bayCenterY, z);
     }
     for (let floor = 2; floor < floorCount; floor += 3) {
-      const y = shaftBottom + 0.66 + floor * Math.max(0.68, (shaftHeight - 1.15) / Math.max(1, floorCount - 1));
-      addBox(0.11, 0.065, shaftWidth * 0.84, this.bodyMaterial, facadeX - side * 0.055, y - 0.21, 0);
+      const y = firstFloorY + floor * floorSpacing;
+      addBox(0.11, 0.065, bayWidthZ + 0.14, this.bodyMaterial, facadeX - side * 0.055, y - 0.21, 0);
     }
     const entryZ = style % 2 === 0 ? -shaftWidth * 0.2 : shaftWidth * 0.2;
     addBox(0.05, 0.76, 0.66, this.darkMaterial, podiumFacadeX, 0.54, entryZ);
     addBox(0.38, 0.09, 1.18, this.darkMaterial, podiumFacadeX - side * 0.17, 0.98, entryZ);
     for (const zOffset of [-0.48, 0.48]) {
-      addBox(0.09, 0.86, 0.09, this.darkMaterial, podiumFacadeX - side * 0.3, 0.48, entryZ + zOffset);
+      addBox(0.09, 0.975, 0.09, this.darkMaterial, podiumFacadeX - side * 0.3, 0.4475, entryZ + zOffset);
     }
     addBox(0.045, 0.42, width * 0.24, this.darkMaterial, podiumFacadeX, 0.48, -entryZ);
-    const serviceZ = (style < 2 ? -1 : 1) * (shaftWidth / 2 + 0.026);
+    const serviceZ = (style < 2 ? -1 : 1) * (shaftWidth / 2 + 0.045);
     addBox(shaftDepth * 0.46, shaftHeight * 0.72, 0.05, this.darkMaterial, shaftX + side * shaftDepth * 0.12, shaftBottom + shaftHeight * 0.49, serviceZ);
     for (let band = 0; band < 3; band++) {
       addBox(
@@ -21078,74 +22536,120 @@ class Environment {
         for (const z of [-2.15, -0.72, 0.72, 2.15]) add(new THREE.BoxGeometry(0.25, 1.48, 0.12), this.darkMaterial, 0, 0.74, z);
         add(new THREE.BoxGeometry(0.205, 0.045, 2.9), this.cyanMaterial, -side * 0.012, 0.82, 0, false);
         break;
-      case 1: {
-        add(new THREE.BoxGeometry(3.2, 7.2, 3), this.bodyMaterial, 0, 3.6, 0);
-        add(new THREE.BoxGeometry(2.65, 6.3, 0.04), this.darkMaterial, 0, 3.55, -side * 1.52, false);
-        for (const y of [1.2, 2.35, 3.5, 4.65, 5.8]) {
-          for (const x of [-0.82, 0, 0.82]) add(new THREE.BoxGeometry(0.44, 0.18, 0.05), this.cyanMaterial, x, y, -side * 1.55, false);
-        }
-        break;
-      }
-      case 2:
-        add(new THREE.BoxGeometry(3.8, 2.1, 4.4), this.bodyMaterial, 0, 1.05, 0);
-        add(new THREE.BoxGeometry(2.7, 0.5, 0.05), this.darkMaterial, 0, 1.22, -side * 2.22, false);
-        add(new THREE.BoxGeometry(0.82, 0.95, 0.58), this.darkMaterial, -0.8, 2.57, 0.35);
-        add(new THREE.CylinderGeometry(0.32, 0.42, 1.35, 10), this.bodyMaterial, 0.9, 2.78, -0.45);
-        break;
       case 3: {
-        add(new THREE.CylinderGeometry(0.07, 0.12, 3.4, 8), this.darkMaterial, 0, 1.7, 0);
-        const arm = add(new THREE.BoxGeometry(1.35, 0.1, 0.12), this.darkMaterial, -side * 0.62, 3.3, 0);
-        arm.rotation.z = side * -0.08;
-        add(new THREE.BoxGeometry(0.5, 0.06, 0.28), this.cyanMaterial, -side * 1.22, 3.19, 0, false);
+        add(new THREE.BoxGeometry(0.34, 0.05, 0.34), this.darkMaterial, 0, 0.025, 0, false);
+        add(new THREE.CylinderGeometry(0.09, 0.115, 0.18, 10), this.darkMaterial, 0, 0.14, 0, false);
+        add(new THREE.CylinderGeometry(0.055, 0.095, 3.8, 10), this.darkMaterial, 0, 2.07, 0);
+        add(new THREE.BoxGeometry(0.02, 0.44, 0.15), this.bodyMaterial, side * 0.086, 1.15, 0, false);
+        const arm = add(new THREE.BoxGeometry(2.3, 0.11, 0.13), this.darkMaterial, -side * 1.16, 3.9, 0);
+        arm.rotation.z = side * 0.07;
+        const brace = add(new THREE.BoxGeometry(1.62, 0.05, 0.06), this.darkMaterial, -side * 0.83, 3.45, 0, false);
+        brace.rotation.z = -side * 0.447;
+        const head = add(new THREE.BoxGeometry(0.42, 0.12, 0.24), this.bodyMaterial, -side * 2.12, 3.78, 0);
+        head.rotation.z = side * 0.1;
+        const headCap = add(new THREE.BoxGeometry(0.44, 0.03, 0.26), this.darkMaterial, -side * 2.12, 3.85, 0);
+        headCap.rotation.z = side * 0.1;
+        const lens = add(new THREE.BoxGeometry(0.34, 0.03, 0.2), this.cyanMaterial, -side * 2.15, 3.71, 0, false);
+        lens.rotation.z = side * 0.1;
         break;
       }
-      case 4:
-        add(new THREE.BoxGeometry(0.85, 1.25, 0.62), this.bodyMaterial, 0, 0.63, 0);
-        add(new THREE.BoxGeometry(0.58, 0.42, 0.03), this.darkMaterial, 0, 0.68, -side * 0.325, false);
-        add(new THREE.BoxGeometry(0.14, 0.04, 0.035), this.magentaMaterial, 0.22, 0.86, -side * 0.345, false);
+      case 4: {
+        add(new THREE.BoxGeometry(0.93, 0.09, 0.7), this.darkMaterial, 0, 0.045, 0, false);
+        add(new THREE.BoxGeometry(0.85, 1.16, 0.62), this.bodyMaterial, 0, 0.67, 0);
+        add(new THREE.BoxGeometry(0.94, 0.07, 0.71), this.darkMaterial, 0, 1.285, 0);
+        for (const x of [-0.19, 0.19]) {
+          add(new THREE.BoxGeometry(0.36, 0.94, 0.03), this.darkMaterial, x, 0.66, -side * 0.315, false);
+        }
+        add(new THREE.BoxGeometry(0.12, 0.045, 0.02), this.magentaMaterial, 0.19, 1.06, -side * 0.332, false);
+        for (const x of [-0.43, 0.43]) {
+          for (const y of [0.82, 0.95, 1.08]) {
+            add(new THREE.BoxGeometry(0.02, 0.06, 0.4), this.darkMaterial, x, y, 0, false);
+          }
+        }
+        add(new THREE.CylinderGeometry(0.05, 0.05, 1, 8), this.darkMaterial, 0.33, 0.5, side * 0.36, false);
         break;
+      }
       case 5: {
-        add(new THREE.BoxGeometry(1.9, 0.12, 2.5), this.darkMaterial, 0, 2.08, 0);
-        add(new THREE.BoxGeometry(0.08, 2, 2.35), this.glassMaterial, side * 0.74, 1.02, 0, false);
-        add(new THREE.BoxGeometry(0.58, 0.16, 1.65), this.bodyMaterial, -side * 0.2, 0.46, 0);
-        add(new THREE.BoxGeometry(0.06, 1.2, 0.55), this.cyanMaterial, -side * 0.78, 1.18, 0.65, false);
+        for (const x of [-0.78, 0.78]) {
+          for (const z of [-1.08, 1.08]) {
+            add(new THREE.BoxGeometry(0.075, 2.02, 0.075), this.darkMaterial, x, 1.03, z, false);
+          }
+        }
+        add(new THREE.BoxGeometry(1.9, 0.12, 2.5), this.darkMaterial, 0, 2.14, 0);
+        add(new THREE.BoxGeometry(1.98, 0.055, 2.58), this.darkMaterial, 0, 2.05, 0, false);
+        add(new THREE.BoxGeometry(0.06, 1.88, 2.34), this.bodyMaterial, side * 0.77, 1.04, 0);
+        add(new THREE.BoxGeometry(0.07, 1.62, 2.3), this.glassMaterial, -side * 0.75, 1.12, 0, false);
+        for (const z of [-0.38, 0.38]) {
+          add(new THREE.BoxGeometry(0.095, 1.62, 0.075), this.darkMaterial, -side * 0.75, 1.12, z, false);
+        }
+        for (const y of [0.22, 2.02]) {
+          add(new THREE.BoxGeometry(0.095, 0.11, 2.3), this.darkMaterial, -side * 0.75, y, 0, false);
+        }
+        add(new THREE.BoxGeometry(0.42, 0.09, 1.66), this.bodyMaterial, side * 0.26, 0.55, 0);
+        for (const z of [-0.64, 0.64]) {
+          add(new THREE.BoxGeometry(0.36, 0.48, 0.07), this.darkMaterial, side * 0.26, 0.27, z, false);
+        }
+        add(new THREE.BoxGeometry(0.05, 0.72, 0.52), this.darkMaterial, side * 0.72, 1.32, 0.68, false);
+        add(new THREE.BoxGeometry(0.028, 0.56, 0.38), this.cyanMaterial, side * 0.69, 1.32, 0.68, false);
         break;
       }
       case 6: {
-        add(new THREE.CylinderGeometry(0.42, 0.58, 2.1, 12), this.bodyMaterial, 0, 1.05, 0);
-        for (const y of [0.65, 1.08, 1.51]) {
-          const ring = add(new THREE.TorusGeometry(0.45, 0.04, 6, 14), this.darkMaterial, 0, y, 0, false);
-          ring.rotation.x = Math.PI / 2;
+        add(new THREE.CylinderGeometry(0.62, 0.68, 0.1, 12), this.darkMaterial, 0, 0.05, 0, false);
+        add(new THREE.CylinderGeometry(0.5, 0.58, 0.55, 12), this.bodyMaterial, 0, 0.38, 0);
+        add(new THREE.CylinderGeometry(0.42, 0.46, 1.15, 12), this.bodyMaterial, 0, 1.23, 0);
+        for (const y of [0.86, 1.18]) {
+          const louver = add(new THREE.TorusGeometry(0.44, 0.03, 6, 14), this.darkMaterial, 0, y, 0, false);
+          louver.rotation.x = Math.PI / 2;
         }
-        add(new THREE.CylinderGeometry(0.55, 0.48, 0.18, 12), this.darkMaterial, 0, 2.15, 0);
+        add(new THREE.CylinderGeometry(0.34, 0.43, 0.28, 12), this.darkMaterial, 0, 1.95, 0, false);
+        add(new THREE.CylinderGeometry(0.34, 0.34, 0.75, 12), this.bodyMaterial, 0, 2.45, 0);
+        add(new THREE.CylinderGeometry(0.35, 0.35, 0.07, 12), this.cyanMaterial, 0, 2.87, 0, false);
+        add(new THREE.CylinderGeometry(0.42, 0.38, 0.16, 12), this.darkMaterial, 0, 3.02, 0);
         break;
       }
-      case 7:
-        add(new THREE.CylinderGeometry(0.15, 0.2, 0.62, 10), this.magentaMaterial, 0, 0.32, 0);
-        add(new THREE.SphereGeometry(0.2, 10, 6), this.magentaMaterial, 0, 0.67, 0);
-        for (const x of [-0.24, 0.24]) add(new THREE.CylinderGeometry(0.08, 0.08, 0.2, 8), this.darkMaterial, x, 0.45, 0).rotation.z = Math.PI / 2;
-        break;
       case 8: {
-        add(new THREE.CylinderGeometry(0.07, 0.13, 3, 8), this.darkMaterial, 0, 1.5, 0);
+        add(new THREE.BoxGeometry(0.42, 0.06, 0.42), this.darkMaterial, 0, 0.03, 0, false);
+        add(new THREE.CylinderGeometry(0.1, 0.14, 0.22, 10), this.darkMaterial, 0, 0.17, 0, false);
+        add(new THREE.CylinderGeometry(0.05, 0.09, 3.2, 10), this.darkMaterial, 0, 1.88, 0);
+        add(new THREE.BoxGeometry(0.46, 0.66, 0.38), this.bodyMaterial, side * 0.44, 0.36, 0.08);
+        add(new THREE.BoxGeometry(0.02, 0.52, 0.28), this.darkMaterial, side * 0.23, 0.38, 0.08, false);
+        add(new THREE.BoxGeometry(0.05, 1.35, 0.07), this.darkMaterial, -side * 0.095, 1.55, 0.075, false);
+        add(new THREE.CylinderGeometry(0.075, 0.075, 0.09, 10), this.darkMaterial, 0, 3.02, 0, false);
+        const panelAzimuths = [-0.5, 1.55, 3.6];
+        for (const azimuth of panelAzimuths) {
+          const panel = add(
+            new THREE.BoxGeometry(0.045, 0.6, 0.19),
+            this.bodyMaterial,
+            Math.sin(azimuth) * 0.11,
+            3.32,
+            Math.cos(azimuth) * 0.11,
+            false
+          );
+          panel.rotation.y = azimuth;
+        }
+        add(new THREE.CylinderGeometry(0.032, 0.04, 0.62, 8), this.darkMaterial, 0, 3.72, 0, false);
+        add(new THREE.CylinderGeometry(0.02, 0.02, 0.07, 8), this.darkMaterial, 0, 4.06, 0, false);
         const rotor = new THREE.Group();
         rotor.name = "roadside_rotor";
-        rotor.position.y = 2.72;
+        rotor.position.y = 3.78;
         rotor.add(new THREE.Mesh(new THREE.TorusGeometry(0.46, 0.045, 6, 18), this.cyanMaterial));
         rotor.add(new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.07, 0.05), this.bodyMaterial));
         group.add(rotor);
         break;
       }
-      case 9:
-        for (const x of [-0.75, 0.75]) add(new THREE.BoxGeometry(0.12, 2, 0.14), this.darkMaterial, x, 1, 0);
+      case 9: {
+        for (const x of [-0.75, 0.75]) {
+          add(new THREE.BoxGeometry(0.12, 2, 0.14), this.darkMaterial, x, 1, 0);
+          add(new THREE.BoxGeometry(0.26, 0.07, 0.28), this.darkMaterial, x, 0.035, 0, false);
+        }
         add(new THREE.BoxGeometry(1.9, 1, 0.12), this.bodyMaterial, 0, 1.65, 0);
-        add(new THREE.BoxGeometry(1.62, 0.68, 0.03), this.cyanMaterial, 0, 1.65, -side * 0.075, false);
+        add(new THREE.BoxGeometry(1.96, 0.07, 0.18), this.darkMaterial, 0, 2.185, 0, false);
+        add(new THREE.BoxGeometry(1.78, 0.84, 0.02), this.darkMaterial, 0, 1.65, 0.068, false);
+        add(new THREE.BoxGeometry(1.58, 0.64, 0.03), this.cyanMaterial, 0, 1.65, 0.084, false);
+        add(new THREE.BoxGeometry(1.55, 0.05, 0.36), this.darkMaterial, 0, 1.13, 0, false);
+        add(new THREE.BoxGeometry(0.72, 0.52, 0.02), this.darkMaterial, 0, 1.72, -0.068, false);
         break;
-      case 10:
-        add(new THREE.BoxGeometry(0.18, 3.1, 0.18), this.darkMaterial, 0, 1.55, 0);
-        add(new THREE.BoxGeometry(1.75, 0.15, 0.18), this.bodyMaterial, -side * 0.78, 2.95, 0);
-        add(new THREE.BoxGeometry(0.28, 0.34, 0.32), this.darkMaterial, -side * 1.52, 2.73, 0);
-        add(new THREE.BoxGeometry(0.12, 0.1, 0.05), this.orangeMaterial, -side * 1.52, 2.68, -side * 0.18, false);
-        break;
+      }
       default:
         for (const z of [-1.8, -0.6, 0.6, 1.8]) add(new THREE.BoxGeometry(0.14, 1.15, 0.14), this.darkMaterial, 0, 0.58, z);
         for (const y of [0.35, 0.92]) add(new THREE.BoxGeometry(0.1, 0.12, 3.75), this.bodyMaterial, 0, y, 0);
@@ -21675,6 +23179,8 @@ class Environment {
       this.roadSurfaceMaterial.color.setHex(night ? 2567988 : 4936014);
       this.windowMaterial.color.setHex(night ? 5467251 : 6846836);
       this.windowMaterial.opacity = night ? 0.58 : 0.44;
+      this.windowDimMaterial.color.setHex(night ? 2766394 : 3423292);
+      this.windowDimMaterial.opacity = night ? 0.9 : 0.8;
       this.glassMaterial.color.setHex(night ? 4414819 : 7439486);
       this.edgeMaterial.color.setHex(night ? 7899788 : 3423032);
       this.edgeMaterial.opacity = night ? 0.52 : 0.64;
@@ -21710,6 +23216,8 @@ class Environment {
       this.roadSurfaceMaterial.color.setHex(night ? 2832706 : 15264488);
       this.windowMaterial.color.setHex(night ? 7986409 : 7511461);
       this.windowMaterial.opacity = night ? 0.78 : 0.52;
+      this.windowDimMaterial.color.setHex(night ? 2573899 : 3360586);
+      this.windowDimMaterial.opacity = night ? 0.9 : 0.85;
       this.glassMaterial.color.setHex(night ? 5220792 : 9550014);
       this.edgeMaterial.color.setHex(night ? 8295325 : 3422012);
       this.edgeMaterial.opacity = night ? 0.56 : 0.66;
@@ -22022,10 +23530,10 @@ class Environment {
     this.darkMaterial.dispose();
     this.cyanMaterial.dispose();
     this.laneDividerMaterial.dispose();
-    this.orangeMaterial.dispose();
     this.magentaMaterial.dispose();
     this.glassMaterial.dispose();
     this.windowMaterial.dispose();
+    this.windowDimMaterial.dispose();
     this.backdropMaterial.dispose();
     this.backdropCapMaterial.dispose();
     this.pavementMaterial.dispose();
@@ -22641,7 +24149,29 @@ class ObstacleManager {
     if (biome === "factory") return this.buildFactoryObstacle(variant);
     if (biome === "desert") return this.buildDesertObstacle(variant);
     const group = new THREE.Group();
-    const palette = {
+    const palette = biome === "abandonedCity" ? {
+      graphite: 2896432,
+      darkSteel: 3752253,
+      steel: 6975850,
+      lightSteel: 10133654,
+      industrialBlue: 5134932,
+      industrialBlueLight: 7173998,
+      concrete: 9409418,
+      armor: 10725533,
+      navy: 3621438,
+      amber: 12095025
+    } : biome === "coast" ? {
+      graphite: 3029566,
+      darkSteel: 3950411,
+      steel: 9413542,
+      lightSteel: 12766667,
+      industrialBlue: 4155493,
+      industrialBlueLight: 6129025,
+      concrete: 13422022,
+      armor: 14541018,
+      navy: 2574418,
+      amber: 12095025
+    } : {
       graphite: 3160638,
       darkSteel: 4149334,
       steel: 7901334,
@@ -22651,9 +24181,12 @@ class ObstacleManager {
       concrete: 11973288,
       armor: 12766152,
       navy: 3232092,
-      amber: 13146677
+      amber: 12095025
     };
-    const readable = (color, roughness = 0.72, metalness = 0.04) => new THREE.MeshStandardMaterial({
+    const beaconColor = 15117622;
+    const sensorColor = biome === "abandonedCity" ? 4574676 : 5304051;
+    const capColor = biome === "abandonedCity" ? 11062473 : 12515575;
+    const readable = (color, roughness = 0.8, metalness = 0.08) => new THREE.MeshStandardMaterial({
       color,
       roughness,
       metalness
@@ -22662,7 +24195,7 @@ class ObstacleManager {
       group.name = "shipping_container";
       const body = readable(palette.industrialBlue, 0.68, 0.08);
       const ribMaterial = readable(palette.industrialBlueLight, 0.7, 0.04);
-      const steel = readable(palette.graphite, 0.5, 0.45);
+      const steel = readable(palette.graphite, 0.66, 0.48);
       const latch = readable(palette.lightSteel, 0.4, 0.6);
       for (const x of [-0.37, 0, 0.37]) {
         const bodySection = this.solidObstacle(new THREE.BoxGeometry(0.36, 0.76, 0.74), body);
@@ -22695,9 +24228,9 @@ class ObstacleManager {
       }
     } else if (variant === 1) {
       group.name = "roadwork_barricade";
-      const stripedBoard = this.createStripeMaterial("#c89a35", "#d8d5cb");
-      const steel = readable(palette.darkSteel, 0.52, 0.35);
-      const beacon = new THREE.MeshBasicMaterial({ color: palette.amber, toneMapped: false });
+      const stripedBoard = this.createStripeMaterial("#b88e31", "#d8d5cb");
+      const steel = readable(palette.darkSteel, 0.68, 0.48);
+      const beacon = new THREE.MeshBasicMaterial({ color: beaconColor, toneMapped: false });
       for (const side of [-1, 1]) {
         const leg = this.solidObstacle(new THREE.BoxGeometry(0.13, 0.88, 0.16), steel);
         leg.position.x = side * 0.43;
@@ -22725,7 +24258,7 @@ class ObstacleManager {
       const steel = readable(palette.steel, 0.34, 0.62);
       const black = readable(palette.graphite, 0.58, 0.25);
       const yellow = readable(palette.amber, 0.58, 0.05);
-      const capMaterial = new THREE.MeshBasicMaterial({ color: 12515575, toneMapped: false });
+      const capMaterial = new THREE.MeshBasicMaterial({ color: capColor, toneMapped: false });
       const plate = this.solidObstacle(new THREE.BoxGeometry(1.15, 0.12, 0.7), black);
       plate.position.y = -0.43;
       group.add(plate);
@@ -22753,7 +24286,7 @@ class ObstacleManager {
     } else if (variant === 3) {
       group.name = "jersey_barrier";
       const concrete = readable(palette.concrete, 0.96, 0);
-      const stripedPanel = this.createStripeMaterial("#c89a35", "#303a3e");
+      const stripedPanel = this.createStripeMaterial("#b88e31", "#303a3e");
       const black = readable(palette.graphite, 0.6, 0.18);
       for (const x of [-0.4, 0, 0.4]) {
         const base = this.solidObstacle(new THREE.BoxGeometry(0.39, 0.32, 0.66), concrete);
@@ -22781,7 +24314,7 @@ class ObstacleManager {
       const navy = readable(palette.navy, 0.48, 0.35);
       const gunmetal = readable(palette.graphite, 0.36, 0.72);
       const joint = readable(palette.steel, 0.4, 0.55);
-      const sensor = new THREE.MeshBasicMaterial({ color: 5304051, toneMapped: false });
+      const sensor = new THREE.MeshBasicMaterial({ color: sensorColor, toneMapped: false });
       const base = this.solidObstacle(new THREE.CylinderGeometry(0.42, 0.54, 0.2, 12), gunmetal);
       base.position.y = -0.39;
       group.add(base);
@@ -22834,19 +24367,19 @@ class ObstacleManager {
   }
   buildDesertObstacle(variant) {
     const group = new THREE.Group();
-    const material = (color, roughness = 0.82, metalness = 0.08) => new THREE.MeshStandardMaterial({
+    const material = (color, roughness = 0.8, metalness = 0.08) => new THREE.MeshStandardMaterial({
       color,
       roughness,
       metalness
     });
-    const sandstone = material(9322284, 0.96, 0);
+    const sandstone = material(9387821, 0.96, 0);
     const sandstoneLight = material(11951417, 0.98, 0);
     const oxidizedSteel = material(7686970, 0.88, 0.28);
-    const darkSteel = material(3159098, 0.6, 0.58);
-    const fadedOchre = material(11958834, 0.84, 0.12);
+    const darkSteel = material(3159098, 0.68, 0.48);
+    const fadedOchre = material(12095025, 0.84, 0.12);
     const fadedBlue = material(4811634, 0.72, 0.18);
     const glass = material(7972005, 0.28, 0.24);
-    const lamp = new THREE.MeshBasicMaterial({ color: 15769928, toneMapped: false });
+    const lamp = new THREE.MeshBasicMaterial({ color: 15706193, toneMapped: false });
     if (variant === 0) {
       group.name = "desert_rockfall_cage";
       const base = this.solidObstacle(new THREE.BoxGeometry(1.2, 0.14, 0.82), darkSteel);
@@ -23037,13 +24570,13 @@ class ObstacleManager {
       rust: 7490098,
       warning: 15117622
     };
-    const readable = (color, roughness = 0.76, metalness = 0.16) => new THREE.MeshStandardMaterial({
+    const readable = (color, roughness = 0.8, metalness = 0.08) => new THREE.MeshStandardMaterial({
       color,
       roughness,
       metalness
     });
     const dark = readable(palette.graphite, 0.66, 0.48);
-    const steel = readable(palette.steel, 0.58, 0.56);
+    const steel = readable(palette.steel, 0.62, 0.5);
     const shell = readable(palette.shell, 0.88, 0.05);
     const yellow = readable(palette.yellow, 0.82, 0.08);
     const rust = readable(palette.rust, 0.92, 0.14);
@@ -23297,7 +24830,7 @@ class ObstacleManager {
   buildItem(kind) {
     if (kind === "ring") return this.buildRing();
     const group = new THREE.Group();
-    const color = kind === "repair" ? 1492335 : kind === "overdrive" ? 28159 : kind === "weapon" ? 4186100 : 16752640;
+    const color = kind === "repair" ? 1492335 : kind === "overdrive" ? 2005993 : kind === "weapon" ? 4186100 : 16752640;
     const label = kind === "repair" ? "HP" : kind === "overdrive" ? "B" : kind === "weapon" ? "FIRE" : "2X";
     const material = new THREE.MeshStandardMaterial({
       color,
@@ -28798,7 +30331,7 @@ const EMPTY_SCORE_BREAKDOWN = {
   airborne: 0,
   pickup: 0,
   multiplier: 0,
-  impactPenalty: 0
+  integrityAdjustment: 0
 };
 const DEFAULT_PLAYER_UPGRADES = {
   drive: 0,
@@ -28845,6 +30378,8 @@ const RAMP_SPEED_MULTIPLIER = 1.5;
 const GAP_FALL_DURATION = 0.9;
 const FINISH_ROUTE_PREPARE_SECONDS = 4.5;
 const FINISH_ROUTE_PREVIEW_DISTANCE = 132;
+const IMPACT_SCORE_PENALTY = 2e3;
+const CLEAN_RUN_BONUS = 5e3;
 const BOOST_SPEED_SCALES = [0.72, 0.86, 1, 1.15];
 const BEAM_RANGES = [32, 50, 72, 104];
 const BEAM_DAMAGE = [1, 1.5, 2, 6];
@@ -29380,7 +30915,7 @@ class Game {
       this.cameraShakeTime = 0.34;
       this.currentSpeed = 7;
       this.speedRecoveryTime = 3;
-      this.deductScore(600);
+      this.deductScore(IMPACT_SCORE_PENALTY);
       this.message = "OUCH";
       this.messageTime = 0.8;
       this.player.setInvulnerable(true);
@@ -29489,7 +31024,7 @@ class Game {
   deductScore(points) {
     const deducted = Math.min(this.score, points);
     this.score -= deducted;
-    this.scoreBreakdown.impactPenalty -= deducted;
+    this.scoreBreakdown.integrityAdjustment -= deducted;
   }
   applyWeather(weather) {
     this.weather = weather;
@@ -29512,24 +31047,24 @@ class Game {
     if (desert) {
       this.hemisphereLight.color.setHex(night ? 10135741 : 16765089);
       this.hemisphereLight.groundColor.setHex(night ? 3087394 : 8205861);
-      this.hemisphereLight.intensity = sandstorm ? night ? 2.78 : 2.25 : night ? 3.02 : 2.45;
+      this.hemisphereLight.intensity = sandstorm ? night ? 2.35 : 2.25 : night ? 2.55 : 2.45;
       this.keyLight.color.setHex(night ? 13031935 : 16756845);
-      this.keyLight.intensity = sandstorm ? night ? 2.14 : 2.12 : night ? 2.36 : 2.3;
-      this.renderer.toneMappingExposure = sandstorm ? night ? 1.1 : 1 : night ? 1.16 : 1.04;
+      this.keyLight.intensity = sandstorm ? night ? 2.05 : 2.12 : night ? 2.2 : 2.3;
+      this.renderer.toneMappingExposure = sandstorm ? night ? 1.07 : 1 : night ? 1.1 : 1.04;
     } else if (factory) {
       this.hemisphereLight.color.setHex(night ? 12372934 : 14736853);
       this.hemisphereLight.groundColor.setHex(night ? 2107429 : 4999749);
-      this.hemisphereLight.intensity = night ? 3.2 : 2.55;
+      this.hemisphereLight.intensity = night ? 2.5 : 2.55;
       this.keyLight.color.setHex(night ? 16766371 : 16757622);
-      this.keyLight.intensity = night ? 2.55 : 1.65;
-      this.renderer.toneMappingExposure = night ? 1.2 : 1.02;
+      this.keyLight.intensity = night ? 2.2 : 1.65;
+      this.renderer.toneMappingExposure = night ? 1.1 : 1.02;
     } else if (abandonedCity) {
       this.hemisphereLight.color.setHex(night ? 13230309 : 12634306);
       this.hemisphereLight.groundColor.setHex(night ? 2636099 : 4015938);
-      this.hemisphereLight.intensity = night ? 3 : 2.25;
+      this.hemisphereLight.intensity = night ? 2.6 : 2.25;
       this.keyLight.color.setHex(night ? 14873846 : 14475480);
-      this.keyLight.intensity = night ? 2.5 : 1.65;
-      this.renderer.toneMappingExposure = night ? 1.14 : 1;
+      this.keyLight.intensity = night ? 2.3 : 1.65;
+      this.renderer.toneMappingExposure = night ? 1.11 : 1;
     } else if (coast) {
       this.hemisphereLight.color.setHex(sunset ? 15780269 : 14478575);
       this.hemisphereLight.groundColor.setHex(sunset ? 5984585 : 4413011);
@@ -29540,10 +31075,10 @@ class Game {
     } else {
       this.hemisphereLight.color.setHex(night ? 13230309 : 16317435);
       this.hemisphereLight.groundColor.setHex(night ? 2636099 : 6846078);
-      this.hemisphereLight.intensity = night ? 3 : 2.4;
-      this.keyLight.color.setHex(night ? 14873846 : 16777215);
-      this.keyLight.intensity = night ? 2.5 : sunset ? 2.35 : 2;
-      this.renderer.toneMappingExposure = night ? 1.14 : 1.02;
+      this.hemisphereLight.intensity = night ? 2.35 : 2.4;
+      this.keyLight.color.setHex(night ? 14873846 : 16774374);
+      this.keyLight.intensity = night ? 2.15 : sunset ? 2.35 : 2;
+      this.renderer.toneMappingExposure = night ? 1.1 : 1.02;
     }
     this.applyWeather(weather);
   }
@@ -29555,6 +31090,10 @@ class Game {
     this.heldPointerTimer = 0;
     this.speedRecoveryTime = 0;
     this.gapFallTime = 0;
+    if (status === "cleared" && this.impacts === 0) {
+      this.score += CLEAN_RUN_BONUS;
+      this.scoreBreakdown.integrityAdjustment += CLEAN_RUN_BONUS;
+    }
     this.status = status;
     if (status === "cleared") {
       this.damageFlashTime = 0;
@@ -29805,7 +31344,7 @@ class Game {
       airborne: Math.floor(this.scoreBreakdown.airborne),
       pickup: Math.floor(this.scoreBreakdown.pickup),
       multiplier: Math.floor(this.scoreBreakdown.multiplier),
-      impactPenalty: Math.trunc(this.scoreBreakdown.impactPenalty)
+      integrityAdjustment: Math.trunc(this.scoreBreakdown.integrityAdjustment)
     };
     const subtotal = Object.values(breakdown).reduce((sum, points) => sum + points, 0);
     breakdown.drive += Math.floor(this.score) - subtotal;
