@@ -15377,6 +15377,72 @@ class UnrealBloomPass extends Pass {
 }
 UnrealBloomPass.BlurDirectionX = new Vector2(1, 0);
 UnrealBloomPass.BlurDirectionY = new Vector2(0, 1);
+const KEY_LIGHT_POSITION = new THREE.Vector3(-3, 8, 5);
+const SKY_BODY_ANGLES = {
+  city: { day: [18, 24], sunset: [18, 8], night: [16, 12] },
+  factory: { day: [18, 22], sunset: [17, 6.5], night: [18, 13] },
+  desert: { day: [18, 28], sunset: [18, 7], night: [18, 9.5] },
+  abandonedCity: { day: [20, 26], sunset: [18, 8], night: [18, 10] }
+};
+function getSkyBodyDirection(biome, theme, target) {
+  const [azimuth, elevation] = SKY_BODY_ANGLES[biome][theme];
+  const azimuthRadians = THREE.MathUtils.degToRad(azimuth);
+  const elevationRadians = THREE.MathUtils.degToRad(elevation);
+  return target.set(
+    -Math.sin(azimuthRadians) * Math.cos(elevationRadians),
+    Math.sin(elevationRadians),
+    -Math.cos(azimuthRadians) * Math.cos(elevationRadians)
+  );
+}
+function applyBiomeLighting(rig, biome, theme, weather) {
+  const { hemisphere, key, renderer } = rig;
+  const night = theme === "night";
+  const sunset = theme === "sunset";
+  const sandstorm = weather === "sandstorm";
+  key.position.copy(KEY_LIGHT_POSITION);
+  if (biome === "desert") {
+    hemisphere.color.setHex(night ? 10135741 : 16765089);
+    hemisphere.groundColor.setHex(night ? 3087394 : 8205861);
+    hemisphere.intensity = sandstorm ? night ? 2.35 : 2.25 : night ? 2.55 : 2.45;
+    key.color.setHex(night ? 13031935 : 16756845);
+    key.intensity = sandstorm ? night ? 2.05 : 2.12 : night ? 2.2 : 2.3;
+    renderer.toneMappingExposure = sandstorm ? night ? 1.07 : 1 : night ? 1.1 : 1.04;
+    return;
+  }
+  if (biome === "factory") {
+    hemisphere.color.setHex(night ? 12372934 : 14736853);
+    hemisphere.groundColor.setHex(night ? 2107429 : 4999749);
+    hemisphere.intensity = night ? 2.5 : 2.55;
+    key.color.setHex(night ? 16766371 : 16757622);
+    key.intensity = night ? 2.2 : 1.65;
+    renderer.toneMappingExposure = night ? 1.1 : 1.02;
+    return;
+  }
+  if (biome === "abandonedCity") {
+    hemisphere.color.setHex(night ? 13230309 : 12634306);
+    hemisphere.groundColor.setHex(night ? 2636099 : 4015938);
+    hemisphere.intensity = night ? 2.6 : 2.25;
+    key.color.setHex(night ? 14873846 : 14475480);
+    key.intensity = night ? 2.3 : 1.65;
+    renderer.toneMappingExposure = night ? 1.11 : 1;
+    return;
+  }
+  if (biome === "coast") {
+    hemisphere.color.setHex(sunset ? 15780269 : 14478575);
+    hemisphere.groundColor.setHex(sunset ? 5984585 : 4413011);
+    hemisphere.intensity = sunset ? 2.55 : 2.45;
+    key.color.setHex(sunset ? 16758905 : 16773591);
+    key.intensity = sunset ? 2.15 : 1.9;
+    renderer.toneMappingExposure = sunset ? 1.04 : 1.02;
+    return;
+  }
+  hemisphere.color.setHex(night ? 13230309 : 16317435);
+  hemisphere.groundColor.setHex(night ? 2636099 : 6846078);
+  hemisphere.intensity = night ? 2.35 : 2.4;
+  key.color.setHex(night ? 14873846 : 16774374);
+  key.intensity = night ? 2.15 : sunset ? 2.35 : 2;
+  renderer.toneMappingExposure = night ? 1.1 : 1.02;
+}
 function mergeGeometries(geometries, useGroups = false) {
   const isIndexed = geometries[0].index !== null;
   const attributesUsed = new Set(Object.keys(geometries[0].attributes));
@@ -15587,6 +15653,254 @@ const ROADSIDE_GROUND_LENGTH = ROADSIDE_ROW_SPACING + 0.36;
 const ROADSIDE_STRIP_LENGTH = ROADSIDE_ROW_SPACING + 0.24;
 const ROADSIDE_GROUND_UNDERCUT = 0.35;
 const oppositeSide = (side) => side === 1 ? -1 : 1;
+const ROUTE_PERIOD = 2048;
+const ROUTE_SAMPLE_COUNT = 36;
+const ROUTE_SAMPLE_START_Z = 16;
+const ROUTE_SAMPLE_STEP = 8;
+const routeUniforms = {
+  uAtRouteDistance: { value: 0 },
+  // x = road centre, y = road elevation, sampled at ROUTE_SAMPLE_START_Z - i * STEP.
+  uAtRoad: { value: Array.from({ length: ROUTE_SAMPLE_COUNT }, () => new THREE.Vector2()) },
+  // Jump gap in wrapped route coordinates (start, end). Far away when inactive.
+  uAtGap: { value: new THREE.Vector2(-1e6, -1e6) }
+};
+function updateRouteUniforms(distance, roadOffset, roadElevation, gapStart, gapEnd) {
+  const wrapped = (distance % ROUTE_PERIOD + ROUTE_PERIOD) % ROUTE_PERIOD;
+  const shift = distance - wrapped;
+  routeUniforms.uAtRouteDistance.value = wrapped;
+  const samples = routeUniforms.uAtRoad.value;
+  for (let index = 0; index < samples.length; index++) {
+    const z = ROUTE_SAMPLE_START_Z - index * ROUTE_SAMPLE_STEP;
+    samples[index].set(roadOffset(z), roadElevation(z));
+  }
+  if (gapStart === null || gapEnd === null) routeUniforms.uAtGap.value.set(-1e6, -1e6);
+  else routeUniforms.uAtGap.value.set(gapStart - shift, gapEnd - shift);
+}
+const ROUTE_VERTEX_GLSL = (
+  /* glsl */
+  `
+uniform float uAtRouteDistance;
+uniform vec2 uAtRoad[ ${ROUTE_SAMPLE_COUNT} ];
+vec2 atRoadAt( float z ) {
+    float t = clamp( ( ${ROUTE_SAMPLE_START_Z.toFixed(1)} - z ) / ${ROUTE_SAMPLE_STEP.toFixed(1)}, 0.0, ${(ROUTE_SAMPLE_COUNT - 1.001).toFixed(3)} );
+    int index = int( floor( t ) );
+    return mix( uAtRoad[ index ], uAtRoad[ index + 1 ], t - float( index ) );
+}
+`
+);
+const ROUTE_NOISE_GLSL = (
+  /* glsl */
+  `
+float atHash12( vec2 p ) {
+    vec3 p3 = fract( vec3( p.xyx ) * 0.1031 );
+    p3 += dot( p3, p3.yzx + 33.33 );
+    return fract( ( p3.x + p3.y ) * p3.z );
+}
+float atNoise( vec2 p, float period ) {
+    vec2 cell = floor( p );
+    vec2 f = fract( p );
+    vec2 w = f * f * ( 3.0 - 2.0 * f );
+    float y0 = mod( cell.y, period );
+    float y1 = mod( cell.y + 1.0, period );
+    float a = atHash12( vec2( cell.x, y0 ) );
+    float b = atHash12( vec2( cell.x + 1.0, y0 ) );
+    float c = atHash12( vec2( cell.x, y1 ) );
+    float d = atHash12( vec2( cell.x + 1.0, y1 ) );
+    return mix( mix( a, b, w.x ), mix( c, d, w.x ), w.y );
+}
+`
+);
+const P$2 = (scale) => (ROUTE_PERIOD * scale).toFixed(1);
+const GROUND_DETAIL_GLSL = (
+  /* glsl */
+  `
+float atGroundDetail( vec3 route, vec4 params ) {
+    vec2 p = route.xy;
+    float broad = atNoise( p * 0.125, ${P$2(0.125)} );
+    float mid = atNoise( p * 0.5 + vec2( 17.0, 0.0 ), ${P$2(0.5)} );
+    float shade = ( broad - 0.5 ) * 1.25 + ( mid - 0.5 ) * 0.75;
+    float patchMask = smoothstep( 0.64, 0.72, atNoise( p * 0.25 + vec2( 41.0, 0.0 ), ${P$2(0.25)} ) );
+    float lateral = abs( route.x );
+    float grime = ( 1.0 - smoothstep( 4.3, 5.9, lateral ) ) * smoothstep( 3.9, 4.3, lateral );
+    grime *= 0.55 + 0.45 * mid;
+    return 1.0 + params.x * shade - params.y * patchMask * ( 0.6 + 0.4 * broad ) - params.z * grime;
+}
+`
+);
+const ROAD_DETAIL_GLSL = (
+  /* glsl */
+  `
+float atRoadDetail( vec3 route, float depth, vec4 params ) {
+    float lateral = route.x;
+    float along = route.y;
+    // Offset inside the nearest lane, lanes 2.36 wide centred on 0 and +-2.36.
+    float laneIndex = floor( ( lateral + 1.18 ) / 2.36 );
+    float inLane = lateral - laneIndex * 2.36;
+    float wearNoise = atNoise( vec2( laneIndex * 7.0, along * 0.0625 ), ${P$2(0.0625)} );
+    float track = exp( -pow( ( abs( inLane ) - 0.68 ) / 0.24, 2.0 ) );
+    float wear = track * ( 0.55 + 0.45 * wearNoise );
+
+    // Repair patches: one candidate per lane per 16 m, about one in five present.
+    float cellAlong = floor( along / 16.0 );
+    float cellHash = atHash12( vec2( laneIndex * 13.0 + 3.0, mod( cellAlong, ${(ROUTE_PERIOD / 16).toFixed(1)} ) ) );
+    float patchLength = 2.4 + cellHash * 4.0;
+    float patchStart = fract( cellHash * 7.31 ) * ( 16.0 - patchLength );
+    float patchWidth = 0.9 + fract( cellHash * 3.17 ) * 1.1;
+    float patchCenter = ( fract( cellHash * 5.9 ) - 0.5 ) * ( 2.36 - patchWidth );
+    float localAlong = along - cellAlong * 16.0 - patchStart;
+    vec2 edge = vec2( abs( inLane - patchCenter ) - patchWidth * 0.5, abs( localAlong - patchLength * 0.5 ) - patchLength * 0.5 );
+    vec2 aa = max( fwidth( vec2( lateral, along ) ), vec2( 0.002 ) );
+    float patchInside = ( 1.0 - smoothstep( -aa.x, aa.x, edge.x ) ) * ( 1.0 - smoothstep( -aa.y, aa.y, edge.y ) );
+    patchInside *= step( cellHash, 0.2 );
+
+    // Hairline cracks: a wandering longitudinal crack near a lane edge in some stretches,
+    // plus sparse transverse cracks. Thin lines are faded by their own screen footprint.
+    float crackStretch = step( 0.58, atNoise( vec2( laneIndex * 5.0 + 11.0, along * 0.03125 ), ${P$2(0.03125)} ) );
+    float wander = ( atNoise( vec2( laneIndex * 3.0, along * 0.25 ), ${P$2(0.25)} ) - 0.5 ) * 0.5;
+    float crackX = abs( inLane - ( 0.95 + wander ) * sign( fract( laneIndex * 0.5 ) - 0.25 ) );
+    float crackWidth = 0.035;
+    float crackAa = max( aa.x * 1.5, crackWidth );
+    float longCrack = ( 1.0 - smoothstep( 0.0, crackAa, crackX ) ) * ( crackWidth / crackAa ) * crackStretch;
+    float transverseCell = floor( along / 32.0 );
+    float transverseHash = atHash12( vec2( laneIndex + 29.0, mod( transverseCell, ${(ROUTE_PERIOD / 32).toFixed(1)} ) ) );
+    float transverseAlong = along - transverseCell * 32.0 - 16.0 - ( inLane * 0.18 );
+    float transverseAaY = max( aa.y * 1.5, crackWidth );
+    float transverse = ( 1.0 - smoothstep( 0.0, transverseAaY, abs( transverseAlong ) ) ) * ( crackWidth / transverseAaY );
+    transverse *= step( transverseHash, 0.28 ) * ( 1.0 - smoothstep( 0.6, 1.0, abs( inLane ) ) );
+
+    float near = 1.0 - smoothstep( params.w * 0.55, params.w, depth );
+    float cracks = max( longCrack, transverse ) * near;
+    return 1.0 - params.x * wear * ( 0.6 + 0.4 * near ) - params.y * patchInside - params.z * cracks;
+}
+`
+);
+const GROUND_DETAIL_DEFAULT = { amount: 0.06, patch: 0.04, grime: 0.07 };
+const STRUCTURE_AO_DEFAULT = { strength: 0.3, height: 1 };
+function applySurfaceDetail(material, options) {
+  if (material.userData.atSurfaceDetail) return material.userData.atSurfaceDetail;
+  const lit = material instanceof THREE.MeshStandardMaterial;
+  const useAo = Boolean(options.ao) && lit;
+  const params = {
+    uAtGround: { value: new THREE.Vector4() },
+    uAtRoadParams: { value: new THREE.Vector4() },
+    uAtAo: { value: new THREE.Vector2(1, 1) }
+  };
+  const handle = {
+    setGround(amount, patch, grime) {
+      params.uAtGround.value.set(amount, patch, grime, 0);
+    },
+    setRoad(wear, patch, crack, fade) {
+      params.uAtRoadParams.value.set(wear, patch, crack, fade);
+    },
+    setAo(strength, height) {
+      params.uAtAo.value.set(strength, height);
+    }
+  };
+  if (options.ground) handle.setGround(options.ground.amount, options.ground.patch, options.ground.grime);
+  if (options.road) handle.setRoad(options.road.wear, options.road.patch, options.road.crack, options.road.fade);
+  if (options.ao) handle.setAo(options.ao.strength, options.ao.height);
+  const features = `${options.ground ? "g" : ""}${options.road ? "r" : ""}${useAo ? "a" : ""}`;
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.uAtRouteDistance = routeUniforms.uAtRouteDistance;
+    shader.uniforms.uAtRoad = routeUniforms.uAtRoad;
+    shader.uniforms.uAtGround = params.uAtGround;
+    shader.uniforms.uAtRoadParams = params.uAtRoadParams;
+    shader.uniforms.uAtAo = params.uAtAo;
+    shader.vertexShader = shader.vertexShader.replace(
+      "#include <common>",
+      [
+        "#include <common>",
+        ROUTE_VERTEX_GLSL,
+        "varying vec3 vAtRoute;",
+        "varying float vAtDepth;",
+        useAo ? "varying float vAtUp;" : ""
+      ].join("\n")
+    ).replace(
+      "#include <project_vertex>",
+      [
+        "#include <project_vertex>",
+        "vec4 atWorld = vec4( transformed, 1.0 );",
+        "#ifdef USE_INSTANCING",
+        "    atWorld = instanceMatrix * atWorld;",
+        "#endif",
+        "atWorld = modelMatrix * atWorld;",
+        "vec2 atRoad = atRoadAt( atWorld.z );",
+        "vAtRoute = vec3( atWorld.x - atRoad.x, uAtRouteDistance - atWorld.z, atWorld.y - atRoad.y );",
+        "vAtDepth = - mvPosition.z;",
+        useAo ? [
+          "vec3 atNormal = objectNormal;",
+          "#ifdef USE_INSTANCING",
+          "    atNormal = mat3( instanceMatrix ) * atNormal;",
+          "#endif",
+          "vAtUp = normalize( mat3( modelMatrix ) * atNormal ).y;"
+        ].join("\n") : ""
+      ].join("\n")
+    );
+    shader.fragmentShader = shader.fragmentShader.replace(
+      "#include <common>",
+      [
+        "#include <common>",
+        "varying vec3 vAtRoute;",
+        "varying float vAtDepth;",
+        useAo ? "varying float vAtUp;" : "",
+        "uniform vec4 uAtGround;",
+        "uniform vec4 uAtRoadParams;",
+        "uniform vec2 uAtAo;",
+        ROUTE_NOISE_GLSL,
+        options.ground ? GROUND_DETAIL_GLSL : "",
+        options.road ? ROAD_DETAIL_GLSL : ""
+      ].join("\n")
+    ).replace(
+      "#include <color_fragment>",
+      [
+        "#include <color_fragment>",
+        options.ground ? "diffuseColor.rgb *= atGroundDetail( vAtRoute, uAtGround );" : "",
+        options.road ? "diffuseColor.rgb *= atRoadDetail( vAtRoute, vAtDepth, uAtRoadParams );" : "",
+        useAo ? [
+          "// Contact darkening at the foot of walls. Faces below the road",
+          "// (revetments, piers, chasm walls) fade out of it instead of",
+          "// going fully dark.",
+          "float atAoHeight = vAtRoute.z;",
+          "float atAo = 1.0 - uAtAo.x * ( 1.0 - smoothstep( 0.0, uAtAo.y, atAoHeight ) )",
+          "    * smoothstep( -0.7, -0.25, atAoHeight );",
+          "diffuseColor.rgb *= mix( 1.0, atAo, 1.0 - abs( vAtUp ) );"
+        ].join("\n") : ""
+      ].join("\n")
+    );
+  };
+  material.customProgramCacheKey = () => `aftertrace-route-${features}`;
+  material.userData.atSurfaceDetail = handle;
+  material.needsUpdate = true;
+  return handle;
+}
+function applyDepthHaze(material, haze) {
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.uAtRouteDistance = routeUniforms.uAtRouteDistance;
+    shader.uniforms.uAtRoad = routeUniforms.uAtRoad;
+    shader.uniforms.uAtHaze = haze;
+    shader.vertexShader = shader.vertexShader.replace("#include <common>", ["#include <common>", ROUTE_VERTEX_GLSL, "varying float vAtBelow;"].join("\n")).replace(
+      "#include <project_vertex>",
+      [
+        "#include <project_vertex>",
+        "vec4 atHazeWorld = vec4( transformed, 1.0 );",
+        "#ifdef USE_INSTANCING",
+        "    atHazeWorld = instanceMatrix * atHazeWorld;",
+        "#endif",
+        "atHazeWorld = modelMatrix * atHazeWorld;",
+        "vAtBelow = atRoadAt( atHazeWorld.z ).y - atHazeWorld.y;"
+      ].join("\n")
+    );
+    shader.fragmentShader = shader.fragmentShader.replace("#include <common>", ["#include <common>", "uniform vec3 uAtHaze;", "varying float vAtBelow;"].join("\n")).replace(
+      "#include <fog_fragment>",
+      [
+        "gl_FragColor.rgb = mix( gl_FragColor.rgb, uAtHaze, smoothstep( 3.0, 72.0, vAtBelow ) * 0.92 );",
+        "#include <fog_fragment>"
+      ].join("\n")
+    );
+  };
+  material.customProgramCacheKey = () => "aftertrace-depth-haze";
+  material.needsUpdate = true;
+}
 const B$1 = "collapsed-block";
 const G$1 = "gutted-tower";
 const P$1 = "overgrown-plaza";
@@ -15700,7 +16014,7 @@ const hash = (a, b) => {
   return value - Math.floor(value);
 };
 const wrapIndex$1 = (value, length) => (value % length + length) % length;
-const PALETTES = {
+const PALETTES$1 = {
   day: {
     pavement: 6054495,
     sidewalk: 7041129,
@@ -15767,29 +16081,35 @@ const PALETTES = {
 class AbandonedCityEnvironmentKit {
   constructor() {
     __publicField(this, "geometries", /* @__PURE__ */ new Map());
-    __publicField(this, "pavement", new THREE.MeshStandardMaterial({ color: PALETTES.day.pavement, roughness: 0.97, metalness: 0 }));
-    __publicField(this, "sidewalk", new THREE.MeshStandardMaterial({ color: PALETTES.day.sidewalk, roughness: 0.95, metalness: 0 }));
-    __publicField(this, "asphalt", new THREE.MeshStandardMaterial({ color: PALETTES.day.asphalt, roughness: 0.99, metalness: 0 }));
-    __publicField(this, "concrete", new THREE.MeshStandardMaterial({ color: PALETTES.day.concrete, roughness: 0.94, metalness: 0 }));
-    __publicField(this, "concreteWorn", new THREE.MeshStandardMaterial({ color: PALETTES.day.concreteWorn, roughness: 0.96, metalness: 0 }));
-    __publicField(this, "concreteDark", new THREE.MeshStandardMaterial({ color: PALETTES.day.concreteDark, roughness: 0.92, metalness: 0.02 }));
-    __publicField(this, "rubble", new THREE.MeshStandardMaterial({ color: PALETTES.day.rubble, roughness: 1, metalness: 0 }));
-    __publicField(this, "steel", new THREE.MeshStandardMaterial({ color: PALETTES.day.steel, roughness: 0.62, metalness: 0.5 }));
-    __publicField(this, "rust", new THREE.MeshStandardMaterial({ color: PALETTES.day.rust, roughness: 0.94, metalness: 0.12 }));
-    __publicField(this, "bark", new THREE.MeshStandardMaterial({ color: PALETTES.day.bark, roughness: 1, metalness: 0 }));
-    __publicField(this, "boarding", new THREE.MeshStandardMaterial({ color: PALETTES.day.boarding, roughness: 0.9, metalness: 0 }));
-    __publicField(this, "foliage", new THREE.MeshStandardMaterial({ color: PALETTES.day.foliage, roughness: 0.93, metalness: 0 }));
-    __publicField(this, "foliageDeep", new THREE.MeshStandardMaterial({ color: PALETTES.day.foliageDeep, roughness: 0.94, metalness: 0 }));
-    __publicField(this, "backdrop", new THREE.MeshStandardMaterial({ color: PALETTES.day.backdrop, roughness: 0.98, metalness: 0 }));
-    __publicField(this, "backdropCap", new THREE.MeshStandardMaterial({ color: PALETTES.day.backdropCap, roughness: 0.98, metalness: 0 }));
-    __publicField(this, "paint", new THREE.MeshStandardMaterial({ color: PALETTES.day.paint, roughness: 0.82, metalness: 0.16 }));
+    __publicField(this, "pavement", new THREE.MeshStandardMaterial({ color: PALETTES$1.day.pavement, roughness: 0.97, metalness: 0 }));
+    __publicField(this, "sidewalk", new THREE.MeshStandardMaterial({ color: PALETTES$1.day.sidewalk, roughness: 0.95, metalness: 0 }));
+    __publicField(this, "asphalt", new THREE.MeshStandardMaterial({ color: PALETTES$1.day.asphalt, roughness: 0.99, metalness: 0 }));
+    __publicField(this, "concrete", new THREE.MeshStandardMaterial({ color: PALETTES$1.day.concrete, roughness: 0.94, metalness: 0 }));
+    __publicField(this, "concreteWorn", new THREE.MeshStandardMaterial({ color: PALETTES$1.day.concreteWorn, roughness: 0.96, metalness: 0 }));
+    __publicField(this, "concreteDark", new THREE.MeshStandardMaterial({ color: PALETTES$1.day.concreteDark, roughness: 0.92, metalness: 0.02 }));
+    __publicField(this, "rubble", new THREE.MeshStandardMaterial({ color: PALETTES$1.day.rubble, roughness: 1, metalness: 0 }));
+    __publicField(this, "steel", new THREE.MeshStandardMaterial({ color: PALETTES$1.day.steel, roughness: 0.62, metalness: 0.5 }));
+    __publicField(this, "rust", new THREE.MeshStandardMaterial({ color: PALETTES$1.day.rust, roughness: 0.94, metalness: 0.12 }));
+    __publicField(this, "bark", new THREE.MeshStandardMaterial({ color: PALETTES$1.day.bark, roughness: 1, metalness: 0 }));
+    __publicField(this, "boarding", new THREE.MeshStandardMaterial({ color: PALETTES$1.day.boarding, roughness: 0.9, metalness: 0 }));
+    __publicField(this, "foliage", new THREE.MeshStandardMaterial({ color: PALETTES$1.day.foliage, roughness: 0.93, metalness: 0 }));
+    __publicField(this, "foliageDeep", new THREE.MeshStandardMaterial({ color: PALETTES$1.day.foliageDeep, roughness: 0.94, metalness: 0 }));
+    __publicField(this, "backdrop", new THREE.MeshStandardMaterial({ color: PALETTES$1.day.backdrop, roughness: 0.98, metalness: 0 }));
+    __publicField(this, "backdropCap", new THREE.MeshStandardMaterial({ color: PALETTES$1.day.backdropCap, roughness: 0.98, metalness: 0 }));
+    __publicField(this, "paint", new THREE.MeshStandardMaterial({ color: PALETTES$1.day.paint, roughness: 0.82, metalness: 0.16 }));
     // Openings are unlit black cavities rather than glass: a ruin has no reflective
     // curtain wall left, and a basic material keeps them dark under any theme light.
-    __publicField(this, "opening", new THREE.MeshBasicMaterial({ color: PALETTES.day.opening }));
-    __publicField(this, "emergency", new THREE.MeshBasicMaterial({ color: PALETTES.day.emergency, toneMapped: false }));
+    __publicField(this, "opening", new THREE.MeshBasicMaterial({ color: PALETTES$1.day.opening }));
+    __publicField(this, "emergency", new THREE.MeshBasicMaterial({ color: PALETTES$1.day.emergency, toneMapped: false }));
+    for (const material of [this.pavement, this.sidewalk, this.asphalt, this.rubble]) {
+      applySurfaceDetail(material, { ground: GROUND_DETAIL_DEFAULT });
+    }
+    for (const material of [this.concrete, this.concreteWorn, this.concreteDark, this.boarding, this.backdrop]) {
+      applySurfaceDetail(material, { ao: STRUCTURE_AO_DEFAULT });
+    }
   }
   setTheme(theme) {
-    const palette = PALETTES[theme];
+    const palette = PALETTES$1[theme];
     this.pavement.color.setHex(palette.pavement);
     this.sidewalk.color.setHex(palette.sidewalk);
     this.asphalt.color.setHex(palette.asphalt);
@@ -16046,7 +16366,8 @@ class AbandonedCityEnvironmentKit {
     const frontage = 7.2;
     const height = 5.8 + variant * 0.65;
     const x = side * lateral;
-    const facadeX = side * (lateral - depth / 2 - 0.045);
+    const shaftFacadeX = side * (lateral + 0.12 - depth * 0.47 - 0.035);
+    const podiumFrontX = side * (lateral - depth / 2 - 0.045);
     this.addBox(group, depth + 0.38, 0.22, frontage + 0.4, this.concreteDark, x, GROUND_SURFACE_Y + 0.11, 0);
     this.addBox(group, depth, 1.25, frontage, this.concreteWorn, x, GROUND_SURFACE_Y + 0.625, 0);
     this.addBox(group, depth * 0.94, height - 1.18, frontage, this.concrete, x + side * 0.12, 1.25 + (height - 1.18) / 2, 0);
@@ -16062,7 +16383,7 @@ class AbandonedCityEnvironmentKit {
       for (let column = 0; column < columns; column++) {
         const z = -frontage * 0.38 + column * (frontage * 0.76 / (columns - 1));
         const opening = {
-          x: facadeX,
+          x: shaftFacadeX,
           y,
           z,
           sx: 0.09,
@@ -16074,10 +16395,10 @@ class AbandonedCityEnvironmentKit {
       }
       if (floor > 0 && wrapIndex$1(floor + variant, 2) === 0) {
         ledges.push({
-          x: facadeX - side * 0.23,
+          x: shaftFacadeX + side * 0.015,
           y: y - 0.48,
           z: variant === 1 ? 1.35 : -1.2,
-          sx: 0.5,
+          sx: 0.14,
           sy: 0.12,
           sz: 2.35
         });
@@ -16093,12 +16414,12 @@ class AbandonedCityEnvironmentKit {
       0.12,
       1.8,
       this.paint,
-      facadeX - side * 0.42,
+      podiumFrontX - side * 0.42,
       1.18,
       canopyZ
     );
     canopy.rotation.z = side * (variant === 1 ? -0.08 : 0.06);
-    this.addBox(group, 0.08, 0.62, 0.82, this.rust, facadeX - side * 0.08, 0.84, canopyZ + 1.1);
+    this.addBox(group, 0.08, 1.26, 0.82, this.rust, podiumFrontX - side * 0.75, 0.54, canopyZ + 1.1);
     const treeLateral = SERVICE_LANE_CENTER + 2.72 + variant * 0.18;
     const treeZ = variant === 0 ? 2.75 : -2.55;
     const tree = this.createSuccessionTree(side, treeLateral, treeZ, 4.2 + variant * 0.35, variant);
@@ -16345,16 +16666,17 @@ class AbandonedCityEnvironmentKit {
     for (const [pathIndex, planter] of planterSpecs.entries()) {
       for (let step = 1; step <= 5; step++) {
         const progress = step / 5;
-        const blade = 0.22 + (step + pathIndex + variant) % 3 * 0.08;
+        const slot = (step + pathIndex * 2 + variant) % 3;
+        const blade = 0.28 + slot * 0.11;
         escapedGrowth.push({
           x: side * (planter.lateral - progress * (1.8 + pathIndex * 0.55)),
           y: GROUND_SURFACE_Y + blade / 2 + 0.12,
           z: planter.z + progress * (pathIndex === 0 ? 2.1 : -2.35),
-          sx: 0.1 + step % 2 * 0.05,
+          sx: 0.06 + slot * 0.015,
           sy: blade,
-          sz: 0.16 + step % 3 * 0.06,
-          rz: side * (progress - 0.5) * 0.4,
-          ry: side * (step % 2 === 0 ? 0.35 : -0.28)
+          sz: 0.05 + step % 2 * 0.02,
+          rz: side * (0.16 + slot * 0.09),
+          ry: side * (step % 2 === 0 ? 0.3 : -0.24)
         });
       }
     }
@@ -16364,15 +16686,16 @@ class AbandonedCityEnvironmentKit {
     const kioskX = x + side * 2.6;
     const kioskZ = variant % 2 === 0 ? 3.2 : -3.3;
     this.addBox(group, 2.4, 0.16, 2.8, this.concreteDark, kioskX, GROUND_SURFACE_Y + 0.08, kioskZ);
-    this.addBox(group, 0.16, 1.55, 2.7, this.concreteWorn, kioskX + side * 1.1, 0.82, kioskZ);
-    this.addBox(group, 2.3, 1.35, 0.16, this.concreteWorn, kioskX, 0.72, kioskZ - 1.3);
+    this.addBox(group, 0.16, 1.785, 2.7, this.concreteWorn, kioskX + side * 1.1, 0.9375, kioskZ);
+    this.addBox(group, 2.3, 1.785, 0.16, this.concreteWorn, kioskX, 0.9375, kioskZ - 1.3);
     this.addBox(group, 0.14, 0.95, 1.5, this.boarding, kioskX - side * 1.1, 0.55, kioskZ + 0.3);
     const routeBoardX = kioskX - side * 1.18;
     this.addBox(group, 0.1, 1.28, 0.72, this.paint, routeBoardX, 1, kioskZ - 0.72);
     this.addBox(group, 0.13, 0.12, 0.82, this.rust, routeBoardX, 1.62, kioskZ - 0.72);
-    const kioskRoof = this.addBox(group, 2.5, 0.14, 2.9, this.concreteDark, kioskX - side * 0.3, 1.8, kioskZ + 0.25);
-    kioskRoof.rotation.z = side * 0.08;
-    kioskRoof.rotation.x = 0.04;
+    this.addBox(group, 0.12, 1.76, 0.12, this.rust, kioskX - side * 1.02, 0.82, kioskZ + 1.18);
+    const kioskRoof = this.addBox(group, 2.6, 0.14, 3, this.concreteDark, kioskX, 1.8, kioskZ);
+    kioskRoof.rotation.z = side * 0.04;
+    kioskRoof.rotation.x = 0.02;
     const treeX = x - side * 1.85;
     const treeZ = variant % 2 === 0 ? 2.15 : -2.1;
     const rootHeaves = [
@@ -16471,13 +16794,14 @@ class AbandonedCityEnvironmentKit {
     const hutX = side * (barrierLateral + 5.4);
     const hutZ = variant % 2 === 0 ? 2.9 : -3;
     this.addBox(group, 3.2, 0.18, 3.4, this.concreteDark, hutX, GROUND_SURFACE_Y + 0.09, hutZ);
-    this.addBox(group, 0.18, 2.15, 3.3, this.concreteWorn, hutX + side * 1.5, 1.1, hutZ);
-    this.addBox(group, 3.1, 1.85, 0.18, this.concreteWorn, hutX, 0.95, hutZ - 1.6);
+    this.addBox(group, 0.18, 2.19, 3.3, this.concreteWorn, hutX + side * 1.5, 1.12, hutZ);
+    this.addBox(group, 3.1, 2.19, 0.18, this.concreteWorn, hutX, 1.12, hutZ - 1.6);
     this.addBox(group, 0.16, 1.08, 3.2, this.concreteWorn, hutX - side * 1.5, 0.55, hutZ);
-    this.addBox(group, 0.08, 0.36, 1.12, this.opening, hutX - side * 1.59, 0.82, hutZ - 0.35);
+    this.addBox(group, 0.08, 0.36, 1.12, this.opening, hutX - side * 1.55, 0.82, hutZ - 0.35);
     this.addBox(group, 1.5, 1.3, 0.16, this.boarding, hutX - side * 0.7, 0.72, hutZ + 1.6);
-    const hutRoof = this.addBox(group, 3.4, 0.16, 3.6, this.concreteDark, hutX, 2.24, hutZ);
-    hutRoof.rotation.z = side * 0.07;
+    const hutRoof = this.addBox(group, 3.4, 0.16, 3.6, this.concreteDark, hutX, 2.23, hutZ);
+    hutRoof.rotation.z = side * 0.03;
+    this.addBox(group, 0.12, 2.1, 0.12, this.rust, hutX - side * 1.49, 1.07, hutZ + 1.61);
     this.addCylinder(group, 0.32, 0.9, this.rust, side * (barrierLateral + 1.5), 0.45 + GROUND_SURFACE_Y, variant % 2 === 0 ? 3.6 : -3.7, "y", 12);
     this.addRebarSpray(group, side, barrierLateral + 3.9, variant % 2 === 0 ? -3.5 : 3.4, variant + 2);
     this.addFieldMast(group, side, barrierLateral + 7.6, variant % 2 === 0 ? -2.4 : 2.5, variant);
@@ -16870,34 +17194,33 @@ class AbandonedCityEnvironmentKit {
       { start: collar, end: new THREE.Vector3(x, ground + 0.01, z + sway * height * 0.17), radius: height * 0.028 }
     ];
     this.addInstancedBranches(tree, branches, this.bark, 8);
-    const leaf = (anchor, dx, dy, dz, sx, sy, sz, yaw) => ({
-      x: anchor.x + side * height * dx,
-      y: anchor.y + height * dy,
-      z: anchor.z + sway * height * dz,
-      sx: height * sx,
-      sy: height * sy,
-      sz: height * sz,
-      rx: sway * yaw * 0.22,
+    const crownScale = 0.95 + turn * 0.05;
+    const lobe = (dx, dy, dz, sx, sy, sz, yaw) => ({
+      x: x + side * height * dx,
+      y: ground + height * dy,
+      z: z + sway * height * dz,
+      sx: height * sx * crownScale,
+      sy: height * sy * crownScale,
+      sz: height * sz * crownScale,
+      rx: sway * yaw * 0.3,
       ry: side * yaw,
-      rz: side * yaw * 0.18
+      rz: side * yaw * 0.25
     });
     const lightLeaves = [
-      leaf(leader, 0, 0.01, 0, 0.29, 0.17, 0.23, 0.12),
-      leaf(leaderTwig, 0.02, 0.015, -0.01, 0.21, 0.14, 0.18, -0.22),
-      leaf(roadTip, -0.015, 0.015, 0, 0.3, 0.16, 0.23, 0.28),
-      leaf(roadTwigA, -0.01, 0.012, 0, 0.2, 0.13, 0.17, -0.18),
-      leaf(outerTip, 0.015, 0.015, 0, 0.31, 0.17, 0.24, -0.25),
-      leaf(outerTwigA, 0.01, 0.01, -0.01, 0.2, 0.13, 0.17, 0.2),
-      leaf(rearTip, 0, 0.012, -0.01, 0.27, 0.15, 0.27, 0.18),
-      leaf(frontTip, 0, 0.012, 0.01, 0.26, 0.15, 0.26, -0.2)
+      lobe(0.01, 0.88, 0, 0.42, 0.26, 0.38, 0.06),
+      lobe(-0.17, 0.82, 0.05, 0.36, 0.22, 0.3, -0.08),
+      lobe(0.19, 0.84, -0.04, 0.36, 0.22, 0.3, 0.08),
+      lobe(0.02, 0.86, -0.17, 0.3, 0.2, 0.34, -0.06),
+      lobe(-0.01, 0.83, 0.17, 0.3, 0.2, 0.32, 0.07),
+      lobe(0.03, 1, -0.03, 0.3, 0.2, 0.26, -0.05),
+      lobe(0, 0.94, 0.01, 0.32, 0.2, 0.28, 0.05)
     ];
     const deepLeaves = [
-      leaf(fork, 0.01, 0.11, 0, 0.27, 0.15, 0.22, 0.08),
-      leaf(leader, -0.025, -0.07, 0.025, 0.24, 0.13, 0.2, -0.1),
-      leaf(roadTip, 0.025, -0.055, 0.025, 0.23, 0.13, 0.2, 0.12),
-      leaf(outerTip, -0.025, -0.055, -0.02, 0.23, 0.13, 0.2, -0.14),
-      leaf(rearTip, 0.035, -0.045, 0.02, 0.22, 0.12, 0.23, 0.16),
-      leaf(frontTip, -0.035, -0.045, -0.02, 0.22, 0.12, 0.22, -0.15)
+      lobe(0, 0.76, 0, 0.3, 0.18, 0.26, 0.04),
+      lobe(-0.12, 0.76, 0.03, 0.26, 0.16, 0.22, -0.06),
+      lobe(0.13, 0.78, -0.02, 0.26, 0.16, 0.22, 0.06),
+      lobe(0.01, 0.8, -0.12, 0.24, 0.16, 0.24, 0.05),
+      lobe(-0.01, 0.77, 0.12, 0.24, 0.16, 0.24, -0.05)
     ];
     this.addInstancedFoliage(tree, lightLeaves, this.foliage);
     this.addInstancedFoliage(tree, deepLeaves, this.foliageDeep);
@@ -16961,37 +17284,30 @@ class AbandonedCityEnvironmentKit {
       sx,
       sy,
       sz,
-      rx: zSway * turn * 0.45,
+      rx: zSway * turn * 0.35,
       ry: side * turn,
-      rz: side * turn * 0.35
+      rz: side * turn * 0.25
     });
     const lightLeaves = [
-      leaf(leader, 0, 0.12, 0, 1.34, 0.86, 1.08, 0.12),
-      leaf(leader, 0.44, 0.02, 0.08, 0.98, 0.7, 0.86, -0.24),
-      leaf(leader, -0.4, -0.04, -0.14, 1.04, 0.74, 0.94, 0.2),
-      leaf(leaderTwig, 0.08, 0.08, -0.02, 0.82, 0.62, 0.76, -0.16),
-      leaf(roadTip, 0, 0.12, 0, 1.24, 0.76, 0.98, 0.28),
-      leaf(roadTip, -0.38, 0.12, 0.14, 0.92, 0.66, 0.82, -0.16),
-      leaf(roadTip, 0.34, -0.04, -0.16, 0.98, 0.7, 0.86, 0.22),
-      leaf(roadTwigA, -0.06, 0.04, 0.02, 0.76, 0.58, 0.7, 0.18),
-      leaf(outerTip, 0, 0.1, 0, 1.26, 0.8, 1.02, -0.26),
-      leaf(outerTip, 0.42, 0.08, -0.1, 0.9, 0.66, 0.82, 0.2),
-      leaf(outerTip, -0.34, -0.02, 0.16, 0.96, 0.7, 0.88, -0.18),
-      leaf(outerTwigA, 0.05, 0.02, 0, 0.74, 0.56, 0.68, 0.14),
-      leaf(rearTip, 0, 0.1, 0, 1.1, 0.72, 1.18, 0.22),
-      leaf(rearTip, -0.34, 0.02, -0.08, 0.82, 0.62, 0.94, -0.2),
-      leaf(frontTip, 0, 0.08, 0, 1.08, 0.72, 1.14, -0.22),
-      leaf(frontTip, 0.32, 0.02, 0.12, 0.8, 0.6, 0.88, 0.18)
+      leaf(leader, 0, 0.16, 0, 1.5, 0.95, 1.2, 0.08),
+      leaf(leader, 0.5, 0.06, 0.1, 1.1, 0.8, 1, -0.1),
+      leaf(leader, -0.46, 0, -0.16, 1.15, 0.82, 1.05, 0.1),
+      leaf(leaderTwig, 0.02, 0.02, -0.02, 0.9, 0.68, 0.82, -0.06),
+      leaf(roadTip, 0, 0.3, 0, 1.4, 0.85, 1.1, 0.1),
+      leaf(roadTip, -0.4, 0.3, 0.16, 1, 0.72, 0.9, -0.08),
+      leaf(outerTip, 0, 0.22, 0, 1.4, 0.88, 1.12, -0.1),
+      leaf(outerTip, 0.46, 0.24, -0.12, 1, 0.72, 0.9, 0.08),
+      leaf(rearTip, 0, 0.18, 0, 1.2, 0.8, 1.3, 0.08),
+      leaf(frontTip, 0, 0.16, 0, 1.2, 0.8, 1.38, -0.08),
+      leaf(frontTwig, -0.04, -0.06, -0.04, 0.85, 0.62, 0.8, 0.06)
     ];
     const deepLeaves = [
-      leaf(upperFork, 0, 0.28, 0, 1.24, 0.72, 1.08, 0.16),
-      leaf(leader, 0.02, -0.2, 0.18, 1.08, 0.64, 0.96, -0.12),
-      leaf(roadJoint, -0.28, 0.34, 0.08, 1.02, 0.66, 0.88, -0.2),
-      leaf(roadTip, 0.08, -0.18, 0.14, 0.9, 0.58, 0.82, 0.14),
-      leaf(outerJoint, 0.3, 0.3, -0.06, 1, 0.64, 0.9, 0.18),
-      leaf(outerTip, -0.06, -0.18, -0.12, 0.92, 0.6, 0.84, -0.14),
-      leaf(rearTip, 0.22, -0.14, 0.18, 0.88, 0.58, 0.94, 0.18),
-      leaf(frontTip, -0.2, -0.14, -0.18, 0.86, 0.58, 0.92, -0.16)
+      leaf(upperFork, 0, 0.26, 0, 1.3, 0.75, 1.15, 0.06),
+      leaf(roadJoint, -0.5, 0.82, 0.1, 1.05, 0.66, 0.92, -0.06),
+      leaf(leader, 0.02, -0.34, -0.2, 1.1, 0.7, 1, -0.05),
+      leaf(outerJoint, 0.6, 0.46, -0.1, 1, 0.66, 0.9, 0.06),
+      leaf(rearTip, 0.18, -0.13, 0.29, 0.95, 0.62, 1.05, 0.05),
+      leaf(frontTip, -0.12, -0.16, -0.23, 0.9, 0.6, 1, -0.05)
     ];
     this.addInstancedFoliage(group, lightLeaves, this.foliage);
     this.addInstancedFoliage(group, deepLeaves, this.foliageDeep);
@@ -17001,13 +17317,12 @@ class AbandonedCityEnvironmentKit {
     const origin = new THREE.Vector3(x, baseY + 0.02, z);
     const sway = variant % 2 === 0 ? 1 : -1;
     const lobes = [
-      { x, y: baseY + 0.56 * scale, z, sx: 0.98 * scale, sy: 0.82 * scale, sz: 0.88 * scale, rz: side * 0.08 },
-      { x: x + side * 0.48 * scale, y: baseY + 0.48 * scale, z: z + 0.28 * scale, sx: 0.72 * scale, sy: 0.64 * scale, sz: 0.68 * scale, ry: side * 0.26 },
-      { x: x - side * 0.44 * scale, y: baseY + 0.43 * scale, z: z - 0.32 * scale, sx: 0.68 * scale, sy: 0.58 * scale, sz: 0.62 * scale, ry: -side * 0.3 },
-      { x: x + side * 0.16 * scale, y: baseY + 0.84 * scale, z: z - 0.12 * scale, sx: 0.64 * scale, sy: 0.58 * scale, sz: 0.6 * scale, rz: side * sway * 0.16 },
-      { x: x - side * 0.22 * scale, y: baseY + 0.7 * scale, z: z + 0.42 * scale, sx: 0.62 * scale, sy: 0.52 * scale, sz: 0.66 * scale, rx: 0.18 },
-      { x: x + side * 0.62 * scale, y: baseY + 0.35 * scale, z: z - 0.24 * scale, sx: 0.5 * scale, sy: 0.42 * scale, sz: 0.54 * scale, ry: 0.34 },
-      { x: x - side * 0.56 * scale, y: baseY + 0.32 * scale, z: z + 0.2 * scale, sx: 0.46 * scale, sy: 0.4 * scale, sz: 0.5 * scale, ry: -0.28 }
+      { x, y: baseY + 0.52 * scale, z, sx: 1.12 * scale, sy: 0.88 * scale, sz: 0.98 * scale, rz: side * 0.05 },
+      { x: x + side * 0.42 * scale, y: baseY + 0.44 * scale, z: z + 0.1 * scale, sx: 0.84 * scale, sy: 0.68 * scale, sz: 0.76 * scale, ry: side * 0.09 },
+      { x: x - side * 0.38 * scale, y: baseY + 0.46 * scale, z: z - 0.14 * scale, sx: 0.8 * scale, sy: 0.66 * scale, sz: 0.74 * scale, ry: -side * 0.08 },
+      { x: x + side * 0.06 * scale, y: baseY + 0.82 * scale, z: z - 0.08 * scale, sx: 0.76 * scale, sy: 0.64 * scale, sz: 0.7 * scale, rz: side * sway * 0.06 },
+      { x: x - side * 0.1 * scale, y: baseY + 0.6 * scale, z: z + 0.4 * scale, sx: 0.72 * scale, sy: 0.58 * scale, sz: 0.68 * scale, rx: 0.06 },
+      { x: x + side * 0.14 * scale, y: baseY + 0.58 * scale, z: z - 0.38 * scale, sx: 0.7 * scale, sy: 0.56 * scale, sz: 0.66 * scale, ry: 0.07 }
     ];
     const branches = lobes.map((lobe, index) => ({
       start: index < 3 ? origin : origin.clone().add(new THREE.Vector3(side * (index % 2 === 0 ? -0.06 : 0.06) * scale, 0.1 * scale, 0)),
@@ -17393,10 +17708,10 @@ class AbandonedCityEnvironmentKit {
       const vertex = new THREE.Vector3();
       for (let index = 0; index < positions.count; index++) {
         vertex.fromBufferAttribute(positions, index);
-        const irregularity = 1 + Math.sin(vertex.x * 17 + vertex.y * 11 + vertex.z * 23) * 0.07 + Math.sin(vertex.x * 31 - vertex.y * 19 + vertex.z * 13) * 0.035;
+        const irregularity = 1 + Math.sin(vertex.x * 9 + vertex.y * 7 + vertex.z * 13) * 0.085 + Math.sin(vertex.x * 19 - vertex.y * 13 + vertex.z * 23) * 0.05 + Math.sin(vertex.x * 37 + vertex.y * 29 - vertex.z * 31) * 0.028;
         vertex.multiplyScalar(irregularity);
-        vertex.x += vertex.y * 0.045;
-        vertex.z -= vertex.x * 0.025;
+        vertex.x += vertex.y * 0.06;
+        vertex.z -= vertex.x * 0.03;
         positions.setXYZ(index, vertex.x, vertex.y, vertex.z);
       }
       positions.needsUpdate = true;
@@ -17446,9 +17761,11 @@ const V = "fishing-frontage";
 const S$1 = "sea-open";
 const B = "bridge-span";
 const T$1 = "bridge-tower";
+const Y = "bridge-suspension-tower";
 const COAST_LAYOUTS = [
-  // Layout 0: sea to the left, headland to the right. Crossing spans rows 9-16
-  // with a single pylon at row 12.
+  // Layout 0: sea to the left, headland to the right. Long suspension crossing,
+  // rows 6-18, pylons at 9 and 15 so both side spans run three rows and the
+  // main span reads as one continuous sag between the portals.
   [
     [S$1, F],
     [S$1, C$2],
@@ -17456,27 +17773,28 @@ const COAST_LAYOUTS = [
     [S$1, V],
     [S$1, C$2],
     [S$1, C$2],
-    [S$1, null],
+    [B, B],
+    [B, B],
+    [B, B],
+    [Y, Y],
+    [B, B],
+    [B, B],
+    [B, B],
+    [B, B],
+    [B, B],
+    [Y, Y],
+    [B, B],
+    [B, B],
+    [B, B],
+    [S$1, C$2],
     [S$1, F],
-    [S$1, C$2],
-    [B, B],
-    [B, B],
-    [B, B],
-    [T$1, T$1],
-    [B, B],
-    [B, B],
-    [B, B],
-    [B, B],
-    [S$1, C$2],
-    [S$1, F],
     [S$1, null],
     [S$1, C$2],
-    [S$1, V],
-    [S$1, C$2],
-    [S$1, F]
+    [S$1, V]
   ],
-  // Layout 1: mirrored shoreline. The crossing arrives early, at rows 4-10, so
-  // the loop does not read as the same run of coast in both directions.
+  // Layout 1: mirrored shoreline with the compact stayed crossing. It arrives
+  // early, at rows 4-12, with the pylon exactly centred at row 8 so the stay
+  // fan sweeps symmetrically over the whole span.
   [
     [V, S$1],
     [C$2, S$1],
@@ -17484,12 +17802,13 @@ const COAST_LAYOUTS = [
     [C$2, S$1],
     [B, B],
     [B, B],
+    [B, B],
+    [B, B],
     [T$1, T$1],
     [B, B],
     [B, B],
     [B, B],
     [B, B],
-    [C$2, S$1],
     [F, S$1],
     [null, S$1],
     [C$2, S$1],
@@ -17503,32 +17822,32 @@ const COAST_LAYOUTS = [
     [null, S$1],
     [C$2, S$1]
   ],
-  // Layout 2: sea to the left with the long crossing, rows 6-14, carrying two
-  // pylons so the run reads as a proper cable stayed bridge rather than a ramp.
+  // Layout 2: sea to the left with the longest suspension crossing, rows 5-19,
+  // pylons at 8 and 16. The eight row main span is the biome's landmark reveal.
   [
     [S$1, F],
     [S$1, C$2],
     [S$1, C$2],
     [S$1, null],
     [S$1, V],
-    [S$1, C$2],
-    [B, B],
-    [T$1, T$1],
     [B, B],
     [B, B],
     [B, B],
+    [Y, Y],
     [B, B],
     [B, B],
-    [T$1, T$1],
+    [B, B],
+    [B, B],
+    [B, B],
+    [B, B],
+    [B, B],
+    [Y, Y],
+    [B, B],
+    [B, B],
     [B, B],
     [S$1, C$2],
     [S$1, V],
     [S$1, null],
-    [S$1, C$2],
-    [S$1, F],
-    [S$1, C$2],
-    [S$1, null],
-    [S$1, V],
     [S$1, C$2]
   ]
 ];
@@ -17573,7 +17892,18 @@ const BRIDGE_RAIL_TOP = 1.22;
 const BRIDGE_PIER_X = 5.45;
 const BRIDGE_PIER_FOOT_Y = -13.5;
 const BRIDGE_TOWER_X = 6.1;
-const BRIDGE_TOWER_TOP = 12.8;
+const BRIDGE_TOWER_TOP = 14.2;
+const BRIDGE_SUS_MAST_X = 5.45;
+const BRIDGE_SUS_CABLE_X = 5.2;
+const BRIDGE_SUS_TOWER_TOP = 17.6;
+const BRIDGE_SUS_SAG_DIVISOR = 9;
+const BRIDGE_SUS_SIDE_SAG = 0.9;
+const BRIDGE_SUS_HANGER_SPACING = 2.4;
+const BRIDGE_SUS_CABLE_RADIUS = 0.13;
+const BRIDGE_SUS_HANGER_RADIUS = 0.035;
+const BRIDGE_SUS_SLICE_HALF = 0.56;
+const BRIDGE_SUS_ANCHOR_OFFSET = 0.44;
+const BRIDGE_SUS_ANCHOR_TOP_Y = 1.5;
 const RAIL_POST_Z = [-4.8, -2.4, 0, 2.4];
 const SEA_SHALLOW_BAND_NEAR = 11.8;
 const SEA_SHALLOW_BAND_FAR = 29;
@@ -17846,7 +18176,8 @@ const COAST_PALETTES = {
     foamOpacity: 0.7
   }
 };
-const isBridgeKind = (kind) => kind === "bridge-span" || kind === "bridge-tower";
+const COAST_SUN_YAW_AXIS = new THREE.Vector3(0, 1, 0);
+const isBridgeKind = (kind) => kind === "bridge-span" || kind === "bridge-tower" || kind === "bridge-suspension-tower";
 const wrapIndex = (value, length) => (value % length + length) % length;
 class CoastEnvironmentKit {
   constructor() {
@@ -17876,10 +18207,12 @@ class CoastEnvironmentKit {
     __publicField(this, "opening", new THREE.MeshBasicMaterial({ color: 1189677 }));
     __publicField(this, "trunk", new THREE.MeshStandardMaterial({ color: 7165506, roughness: 0.94, metalness: 0 }));
     __publicField(this, "foliage", new THREE.MeshStandardMaterial({ color: 6060623, roughness: 0.92, metalness: 0 }));
-    // Far silhouettes are unlit on purpose, matching the city backdrop: shading a
-    // mass that fog has already washed out only adds a gradient nobody reads.
-    __publicField(this, "distant", new THREE.MeshBasicMaterial({ color: 11059142 }));
-    __publicField(this, "distantCap", new THREE.MeshBasicMaterial({ color: 9678519 }));
+    // Distant headlands and islands used to be unlit, and a flat-coloured open
+    // heightfield read as a paper cut-out against the sea (T10). Faceted lit shading
+    // gives them a sunlit and a shadowed flank; the haze-biased tone and the fog still
+    // keep them behind the near coast.
+    __publicField(this, "distant", new THREE.MeshStandardMaterial({ color: 11059142, roughness: 1, metalness: 0, flatShading: true }));
+    __publicField(this, "distantCap", new THREE.MeshStandardMaterial({ color: 9678519, roughness: 1, metalness: 0, flatShading: true }));
     __publicField(this, "lamp", new THREE.MeshBasicMaterial({ color: 16769192, toneMapped: false }));
     __publicField(this, "beacon", new THREE.MeshBasicMaterial({ color: 16738893, toneMapped: false }));
     __publicField(this, "seaTime", { value: 0 });
@@ -17895,6 +18228,7 @@ class CoastEnvironmentKit {
     __publicField(this, "sunDiscColor", { value: new THREE.Color(16774364) });
     __publicField(this, "sunPower", { value: new THREE.Vector3(12, 180, 2 / 182) });
     __publicField(this, "seaSunDirection", { value: new THREE.Vector3(-0.3, 0.32, -0.9).normalize() });
+    __publicField(this, "sunBaseDirection", new THREE.Vector3(-0.3, 0.32, -0.9).normalize());
     __publicField(this, "sssTint", { value: new THREE.Color(10478804) });
     // ( base, sun, falloff ).
     __publicField(this, "sss", { value: new THREE.Vector3(0.02, 0.1, 4) });
@@ -17905,6 +18239,12 @@ class CoastEnvironmentKit {
     __publicField(this, "foam", this.createFoamMaterial());
     __publicField(this, "seaMesh", null);
     __publicField(this, "seaLevel", -SEA_DROP);
+    for (const material of [this.sand, this.sandLight, this.heath, this.concreteDark]) {
+      applySurfaceDetail(material, { ground: GROUND_DETAIL_DEFAULT });
+    }
+    for (const material of [this.concrete, this.paint, this.wood, this.woodDark, this.rock, this.rockLight, this.rockDark]) {
+      applySurfaceDetail(material, { ao: STRUCTURE_AO_DEFAULT });
+    }
   }
   setTheme(theme) {
     const palette = COAST_PALETTES[theme];
@@ -17944,7 +18284,8 @@ class CoastEnvironmentKit {
       palette.sunPower[1],
       2 / (palette.sunPower[1] + 2)
     );
-    this.seaSunDirection.value.set(...palette.sunDirection).normalize();
+    this.sunBaseDirection.set(...palette.sunDirection).normalize();
+    this.seaSunDirection.value.copy(this.sunBaseDirection);
     this.sssTint.value.setHex(palette.sssTint);
     this.sss.value.set(palette.sssBase, palette.sssSun, palette.sssFalloff);
     this.seaCrestStrength.value = palette.crestStrength;
@@ -17956,6 +18297,16 @@ class CoastEnvironmentKit {
   // where the analytic water reflection meets atmospheric fog.
   setSkyHorizon(color) {
     this.skyHorizonColor.value.setHex(color);
+  }
+  // The shared sky dome reads the theme's sun from here, so the disc it draws and
+  // the glitter the water reflects always share one direction.
+  getSunDirection(target) {
+    return target.copy(this.sunBaseDirection);
+  }
+  // The dome and the far silhouettes yaw slowly with the road heading. The reflected
+  // sun turns with them, otherwise the glitter path would slide off the disc in turns.
+  setSunYaw(yaw) {
+    this.seaSunDirection.value.copy(this.sunBaseDirection).applyAxisAngle(COAST_SUN_YAW_AXIS, yaw);
   }
   // Water cannot be a per row module: stitching a strip onto every row would break
   // both the seams and the wave phase. One plane is added to the scene once and only
@@ -17994,6 +18345,9 @@ class CoastEnvironmentKit {
     if (kind === "sea-open") this.createSeaOpen(group, side, row, layoutVariant, destructibles);
     if (kind === "bridge-span") this.createBridgeSpan(group, side, row, layoutVariant, destructibles);
     if (kind === "bridge-tower") this.createBridgeTower(group, side, row, layoutVariant, destructibles);
+    if (kind === "bridge-suspension-tower") {
+      this.createSuspensionTower(group, side, row, layoutVariant, destructibles);
+    }
     return { group, destructibles };
   }
   // A null layout slot means no module on that side, not missing ground. Coastal
@@ -18896,14 +19250,185 @@ class CoastEnvironmentKit {
   // Crossing modules.
   createBridgeSpan(group, side, row, layoutVariant, destructibles) {
     this.addBridgeEdge(group, side, destructibles);
-    if (wrapIndex(row + layoutVariant, 4) === 0) this.addBridgePier(group, side);
+    const suspension = this.suspensionSpec(layoutVariant);
+    const inMainSpan = suspension !== null && row > suspension.towerU1 && row < suspension.towerU2;
+    if (wrapIndex(row + layoutVariant, 4) === 0 && !inMainSpan) this.addBridgePier(group, side);
     if (wrapIndex(row + layoutVariant, 3) === 1) this.addBridgeLamp(group, side);
+    if (suspension) {
+      this.addSuspensionCableSlice(group, side, row, suspension);
+      this.addSuspensionHangers(group, side, row, suspension);
+      if (!isBridgeKind(this.neighbourKind(layoutVariant, row, -1, side))) {
+        this.addSuspensionAnchor(group, side, 1);
+      }
+      if (!isBridgeKind(this.neighbourKind(layoutVariant, row, 1, side))) {
+        this.addSuspensionAnchor(group, side, -1);
+      }
+    }
     this.addBridgeEnds(group, side, row, layoutVariant);
   }
   createBridgeTower(group, side, row, layoutVariant, destructibles) {
     this.addBridgeEdge(group, side, destructibles);
     this.addBridgeTowerMass(group, side);
     this.addBridgeEnds(group, side, row, layoutVariant);
+  }
+  createSuspensionTower(group, side, row, layoutVariant, destructibles) {
+    this.addBridgeEdge(group, side, destructibles);
+    this.addSuspensionTowerMass(group, side);
+    const suspension = this.suspensionSpec(layoutVariant);
+    if (suspension) {
+      this.addSuspensionCableSlice(group, side, row, suspension);
+      this.addSuspensionHangers(group, side, row, suspension);
+    }
+    this.addBridgeEnds(group, side, row, layoutVariant);
+  }
+  // The crossing's hanging anatomy in row units. u is the continuous row
+  // coordinate (world z = -8 - u * spacing), towers are whole rows, and the
+  // cable dives into the abutment pedestals just past the end rows.
+  suspensionSpec(layoutVariant) {
+    const layout = COAST_LAYOUTS[wrapIndex(layoutVariant, COAST_LAYOUTS.length)];
+    const towerRows = [];
+    let first = -1;
+    let last = -1;
+    for (let row = 0; row < layout.length; row++) {
+      if (layout[row][0] === "bridge-suspension-tower") towerRows.push(row);
+      if (isBridgeKind(layout[row][0])) {
+        if (first < 0) first = row;
+        last = row;
+      }
+    }
+    if (towerRows.length < 2 || first < 0) return null;
+    const mainSpanRows = towerRows[1] - towerRows[0];
+    return {
+      anchorU1: first - BRIDGE_SUS_ANCHOR_OFFSET,
+      towerU1: towerRows[0],
+      towerU2: towerRows[1],
+      anchorU2: last + BRIDGE_SUS_ANCHOR_OFFSET,
+      anchorY: BRIDGE_SUS_ANCHOR_TOP_Y,
+      topY: BRIDGE_SUS_TOWER_TOP,
+      midY: BRIDGE_SUS_TOWER_TOP - mainSpanRows * ROADSIDE_ROW_SPACING / BRIDGE_SUS_SAG_DIVISOR
+    };
+  }
+  // Piecewise quadratic in u. Every segment's z control point is the segment
+  // midpoint, so the bezier parameter is linear in u and each row slice samples
+  // exactly the same curve its neighbours do.
+  suspensionCableY(u, spec) {
+    if (u < spec.anchorU1 || u > spec.anchorU2) return null;
+    const sideControl = (spec.anchorY + spec.topY) / 2 - 2 * BRIDGE_SUS_SIDE_SAG;
+    const mainControl = 2 * spec.midY - spec.topY;
+    if (u <= spec.towerU1) {
+      return this.quadraticY(u, spec.anchorU1, spec.towerU1, spec.anchorY, sideControl, spec.topY);
+    }
+    if (u < spec.towerU2) {
+      return this.quadraticY(u, spec.towerU1, spec.towerU2, spec.topY, mainControl, spec.topY);
+    }
+    return this.quadraticY(u, spec.towerU2, spec.anchorU2, spec.topY, sideControl, spec.anchorY);
+  }
+  quadraticY(u, u0, u1, y0, controlY, y1) {
+    const t = (u - u0) / (u1 - u0);
+    const a = (1 - t) * (1 - t);
+    const b = 2 * (1 - t) * t;
+    const c = t * t;
+    return a * y0 + b * controlY + c * y1;
+  }
+  // This row's slice of the main cable. Slices reach past both row seams so
+  // neighbouring tube ends overlap inside each other on the shared curve.
+  addSuspensionCableSlice(group, side, row, spec) {
+    const from = Math.max(row - BRIDGE_SUS_SLICE_HALF, spec.anchorU1);
+    const to = Math.min(row + BRIDGE_SUS_SLICE_HALF, spec.anchorU2);
+    if (from >= to) return;
+    const samples = 6;
+    const points = [];
+    for (let index = 0; index <= samples; index++) {
+      const u = from + (to - from) * index / samples;
+      const y = this.suspensionCableY(u, spec);
+      if (y === null) return;
+      points.push(new THREE.Vector3(0, y, (row - u) * ROADSIDE_ROW_SPACING));
+    }
+    const curve = new THREE.CatmullRomCurve3(points);
+    const geometry = this.geometry(
+      `suspension-cable:${Math.round(spec.anchorU1 * 8)}:${Math.round(spec.towerU1)}:${Math.round(spec.towerU2)}:${row}`,
+      () => new THREE.TubeGeometry(curve, 10, BRIDGE_SUS_CABLE_RADIUS, 6)
+    );
+    const mesh = new THREE.Mesh(geometry, this.darkSteel);
+    mesh.position.x = side * BRIDGE_SUS_CABLE_X;
+    mesh.userData.sharedGeometry = true;
+    group.add(mesh);
+  }
+  // Hangers on the 2.4 pitch, each landing on the same deck edge pedestal the
+  // stayed bridge's anchors use. Hangers shorter than 0.6 would read as stubs
+  // growing out of the parapet, so the anchor ends go without.
+  addSuspensionHangers(group, side, row, spec) {
+    const bottomY = BRIDGE_PARAPET_BASE_TOP + 0.1;
+    const hangers = [];
+    for (let index = 0; index < 4; index++) {
+      const localZ = -ROADSIDE_ROW_SPACING / 2 + BRIDGE_SUS_HANGER_SPACING * (index + 0.5);
+      const u = row - localZ / ROADSIDE_ROW_SPACING;
+      if (Math.abs(u - spec.towerU1) < 0.17 || Math.abs(u - spec.towerU2) < 0.17) continue;
+      const topY = this.suspensionCableY(u, spec);
+      if (topY === null || topY - bottomY < 0.6) continue;
+      hangers.push({ z: localZ, topY });
+    }
+    if (hangers.length === 0) return;
+    for (const hanger of hangers) {
+      const mesh = new THREE.Mesh(
+        this.cylinder(BRIDGE_SUS_HANGER_RADIUS, 1, 5),
+        this.darkSteel
+      );
+      mesh.position.set(side * BRIDGE_SUS_CABLE_X, (hanger.topY + bottomY) / 2, hanger.z);
+      mesh.scale.y = hanger.topY - bottomY;
+      mesh.userData.sharedGeometry = true;
+      group.add(mesh);
+    }
+    const pedestals = new THREE.InstancedMesh(
+      this.box(0.34, 1.1, 0.48),
+      this.darkSteel,
+      hangers.length
+    );
+    const dummy = new THREE.Object3D();
+    for (const [index, hanger] of hangers.entries()) {
+      dummy.position.set(side * BRIDGE_SUS_CABLE_X, 0.09, hanger.z);
+      dummy.updateMatrix();
+      pedestals.setMatrixAt(index, dummy.matrix);
+    }
+    pedestals.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+    pedestals.userData.sharedGeometry = true;
+    group.add(pedestals);
+  }
+  // The cable's end point is a pedestal seated on the abutment mass with a
+  // slightly wider mouth band, so the cable visibly dives into concrete rather
+  // than ending against the deck furniture.
+  addSuspensionAnchor(group, side, towardShore) {
+    const center = towardShore * 3.9;
+    this.addBox(group, 1.15, 1.85, 2.3, this.concrete, side * BRIDGE_SUS_CABLE_X, 0.82, center);
+    this.addBox(group, 1.35, 0.3, 2.5, this.concreteDark, side * BRIDGE_SUS_CABLE_X, 1.68, center);
+  }
+  addSuspensionTowerMass(group, side) {
+    const x = side * BRIDGE_SUS_MAST_X;
+    const foundation = this.addTaperedCylinder(group, 2, 2.5, 11.4, this.concrete, x, -8.1, 0, 4);
+    foundation.rotation.y = Math.PI / 4;
+    this.addCylinder(group, 2.22, 1.5, this.wetRock, x, -SEA_DROP, 0, "y", 12);
+    this.addFoamRing(group, x, 0, 2.15, 4.6);
+    this.addTaperedBox(
+      group,
+      2.4,
+      2.7,
+      1.7,
+      1.5,
+      BRIDGE_SUS_TOWER_TOP + 2.4,
+      this.concrete,
+      x,
+      (BRIDGE_SUS_TOWER_TOP - 2.4) / 2,
+      0
+    );
+    this.addBox(group, 1.85, 0.55, 1.7, this.concreteDark, x, BRIDGE_SUS_TOWER_TOP + 0.15, 0);
+    this.addBox(group, 0.42, 0.42, 0.42, this.beacon, x, BRIDGE_SUS_TOWER_TOP + 0.62, 0);
+    this.addBox(group, 2.75, 0.32, 1.7, this.concreteDark, x, -0.7, 0);
+    this.addBox(group, 1.7, 0.28, 1.22, this.darkSteel, x - side * 0.42, -0.48, 0);
+    if (side === 1) {
+      this.addBox(group, BRIDGE_SUS_MAST_X * 2, 1.05, 1.5, this.concreteDark, 0, 13.2, 0);
+      this.addBox(group, BRIDGE_SUS_MAST_X * 2, 0.8, 1.2, this.concreteDark, 0, 16.3, 0);
+      this.addBox(group, BRIDGE_SUS_MAST_X * 2, 0.7, 1, this.concreteDark, 0, -3.4, 0);
+    }
   }
   // Containment base, fascia and edge girder. All three are authored at
   // ROADSIDE_GROUND_LENGTH so the run reads as continuous across row seams, and
@@ -19041,14 +19566,18 @@ class CoastEnvironmentKit {
     const anchorX = side * (BRIDGE_FASCIA_OUTER + 0.25);
     const towerAnchorX = x - side * 0.62;
     const stays = [
-      { height: 11.85, z: -13.6 },
-      { height: 10.9, z: -10 },
-      { height: 9.9, z: -6.4 },
-      { height: 8.9, z: -3.1 },
-      { height: 8.9, z: 3.1 },
-      { height: 9.9, z: 6.4 },
-      { height: 10.9, z: 10 },
-      { height: 11.85, z: 13.6 }
+      { height: 13.4, z: -27.6 },
+      { height: 12.4, z: -22.5 },
+      { height: 11.3, z: -17.4 },
+      { height: 10.2, z: -12.3 },
+      { height: 9.1, z: -7.2 },
+      { height: 8, z: -2.7 },
+      { height: 8, z: 2.7 },
+      { height: 9.1, z: 7.2 },
+      { height: 10.2, z: 12.3 },
+      { height: 11.3, z: 17.4 },
+      { height: 12.4, z: 22.5 },
+      { height: 13.4, z: 27.6 }
     ];
     const anchorPedestals = new THREE.InstancedMesh(
       this.box(0.34, 1.1, 0.48),
@@ -19078,11 +19607,14 @@ class CoastEnvironmentKit {
   }
   addBridgeLamp(group, side) {
     const x = side * (BRIDGE_DECK_EDGE + 0.28);
-    this.addCylinder(group, 0.09, 3.9, this.darkSteel, x, BRIDGE_PARAPET_BASE_TOP + 1.95, 0, "y", 8);
-    const arm = this.addBox(group, 1.1, 0.11, 0.14, this.darkSteel, x - side * 0.5, BRIDGE_PARAPET_BASE_TOP + 3.82, 0);
-    arm.rotation.z = side * 0.12;
-    this.addBox(group, 0.62, 0.18, 0.3, this.darkSteel, x - side * 1.06, BRIDGE_PARAPET_BASE_TOP + 3.68, 0);
-    this.addBox(group, 0.44, 0.07, 0.22, this.lamp, x - side * 1.06, BRIDGE_PARAPET_BASE_TOP + 3.56, 0);
+    this.addBox(group, 0.3, 0.12, 0.3, this.darkSteel, x, BRIDGE_PARAPET_BASE_TOP + 0.06, 0);
+    this.addTaperedCylinder(group, 0.065, 0.09, 1.95, this.darkSteel, x, BRIDGE_PARAPET_BASE_TOP + 1.055, 0, 8);
+    this.addBox(group, 0.09, 0.08, 1.7, this.darkSteel, x, 2.62, 0);
+    for (const end of [-1, 1]) {
+      const housing = this.addBox(group, 0.3, 0.09, 0.26, this.darkSteel, x, 2.56, end * 0.78);
+      housing.rotation.x = end * 0.14;
+      this.addBox(group, 0.26, 0.045, 0.2, this.lamp, x, 2.5, end * 0.78);
+    }
   }
   // Abutment at the two ends of the crossing. Without it the revetment and the
   // headland end on a raw cut face where the deck takes over.
@@ -19927,6 +20459,12 @@ class DesertEnvironmentKit {
     __publicField(this, "marker", new THREE.MeshStandardMaterial({ color: 12095025, roughness: 0.84, metalness: 0.08 }));
     // Warm lamp beacons share one desert value with the obstacle lamps (0xEFA851).
     __publicField(this, "lamp", new THREE.MeshBasicMaterial({ color: 15706193, toneMapped: false }));
+    for (const material of [this.sand, this.sandLight, this.gravel]) {
+      applySurfaceDetail(material, { ground: GROUND_DETAIL_DEFAULT });
+    }
+    for (const material of [this.rock, this.rockLight, this.rockDark, this.weatheredMetal, this.fadedPanel]) {
+      applySurfaceDetail(material, { ao: STRUCTURE_AO_DEFAULT });
+    }
   }
   setTheme(theme) {
     const night = theme === "night";
@@ -19946,7 +20484,7 @@ class DesertEnvironmentKit {
     const group = new THREE.Group();
     group.name = `desert_${kind}_${row}_${side}`;
     const destructibles = [];
-    this.createBase(group, side, row, layoutVariant);
+    this.createBase(group, side);
     if (kind === "dune-shelf") this.createDuneShelf(group, side, row, layoutVariant);
     if (kind === "rock-shelf") this.createRockShelf(group, side, row, layoutVariant);
     if (kind === "cactus-wash") this.createCactusWash(group, side, row, layoutVariant, destructibles);
@@ -19959,11 +20497,11 @@ class DesertEnvironmentKit {
   // 9.6m by 31m hole in the terrain that showed the background through it.
   createGroundOnlyModule(side, row, layoutVariant) {
     const group = new THREE.Group();
-    group.name = `desert_open_flat_${row}_${side}`;
-    this.createBase(group, side, row, layoutVariant);
+    group.name = `desert_open_flat_${row}_${side}_${layoutVariant}`;
+    this.createBase(group, side);
     return group;
   }
-  createBase(group, side, row, layoutVariant) {
+  createBase(group, side) {
     const roadEdge = ROAD_WIDTH / 2 + 0.2;
     const depth = 31;
     this.addBox(
@@ -19977,9 +20515,6 @@ class DesertEnvironmentKit {
       0
     );
     this.addBox(group, 2.6, 0.08, ROADSIDE_STRIP_LENGTH, this.gravel, side * (roadEdge + 1.3), -0.025, 0);
-    const washOffset = 3.2 + (row + layoutVariant + (side > 0 ? 1 : 0)) % 3 * 0.55;
-    const wash = this.addBox(group, 0.72, 0.04, 8.9, this.rockDark, side * (roadEdge + washOffset), -0.03, 0);
-    wash.rotation.y = side * (0.025 + row % 3 * 0.012);
   }
   createDuneShelf(group, side, row, layoutVariant) {
     const variant = (row + layoutVariant + (side > 0 ? 1 : 0)) % 3;
@@ -20023,32 +20558,49 @@ class DesertEnvironmentKit {
   }
   createSurveyRemnant(group, side, row, layoutVariant, destructibles) {
     const variant = (row + layoutVariant + (side > 0 ? 1 : 0)) % 3;
+    const hash012 = (seed) => {
+      const value = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
+      return value - Math.floor(value);
+    };
     const remnant = new THREE.Group();
     remnant.name = "desert_survey_remnant";
     const x = side * (9.6 + variant * 0.55);
     this.addBox(remnant, 3.1, 0.32, 2.25, this.darkMetal, x, 0.02, 0.3);
-    this.addCylinder(remnant, 0.72, 2.45, this.weatheredMetal, x, 0.6, 0.25, "z", 12);
-    this.addCylinder(remnant, 0.73, 0.06, this.darkMetal, x, 0.6, -1.005, "z", 12);
-    this.addCylinder(remnant, 0.73, 0.06, this.darkMetal, x, 0.6, 1.505, "z", 12);
-    for (const xOffset of [-1.12, 1.12]) {
-      for (const zOffset of [-0.76, 0.76]) {
-        this.addBox(remnant, 0.38, 0.14, 0.38, this.weatheredMetal, x + xOffset, -0.12, 0.3 + zOffset);
-      }
+    this.addCylinder(remnant, 0.72, 2.45, this.weatheredMetal, x, 1.06, 0.25, "z", 12);
+    this.addCylinder(remnant, 0.73, 0.06, this.darkMetal, x, 1.06, -1.005, "z", 12);
+    this.addCylinder(remnant, 0.73, 0.06, this.darkMetal, x, 1.06, 1.505, "z", 12);
+    for (const zOffset of [-0.82, 0.82]) {
+      this.addBox(remnant, 0.56, 0.43, 0.34, this.darkMetal, x, 0.315, 0.25 + zOffset);
     }
     this.addCylinder(remnant, 0.09, 1.72, this.darkMetal, x + side * 1.42, 0.94, 0.07, "z", 8);
+    this.addBox(remnant, 0.12, 0.85, 0.12, this.darkMetal, x + side * 1.42, 0.555, 0.07);
     for (const z of [-0.58, 0.72]) {
-      const frame = this.addBox(remnant, 1.95, 0.12, 0.12, this.darkMetal, x + side * 1.55, 0.92, z);
+      this.addBox(remnant, 0.09, 0.82, 0.09, this.darkMetal, x + side * 2.31, 0.31, z);
+    }
+    for (const z of [-0.58, 0.72]) {
+      const frame = this.addBox(remnant, 1.55, 0.12, 0.12, this.darkMetal, x + side * 1.55, 0.92, z);
       frame.rotation.z = side * -0.18;
-      const panel = this.addBox(remnant, 1.75, 0.08, 0.98, this.fadedPanel, x + side * 2.35, 1.02, z);
+      const panel = this.addBox(remnant, 1.75, 0.08, 0.98, this.fadedPanel, x + side * 2.35, 0.985, z);
       panel.rotation.z = side * -0.18;
-      const longSeam = this.addBox(remnant, 1.62, 0.025, 0.035, this.darkMetal, x + side * 2.35, 1.07, z);
+      const longSeam = this.addBox(remnant, 1.62, 0.025, 0.035, this.darkMetal, x + side * 2.35, 1.035, z);
       longSeam.rotation.z = side * -0.18;
-      const crossSeam = this.addBox(remnant, 0.035, 0.025, 0.88, this.darkMetal, x + side * 2.35, 1.07, z);
+      const crossSeam = this.addBox(remnant, 0.035, 0.025, 0.88, this.darkMetal, x + side * 2.35, 1.035, z);
       crossSeam.rotation.z = side * -0.18;
     }
     const mast = this.addCylinder(remnant, 0.08, 2.7, this.darkMetal, x - side * 1.25, 1.35, -0.35, "y", 8);
     mast.rotation.z = side * 0.19;
     this.addBox(remnant, 0.42, 0.18, 0.3, this.lamp, x - side * 1.5, 2.62, -0.35);
+    this.addCylinder(remnant, 0.045, 2.67, this.weatheredMetal, x + side * 0.085, 0.24, -0.35, "x", 6);
+    for (let i = 0; i < 2; i++) {
+      const stake = new THREE.Group();
+      const leanSeed = variant * 3.7 + i * 11.3 + (side > 0 ? 17 : 0);
+      stake.rotation.z = (hash012(leanSeed + 1.3) - 0.5) * 0.24;
+      stake.rotation.x = (hash012(leanSeed + 5.9) - 0.5) * 0.2;
+      stake.position.set(x + side * (1.95 - i * 0.5), 0, 1.72 + i * 0.3);
+      this.addTaperedCylinder(stake, 0.045, 0.06, 1, this.weatheredMetal, 0, 0.38, 0, 6);
+      this.addCylinder(stake, 0.068, 0.14, this.marker, 0, 0.78, 0, "y", 8);
+      remnant.add(stake);
+    }
     remnant.userData.destructible = true;
     remnant.userData.destroyed = false;
     group.add(remnant);
@@ -20065,35 +20617,53 @@ class DesertEnvironmentKit {
   createCactus(side, lateral, z, height, variant) {
     const cactus = new THREE.Group();
     cactus.name = "desert_cactus";
-    const x = side * lateral;
-    this.addTaperedCylinder(cactus, 0.18, 0.25, height, this.cactus, x, height / 2, z, 8);
+    const hash012 = (seed) => {
+      const value = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
+      return value - Math.floor(value);
+    };
+    const poseSeed = variant * 7.31 + (side > 0 ? 41.9 : 0);
+    cactus.rotation.y = hash012(poseSeed + 3.1) * Math.PI * 2;
+    cactus.rotation.z = (hash012(poseSeed + 11.7) - 0.5) * 0.17;
+    cactus.rotation.x = (hash012(poseSeed + 19.3) - 0.5) * 0.1;
+    cactus.position.set(side * lateral, 0, z);
+    const embed = 0.1;
+    const trunk = this.addTaperedCylinder(cactus, 0.175, 0.26, height, this.cactus, 0, height / 2 - embed, 0, 8);
+    trunk.scale.z = 0.93;
+    const collar = this.addTaperedCylinder(cactus, 0.245, 0.42, 0.34, this.cactus, 0, 0.07, 0, 8);
+    collar.scale.z = 0.9;
     const crown = new THREE.Mesh(this.sphere(0.182, 9, 7), this.cactus);
-    crown.position.set(x, height, z);
-    crown.scale.y = 1.08;
+    crown.position.set(0, height - embed - 0.012, 0);
+    crown.scale.set(0.97, 0.95, 0.9);
     crown.userData.sharedGeometry = true;
     cactus.add(crown);
     const firstSide = variant % 2 === 0 ? side : oppositeSide(side);
-    this.addCactusArm(cactus, x, z, height, firstSide, 0.43 + variant % 3 * 0.035, 0.26);
+    this.addCactusArm(cactus, height, firstSide, 0.43 + variant % 3 * 0.035, 0.26);
     if (variant % 2 === 1) {
-      this.addCactusArm(cactus, x, z, height, oppositeSide(firstSide), 0.63, 0.22);
+      this.addCactusArm(cactus, height, oppositeSide(firstSide), 0.63, 0.22);
     }
     cactus.userData.destructible = true;
     cactus.userData.destroyed = false;
     return cactus;
   }
-  addCactusArm(cactus, x, z, height, direction, heightRatio, liftRatio) {
+  addCactusArm(cactus, height, direction, heightRatio, liftRatio) {
     const baseY = height * heightRatio;
     const reach = THREE.MathUtils.clamp(height * 0.22, 0.48, 0.68);
     const lift = height * liftRatio;
-    const end = new THREE.Vector3(x + direction * reach, baseY + lift, z);
+    const end = new THREE.Vector3(direction * reach, baseY + lift, 0);
     const curve = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(x + direction * 0.04, baseY, z),
-      new THREE.Vector3(x + direction * reach * 0.38, baseY + height * 0.015, z),
-      new THREE.Vector3(x + direction * reach * 0.78, baseY + lift * 0.22, z),
-      new THREE.Vector3(x + direction * reach, baseY + lift * 0.62, z),
+      new THREE.Vector3(-direction * 0.08, baseY - 0.02, 0),
+      new THREE.Vector3(direction * 0.15, baseY - height * 0.012, 0),
+      new THREE.Vector3(direction * reach * 0.46, baseY + lift * 0.08, 0),
+      new THREE.Vector3(direction * reach * 0.82, baseY + lift * 0.48, 0),
       end
     ], false, "catmullrom", 0.42);
-    const arm = new THREE.Mesh(new THREE.TubeGeometry(curve, 12, 0.13, 8, false), this.cactus);
+    const arm = new THREE.Mesh(
+      this.geometry(
+        `cactus-arm:${height}:${direction}:${heightRatio}:${liftRatio}`,
+        () => new THREE.TubeGeometry(curve, 12, 0.13, 8, false)
+      ),
+      this.cactus
+    );
     cactus.add(arm);
     const cap = new THREE.Mesh(this.sphere(0.132, 8, 6), this.cactus);
     cap.position.copy(end);
@@ -20104,49 +20674,105 @@ class DesertEnvironmentKit {
     const cluster = new THREE.Group();
     cluster.name = "desert_layered_rock";
     const x = side * lateral;
+    const hash012 = (seed) => {
+      const value = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
+      return value - Math.floor(value);
+    };
     const layers = [
-      { y: 0.22, radiusTop: 1.15, radiusBottom: 1.3, height: 0.44, material: this.rockDark },
-      { y: 0.61, radiusTop: 0.88, radiusBottom: 1.02, height: 0.42, material: this.rock },
-      { y: 0.98, radiusTop: 0.58, radiusBottom: 0.74, height: 0.36, material: this.rockLight }
+      { radiusTop: 1.12, radiusBottom: 1.32, height: 0.54, material: this.rockDark },
+      { radiusTop: 0.86, radiusBottom: 1.02, height: 0.44, material: this.rock },
+      { radiusTop: 0.56, radiusBottom: 0.72, height: 0.38, material: this.rockLight }
     ];
-    const rotation = variant * 0.34;
+    const baseRotation = variant * 0.34;
     const depthScale = scale * (0.74 + variant % 2 * 0.06);
+    let layerBottom = -0.09 * scale;
     for (const [index, layer] of layers.entries()) {
+      const stretch = [0.9, 1, 1.12][(variant + index) % 3];
+      const bulge = [0.94, 1, 1.06][(variant + index * 2) % 3];
+      const height = layer.height * stretch;
       const mesh = new THREE.Mesh(
-        this.taperedCylinder(layer.radiusTop, layer.radiusBottom, layer.height, 7 + variant % 2),
+        this.taperedCylinder(layer.radiusTop, layer.radiusBottom, height, 7 + (variant + index) % 2),
         layer.material
       );
-      mesh.position.set(x + side * index * 0.035 * scale, layer.y * scale, z);
-      mesh.scale.set(scale, scale, depthScale);
-      mesh.rotation.y = rotation;
+      const halfHeight = height / 2 * scale;
+      const spin = hash012(variant * 7.3 + index * 13.7 + (side > 0 ? 5 : 0)) - 0.5;
+      const drift = hash012(variant * 11.9 + index * 29.3 + (side > 0 ? 9 : 0)) - 0.5;
+      mesh.position.set(
+        x + side * index * 0.035 * scale + drift * 0.12 * scale,
+        layerBottom + halfHeight,
+        z + spin * 0.12 * scale
+      );
+      mesh.scale.set(scale * bulge, scale, depthScale * bulge);
+      mesh.rotation.y = baseRotation + index * 0.23 * side + spin * 0.55;
       mesh.userData.sharedGeometry = true;
       cluster.add(mesh);
+      layerBottom += height * scale - 0.08 * scale;
+    }
+    for (let i = 0; i < 2; i++) {
+      const angle = hash012(variant * 17.1 + i * 23.3 + (side > 0 ? 31 : 0)) * Math.PI * 2;
+      const distance = scale * (1.62 + hash012(variant * 19.7 + i * 29.1) * 0.5);
+      const factor = 0.8 + hash012(variant * 13.3 + i * 41.9) * 0.45;
+      const stoneHeight = i === 0 ? 0.3 : 0.24;
+      const stone = new THREE.Mesh(
+        i === 0 ? this.taperedCylinder(0.44, 0.58, stoneHeight, 7) : this.taperedCylinder(0.32, 0.42, stoneHeight, 8),
+        i === 0 ? this.rock : this.rockDark
+      );
+      stone.position.set(
+        x + Math.cos(angle) * distance,
+        stoneHeight / 2 * factor * scale - 0.08 * scale,
+        z + Math.sin(angle) * distance
+      );
+      stone.scale.setScalar(factor * scale);
+      stone.rotation.y = angle * 1.7;
+      stone.userData.sharedGeometry = true;
+      cluster.add(stone);
     }
     group.add(cluster);
   }
+  // A mesa is a talus apron, one near-vertical caprock cliff and a flat top. Four
+  // shrinking drums stacked on each other read as a layered cake (T10), so the cliff
+  // is one tall body now, the strata are thin bands set into its face, and a smaller
+  // butte breaks the silhouette on one flank.
   createMesa(group, side, lateral, z, height, radius, variant) {
     const x = side * lateral;
-    const specs = [
-      { y: height * 0.18, h: height * 0.36, top: radius * 0.88, bottom: radius, material: this.rockDark },
-      { y: height * 0.47, h: height * 0.25, top: radius * 0.7, bottom: radius * 0.8, material: this.rock },
-      { y: height * 0.7, h: height * 0.22, top: radius * 0.54, bottom: radius * 0.63, material: this.rockLight },
-      { y: height * 0.9, h: height * 0.18, top: radius * 0.41, bottom: radius * 0.48, material: this.rock }
-    ];
-    const centerOffsets = [0, radius * 0.025, radius * 0.04, radius * 0.05];
     const rotation = variant * 0.27;
     const depthScale = 0.68 + variant % 3 * 0.07;
-    for (const [index, spec] of specs.entries()) {
-      const mesh = new THREE.Mesh(this.taperedCylinder(spec.top, spec.bottom, spec.h, 8), spec.material);
-      mesh.position.set(
-        x + side * centerOffsets[index],
-        spec.y,
-        z - centerOffsets[index] * 0.42
-      );
+    const talusHeight = height * 0.26;
+    const cliffBottom = talusHeight * 0.7;
+    const cliffTop = height * 0.94;
+    const parts = [
+      // Talus: wide, low, sunk into the sand so no seam shows at the ground.
+      { y0: -0.12, y1: talusHeight, top: radius * 0.78, bottom: radius * 1.14, material: this.rockDark, segments: 9 },
+      // Cliff body: steep, slightly tapered, one mass.
+      { y0: cliffBottom, y1: cliffTop, top: radius * 0.6, bottom: radius * 0.7, material: this.rock, segments: 8 },
+      // Caprock: a thin lip wider than the cliff top, which is what makes a mesa.
+      { y0: cliffTop - 0.05, y1: height, top: radius * 0.62, bottom: radius * 0.66, material: this.rockLight, segments: 8 }
+    ];
+    for (const part of parts) {
+      const mesh = new THREE.Mesh(this.taperedCylinder(part.top, part.bottom, part.y1 - part.y0, part.segments), part.material);
+      mesh.position.set(x, (part.y0 + part.y1) / 2, z);
       mesh.scale.z = depthScale;
       mesh.rotation.y = rotation;
       mesh.userData.sharedGeometry = true;
       group.add(mesh);
     }
+    for (const band of [0.58]) {
+      const y = cliffBottom + (cliffTop - cliffBottom) * band;
+      const bandRadius = radius * (0.7 - 0.1 * (y - cliffBottom) / Math.max(0.01, cliffTop - cliffBottom)) + 0.04;
+      const mesh = new THREE.Mesh(this.taperedCylinder(bandRadius, bandRadius + 0.02, height * 0.035, 8), this.rockLight);
+      mesh.position.set(x, y, z);
+      mesh.scale.z = depthScale;
+      mesh.rotation.y = rotation;
+      mesh.userData.sharedGeometry = true;
+      group.add(mesh);
+    }
+    const flank = variant % 2 === 0 ? 1 : -1;
+    const butteHeight = height * (0.52 + variant % 3 * 0.08);
+    const butte = new THREE.Mesh(this.taperedCylinder(radius * 0.26, radius * 0.34, butteHeight, 7), this.rock);
+    butte.position.set(x + side * radius * 0.2, butteHeight / 2 - 0.1, z + flank * radius * depthScale * 0.92);
+    butte.rotation.y = rotation + 0.4;
+    butte.userData.sharedGeometry = true;
+    group.add(butte);
   }
   dune(width, height, depth, lean) {
     const key = `dune:${width}:${height}:${depth}:${lean}`;
@@ -20366,6 +20992,11 @@ class FactoryEnvironmentKit {
     // uniform glow or a black mass. Only createFactoryHall references these.
     __publicField(this, "hallWindowLit", new THREE.MeshBasicMaterial({ color: 8037278, transparent: true, opacity: 0.5 }));
     __publicField(this, "hallWindowDim", new THREE.MeshBasicMaterial({ color: 3821132, transparent: true, opacity: 0.85 }));
+    applySurfaceDetail(this.yard, { ground: GROUND_DETAIL_DEFAULT });
+    applySurfaceDetail(this.concrete, { ground: GROUND_DETAIL_DEFAULT, ao: STRUCTURE_AO_DEFAULT });
+    for (const material of [this.shell, this.rust, this.fadedYellow, this.steel]) {
+      applySurfaceDetail(material, { ao: STRUCTURE_AO_DEFAULT });
+    }
   }
   setTheme(theme) {
     const night = theme === "night";
@@ -20970,6 +21601,1316 @@ class FactoryEnvironmentKit {
     ]) material.dispose();
   }
 }
+const LATERALS = [24, 27, 30.5, 33, 35.5, 38.5, 43, 49, 56, 64, 73, 84, 97, 112, 130, 152, 178, 208, 240];
+const ROWS_Z = [14, 6, -2, -10, -18, -26, -35, -44, -54, -64, -75, -86, -98, -110, -123, -137, -152, -168, -186, -205, -226];
+const LOOP_ROWS = 24;
+const TERRAIN = {
+  city: {
+    // Urban fringe: embankments and low rises under the far skyline.
+    shape: { amplitude: 2.2, lateralWave: 46, routeWave: 64, ridged: 0, roughness: 0.25 },
+    day: { colorA: 10725801, colorB: 9936543, colorC: 11581110 },
+    sunset: { colorA: 12168868, colorB: 11050389, colorC: 13089712 },
+    night: { colorA: 3819600, colorB: 3227206, colorC: 4477787 }
+  },
+  factory: {
+    // Slag heaps and spoil embankments.
+    shape: { amplitude: 5.5, lateralWave: 38, routeWave: 48, ridged: 0.35, roughness: 0.55 },
+    day: { colorA: 6052951, colorB: 7039330, colorC: 7829103 },
+    sunset: { colorA: 6052951, colorB: 7039330, colorC: 8024678 },
+    night: { colorA: 4146241, colorB: 3619897, colorC: 4869963 }
+  },
+  desert: {
+    // Dune field: ridged crests, long along the prevailing wind.
+    shape: { amplitude: 8.5, lateralWave: 52, routeWave: 86, ridged: 0.85, roughness: 0.12 },
+    day: { colorA: 11096885, colorB: 10242608, colorC: 12413508 },
+    sunset: { colorA: 11096885, colorB: 10242608, colorC: 12413508 },
+    night: { colorA: 4860199, colorB: 4334883, colorC: 5779501 }
+  },
+  abandonedCity: {
+    // Rubble mounds with overgrowth taking the slopes.
+    shape: { amplitude: 4, lateralWave: 30, routeWave: 36, ridged: 0.2, roughness: 0.7 },
+    day: { colorA: 5593683, colorB: 4874049, colorC: 6448734 },
+    sunset: { colorA: 6377535, colorB: 5592637, colorC: 7035464 },
+    night: { colorA: 2896952, colorB: 2634544, colorC: 3291967 }
+  },
+  coast: {
+    // Rolling heath headland on the landward side only.
+    shape: { amplitude: 11, lateralWave: 70, routeWave: 96, ridged: 0.15, roughness: 0.3 },
+    day: { colorA: 10333060, colorB: 8227934, colorC: 11581600 },
+    sunset: { colorA: 9340256, colorB: 7305809, colorC: 10721914 },
+    night: { colorA: 3358530, colorB: 3095864, colorC: 3950667 }
+  }
+};
+const TERRAIN_GLSL = (
+  /* glsl */
+  `
+uniform vec4 uAtShape;      // amplitude, 1/lateral wave, 1/route wave, ridged
+uniform vec4 uAtShape2;     // roughness, inner edge, rise start, rise end
+uniform vec2 uAtGapRange;
+uniform float uAtLoopPhase;
+uniform vec2 uAtRowMask[ ${LOOP_ROWS} ];
+${ROUTE_NOISE_GLSL}
+
+float atTerrainShape( float lateral, float route ) {
+    float periodV = ${ROUTE_PERIOD.toFixed(1)} * uAtShape.z;
+    vec2 p = vec2( lateral * uAtShape.y, route * uAtShape.z );
+    float n = atNoise( p, floor( periodV + 0.5 ) );
+    float ridge = 1.0 - abs( n * 2.0 - 1.0 );
+    float body = mix( n, ridge * ridge, uAtShape.w );
+    float lump = atNoise( p * 2.0 + vec2( 7.0, 0.0 ), floor( periodV * 2.0 + 0.5 ) );
+    return mix( body, body * 0.6 + lump * 0.4, uAtShape2.x );
+}
+
+// Height above the road at an unsigned lateral distance and route coordinate.
+float atTerrainHeight( float lateral, float route, float sideMask ) {
+    float edge = smoothstep( uAtShape2.y, uAtShape2.y + 4.0, lateral );
+    float rise = 0.22 + 0.78 * smoothstep( uAtShape2.z, uAtShape2.w, lateral );
+    float height = -0.5 + edge * ( 0.9 + uAtShape.x * rise * atTerrainShape( lateral, route ) );
+    // Chasms and open water: the surface drops out of sight.
+    float inGap = step( uAtGapRange.x - 3.0, route ) * step( route, uAtGapRange.y + 3.0 ) * step( lateral, 90.0 );
+    height = mix( height, -96.0, inGap );
+    return mix( -60.0, height, sideMask );
+}
+`
+);
+const scratchColor$1 = new THREE.Color();
+class FarTerrain {
+  constructor() {
+    __publicField(this, "mesh");
+    __publicField(this, "material");
+    __publicField(this, "uniforms", {
+      uAtShape: { value: new THREE.Vector4() },
+      uAtShape2: { value: new THREE.Vector4(0, 31, 36, 110) },
+      uAtGapRange: routeUniforms.uAtGap,
+      uAtLoopPhase: { value: 0 },
+      uAtRowMask: { value: Array.from({ length: LOOP_ROWS }, () => new THREE.Vector2(1, 1)) },
+      uAtColorA: { value: new THREE.Color() },
+      uAtColorB: { value: new THREE.Color() },
+      uAtColorC: { value: new THREE.Color() }
+    });
+    this.material = new THREE.MeshStandardMaterial({ color: 16777215, roughness: 1, metalness: 0 });
+    this.material.onBeforeCompile = (shader) => {
+      shader.uniforms.uAtRouteDistance = routeUniforms.uAtRouteDistance;
+      shader.uniforms.uAtRoad = routeUniforms.uAtRoad;
+      Object.assign(shader.uniforms, this.uniforms);
+      shader.vertexShader = shader.vertexShader.replace(
+        "#include <common>",
+        [
+          "#include <common>",
+          ROUTE_VERTEX_GLSL,
+          TERRAIN_GLSL,
+          "attribute float atSide;",
+          "varying vec3 vAtTerrain;"
+        ].join("\n")
+      ).replace(
+        "#include <beginnormal_vertex>",
+        [
+          "float atLateral = position.x;",
+          "float atZ = position.z;",
+          "float atRoute = uAtRouteDistance - atZ;",
+          `float atRowIndex = mod( floor( ( uAtLoopPhase - atZ - 8.0 ) / 9.6 + 0.5 ), ${LOOP_ROWS.toFixed(1)} );`,
+          "vec2 atMaskPair = uAtRowMask[ int( atRowIndex ) ];",
+          "float atSideMask = atSide < 0.0 ? atMaskPair.x : atMaskPair.y;",
+          "float atHeight = atTerrainHeight( atLateral, atRoute, atSideMask );",
+          "float atStep = 1.6;",
+          "float atHx = atTerrainHeight( atLateral + atStep, atRoute, atSideMask ) - atTerrainHeight( atLateral - atStep, atRoute, atSideMask );",
+          // route runs opposite to world z.
+          "float atHz = atTerrainHeight( atLateral, atRoute - atStep, atSideMask ) - atTerrainHeight( atLateral, atRoute + atStep, atSideMask );",
+          "vec2 atRoad = atRoadAt( atZ );",
+          "vec3 atTerrainPosition = vec3( atSide * atLateral + atRoad.x, atRoad.y + atHeight, atZ );",
+          "vec3 objectNormal = normalize( vec3( - atHx * atSide, 2.0 * atStep, - atHz ) );",
+          "vAtTerrain = vec3( atLateral, atRoute, atHeight );",
+          "#ifdef USE_TANGENT",
+          "    vec3 objectTangent = vec3( tangent.xyz );",
+          "#endif"
+        ].join("\n")
+      ).replace("#include <begin_vertex>", "vec3 transformed = atTerrainPosition;");
+      shader.fragmentShader = shader.fragmentShader.replace(
+        "#include <common>",
+        [
+          "#include <common>",
+          "uniform vec3 uAtColorA;",
+          "uniform vec3 uAtColorB;",
+          "uniform vec3 uAtColorC;",
+          "varying vec3 vAtTerrain;",
+          ROUTE_NOISE_GLSL
+        ].join("\n")
+      ).replace(
+        "#include <color_fragment>",
+        [
+          "#include <color_fragment>",
+          `float atPatch = atNoise( vec2( vAtTerrain.x * 0.07, vAtTerrain.y * 0.0625 ), ${(ROUTE_PERIOD * 0.0625).toFixed(1)} );`,
+          "vec3 atGround = mix( uAtColorA, uAtColorB, smoothstep( 0.45, 0.75, atPatch ) );",
+          "atGround = mix( atGround, uAtColorC, smoothstep( 2.5, 9.0, vAtTerrain.z ) * 0.6 );",
+          "diffuseColor.rgb = atGround * ( 0.96 + 0.08 * atPatch );"
+        ].join("\n")
+      );
+    };
+    this.material.customProgramCacheKey = () => "aftertrace-far-terrain";
+    this.mesh = new THREE.Mesh(this.createGeometry(), this.material);
+    this.mesh.name = "aftertrace_far_terrain";
+    this.mesh.frustumCulled = false;
+  }
+  setLook(biome, theme, weather) {
+    const terrain = TERRAIN[biome];
+    const colors = terrain[theme];
+    const shape = terrain.shape;
+    this.uniforms.uAtShape.value.set(shape.amplitude, 1 / shape.lateralWave, 1 / shape.routeWave, shape.ridged);
+    const routeScale = 1 / shape.routeWave;
+    const cells = Math.round(ROUTE_PERIOD * routeScale);
+    this.uniforms.uAtShape.value.z = cells / ROUTE_PERIOD;
+    this.uniforms.uAtShape2.value.set(shape.roughness, 31, 36, 110);
+    this.uniforms.uAtColorA.value.setHex(colors.colorA);
+    this.uniforms.uAtColorB.value.setHex(colors.colorB);
+    this.uniforms.uAtColorC.value.setHex(colors.colorC);
+    if (weather === "snow") {
+      for (const color of [this.uniforms.uAtColorA.value, this.uniforms.uAtColorB.value, this.uniforms.uAtColorC.value]) {
+        color.lerp(scratchColor$1.setHex(theme === "night" ? 5990512 : 15001834), 0.55);
+      }
+    }
+  }
+  // Per loop row and side: 1 where the terrain belongs (land), 0 where it must stay out
+  // (open water beside a crossing). Indexed like the roadside rows.
+  setRowMask(mask) {
+    for (let row = 0; row < LOOP_ROWS; row++) {
+      this.uniforms.uAtRowMask.value[row].set(mask(row, -1) ? 1 : 0, mask(row, 1) ? 1 : 0);
+    }
+  }
+  // Travel since the roadside rows were laid out, wrapped to the loop length.
+  update(loopTravel) {
+    const loop = LOOP_ROWS * 9.6;
+    this.uniforms.uAtLoopPhase.value = (loopTravel % loop + loop) % loop;
+  }
+  dispose() {
+    this.mesh.removeFromParent();
+    this.mesh.geometry.dispose();
+    this.material.dispose();
+  }
+  createGeometry() {
+    const positions = [];
+    const sides = [];
+    const indices = [];
+    const columns = LATERALS.length;
+    for (const side of [-1, 1]) {
+      const base = positions.length / 3;
+      for (const z of ROWS_Z) {
+        for (const lateral of LATERALS) {
+          positions.push(lateral, 0, z);
+          sides.push(side);
+        }
+      }
+      for (let row = 0; row < ROWS_Z.length - 1; row++) {
+        for (let column = 0; column < columns - 1; column++) {
+          const a = base + row * columns + column;
+          const b = a + 1;
+          const c = a + columns;
+          const d = c + 1;
+          if (side === 1) indices.push(a, b, c, b, d, c);
+          else indices.push(a, c, b, b, c, d);
+        }
+      }
+    }
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    geometry.setAttribute("atSide", new THREE.Float32BufferAttribute(sides, 1));
+    geometry.setIndex(indices);
+    return geometry;
+  }
+}
+const MAX_BLOBS = 420;
+const MAX_PER_ROW = 6;
+const MIN_HEIGHT = 0.7;
+const MIN_AREA = 0.9;
+const MAX_AREA = 150;
+const MAX_ASPECT = 4.5;
+const MIN_INNER_EDGE = 4.45;
+const MARGIN = 0.9;
+const GROUND_TOP = {
+  city: -0.03,
+  factory: -0.03,
+  desert: -0.05,
+  abandonedCity: -0.03,
+  coast: -0.05
+};
+const OPACITY = { day: 0.36, sunset: 0.32, night: 0.22 };
+const WEATHER_SCALE = { clear: 1, overcast: 0.82, rain: 0.78, snow: 0.84, sandstorm: 0.7 };
+class ContactShadows {
+  constructor(texture) {
+    __publicField(this, "mesh");
+    __publicField(this, "material");
+    __publicField(this, "count", 0);
+    __publicField(this, "propIndex", new Int32Array(MAX_BLOBS));
+    // x, z, size x, size z in row space.
+    __publicField(this, "local", new Float32Array(MAX_BLOBS * 4));
+    __publicField(this, "roots", new Array(MAX_BLOBS).fill(null));
+    __publicField(this, "groundY", -0.03);
+    __publicField(this, "inverse", new THREE.Matrix4());
+    __publicField(this, "relative", new THREE.Matrix4());
+    __publicField(this, "instance", new THREE.Matrix4());
+    __publicField(this, "box", new THREE.Box3());
+    const geometry = new THREE.PlaneGeometry(1, 1);
+    geometry.rotateX(-Math.PI / 2);
+    this.material = new THREE.MeshBasicMaterial({
+      color: 0,
+      map: texture,
+      transparent: true,
+      opacity: 0.34,
+      depthWrite: false,
+      polygonOffset: true,
+      polygonOffsetFactor: -2,
+      polygonOffsetUnits: -2
+    });
+    this.mesh = new THREE.InstancedMesh(geometry, this.material, MAX_BLOBS);
+    this.mesh.name = "aftertrace_contact_shadows";
+    this.mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    this.mesh.count = 0;
+    this.mesh.frustumCulled = false;
+  }
+  // Reads footprints from a freshly built row module, before it is batched.
+  collect(group, propIndex) {
+    group.updateWorldMatrix(true, true);
+    this.inverse.copy(group.matrixWorld).invert();
+    const found = [];
+    group.traverse((child) => {
+      if (!(child instanceof THREE.Mesh) || Array.isArray(child.material)) return;
+      if (child.userData.ignoreRoadsideBounds || child.material.transparent) return;
+      const type = child.geometry.type;
+      if (type !== "BoxGeometry" && type !== "CylinderGeometry") return;
+      if (!child.geometry.boundingBox) child.geometry.computeBoundingBox();
+      const bounds = child.geometry.boundingBox;
+      if (!bounds) return;
+      this.relative.multiplyMatrices(this.inverse, child.matrixWorld);
+      const instances = child instanceof THREE.InstancedMesh ? child.count : 1;
+      let root = null;
+      for (let node = child; node && node !== group; node = node.parent) {
+        if (node.userData.destructible) root = node;
+      }
+      for (let index = 0; index < instances; index++) {
+        if (child instanceof THREE.InstancedMesh) {
+          child.getMatrixAt(index, this.instance);
+          this.instance.premultiply(this.relative);
+        } else {
+          this.instance.copy(this.relative);
+        }
+        this.box.copy(bounds).applyMatrix4(this.instance);
+        const height = this.box.max.y - this.box.min.y;
+        if (this.box.min.y < -0.35 || this.box.min.y > 0.3 || height < MIN_HEIGHT) continue;
+        const sx = this.box.max.x - this.box.min.x;
+        const sz = this.box.max.z - this.box.min.z;
+        const area = sx * sz;
+        if (area < MIN_AREA || area > MAX_AREA) continue;
+        if (Math.max(sx, sz) / Math.max(0.01, Math.min(sx, sz)) > MAX_ASPECT) continue;
+        found.push({
+          x: (this.box.min.x + this.box.max.x) / 2,
+          z: (this.box.min.z + this.box.max.z) / 2,
+          sx,
+          sz,
+          area,
+          root
+        });
+      }
+    });
+    found.sort((a, b) => b.area - a.area);
+    const kept = [];
+    for (const candidate of found) {
+      if (kept.length >= MAX_PER_ROW || this.count + kept.length >= MAX_BLOBS) break;
+      const covered = kept.some((other) => Math.abs(candidate.x - other.x) < other.sx / 2 && Math.abs(candidate.z - other.z) < other.sz / 2);
+      if (!covered) kept.push(candidate);
+    }
+    for (const footprint of kept) {
+      let sx = footprint.sx + MARGIN;
+      let x = footprint.x;
+      const side = Math.sign(x) || 1;
+      const inner = Math.abs(x) - sx / 2;
+      if (inner < MIN_INNER_EDGE) {
+        const outer = Math.abs(x) + sx / 2;
+        if (outer - MIN_INNER_EDGE < 0.6) continue;
+        sx = outer - MIN_INNER_EDGE;
+        x = side * (MIN_INNER_EDGE + sx / 2);
+      }
+      const slot = this.count;
+      this.propIndex[slot] = propIndex;
+      this.local[slot * 4] = x;
+      this.local[slot * 4 + 1] = footprint.z;
+      this.local[slot * 4 + 2] = sx;
+      this.local[slot * 4 + 3] = footprint.sz + MARGIN;
+      this.roots[slot] = footprint.root;
+      this.count += 1;
+    }
+    this.mesh.count = this.count;
+  }
+  clear() {
+    this.count = 0;
+    this.roots.fill(null);
+    this.mesh.count = 0;
+  }
+  setLook(biome, theme, weather) {
+    this.groundY = GROUND_TOP[biome];
+    this.material.opacity = OPACITY[theme] * WEATHER_SCALE[weather];
+  }
+  // Allocation free. Writes column-major matrices straight into the instance buffer.
+  update(props) {
+    var _a;
+    const matrices = this.mesh.instanceMatrix.array;
+    for (let index = 0; index < this.count; index++) {
+      const group = (_a = props[this.propIndex[index]]) == null ? void 0 : _a.group;
+      const root = this.roots[index];
+      const offset = index * 16;
+      const hidden = !group || !group.visible || root !== null && (!root.visible || root.userData.destroyed);
+      if (hidden) {
+        matrices.fill(0, offset, offset + 16);
+        continue;
+      }
+      const cos = Math.cos(group.rotation.y);
+      const sin = Math.sin(group.rotation.y);
+      const lx = this.local[index * 4];
+      const lz = this.local[index * 4 + 1];
+      const sx = this.local[index * 4 + 2];
+      const sz = this.local[index * 4 + 3];
+      matrices[offset] = cos * sx;
+      matrices[offset + 1] = 0;
+      matrices[offset + 2] = -sin * sx;
+      matrices[offset + 3] = 0;
+      matrices[offset + 4] = 0;
+      matrices[offset + 5] = 1;
+      matrices[offset + 6] = 0;
+      matrices[offset + 7] = 0;
+      matrices[offset + 8] = sin * sz;
+      matrices[offset + 9] = 0;
+      matrices[offset + 10] = cos * sz;
+      matrices[offset + 11] = 0;
+      matrices[offset + 12] = group.position.x + lx * cos + lz * sin;
+      matrices[offset + 13] = group.position.y + this.groundY + 0.012;
+      matrices[offset + 14] = group.position.z - lx * sin + lz * cos;
+      matrices[offset + 15] = 1;
+    }
+    this.mesh.instanceMatrix.needsUpdate = true;
+  }
+  dispose() {
+    this.mesh.removeFromParent();
+    this.mesh.geometry.dispose();
+    this.material.dispose();
+  }
+}
+const PALETTES = {
+  city: {
+    day: { toneA: 11122880, toneB: 13226968, glow: 7314853, beacon: 16738893, glowAmount: 0, shade: 0.18 },
+    sunset: { toneA: 9076102, toneB: 10786202, glow: 16767392, beacon: 16738893, glowAmount: 0.35, shade: 0.2 },
+    night: { toneA: 1451053, toneB: 1978685, glow: 10477030, beacon: 16738893, glowAmount: 1, shade: 0.12 }
+  },
+  factory: {
+    day: { toneA: 7303532, toneB: 8750719, glow: 16761962, beacon: 16738893, glowAmount: 0, shade: 0.18 },
+    sunset: { toneA: 6245703, toneB: 7823962, glow: 16761962, beacon: 16738893, glowAmount: 0.5, shade: 0.16 },
+    night: { toneA: 1120022, toneB: 1646879, glow: 16761962, beacon: 16738893, glowAmount: 1, shade: 0.1 }
+  },
+  desert: {
+    day: { toneA: 9651759, toneB: 11557179, glow: 15706193, beacon: 15706193, glowAmount: 0, shade: 0.24 },
+    sunset: { toneA: 8273201, toneB: 10047548, glow: 15706193, beacon: 15706193, glowAmount: 0, shade: 0.24 },
+    night: { toneA: 2365211, toneB: 3087649, glow: 16763256, beacon: 16763256, glowAmount: 0, shade: 0.12 }
+  },
+  abandonedCity: {
+    day: { toneA: 7305846, toneB: 8621192, glow: 16742986, beacon: 16742986, glowAmount: 0, shade: 0.16 },
+    sunset: { toneA: 8087131, toneB: 9534060, glow: 16742986, beacon: 16742986, glowAmount: 0.2, shade: 0.18 },
+    night: { toneA: 1318437, toneB: 1713710, glow: 16742986, beacon: 16742986, glowAmount: 0.7, shade: 0.1 }
+  },
+  coast: {
+    day: { toneA: 9084038, toneB: 10463648, glow: 16769192, beacon: 16738893, glowAmount: 0, shade: 0.2 },
+    sunset: { toneA: 10190704, toneB: 11571328, glow: 16765066, beacon: 16734780, glowAmount: 0.6, shade: 0.22 },
+    night: { toneA: 1977653, toneB: 2504255, glow: 16767392, beacon: 16736327, glowAmount: 1, shade: 0.1 }
+  }
+};
+const WEATHER_HAZE = {
+  clear: 0,
+  overcast: 0.2,
+  rain: 0.34,
+  snow: 0.3,
+  sandstorm: 0.34
+};
+const GLOW_NONE = 0;
+const GLOW_WINDOW = 0.5;
+const GLOW_BEACON = 1;
+function createRandom(seed) {
+  let state = seed * 2654435761 >>> 0 || 1;
+  return () => {
+    state = state * 1664525 + 1013904223 >>> 0;
+    return state / 4294967295;
+  };
+}
+class SilhouetteBuilder {
+  constructor() {
+    __publicField(this, "positions", []);
+    __publicField(this, "normals", []);
+    __publicField(this, "attributes", []);
+    __publicField(this, "tone", 0);
+    __publicField(this, "haze", 0.5);
+    __publicField(this, "glow", GLOW_NONE);
+    __publicField(this, "a", new THREE.Vector3());
+    __publicField(this, "b", new THREE.Vector3());
+    __publicField(this, "c", new THREE.Vector3());
+    __publicField(this, "normal", new THREE.Vector3());
+    __publicField(this, "edgeA", new THREE.Vector3());
+    __publicField(this, "edgeB", new THREE.Vector3());
+    __publicField(this, "center", new THREE.Vector3());
+    __publicField(this, "placement", { x: 0, z: 0, yaw: 0 });
+  }
+  style(tone, haze, glow = GLOW_NONE) {
+    this.tone = tone;
+    this.haze = haze;
+    this.glow = glow;
+    return this;
+  }
+  // Ring placement: azimuth in radians (0 = straight ahead, positive = right) and
+  // radius. Local +z of the feature faces the camera.
+  place(azimuth, radius) {
+    this.placement = { x: Math.sin(azimuth) * radius, z: -Math.cos(azimuth) * radius, yaw: -azimuth };
+    return this.placement;
+  }
+  toWorld(target, x, y, z) {
+    const { yaw } = this.placement;
+    const cos = Math.cos(yaw);
+    const sin = Math.sin(yaw);
+    return target.set(
+      this.placement.x + x * cos + z * sin,
+      y,
+      this.placement.z - x * sin + z * cos
+    );
+  }
+  // Local-space triangle. Normals are made to point away from the feature centre
+  // (local (0, cy, 0)), so authoring winding never matters.
+  tri(ax, ay, az, bx, by, bz, cx, cy, cz, centerY) {
+    this.toWorld(this.a, ax, ay, az);
+    this.toWorld(this.b, bx, by, bz);
+    this.toWorld(this.c, cx, cy, cz);
+    this.edgeA.subVectors(this.b, this.a);
+    this.edgeB.subVectors(this.c, this.a);
+    this.normal.crossVectors(this.edgeA, this.edgeB);
+    if (this.normal.lengthSq() < 1e-10) return;
+    this.normal.normalize();
+    this.toWorld(this.center, 0, centerY, 0);
+    this.edgeA.addVectors(this.a, this.b).add(this.c).multiplyScalar(1 / 3).sub(this.center);
+    if (this.normal.dot(this.edgeA) < 0) this.normal.negate();
+    for (const vertex of [this.a, this.b, this.c]) {
+      this.positions.push(vertex.x, vertex.y, vertex.z);
+      this.normals.push(this.normal.x, this.normal.y, this.normal.z);
+      this.attributes.push(this.tone, this.haze, this.glow);
+    }
+  }
+  quad(points, centerY) {
+    const [p0, p1, p2, p3] = points;
+    this.tri(...p0, ...p1, ...p2, centerY);
+    this.tri(...p0, ...p2, ...p3, centerY);
+  }
+  // Tapered box around local x/z, from y0 to y1. taper scales the top face.
+  box(width, depth, y0, y1, taper = 1, offsetX = 0, offsetZ = 0, lean = 0) {
+    const hw = width / 2;
+    const hd = depth / 2;
+    const tw = hw * taper;
+    const td = hd * taper;
+    const shift = lean * (y1 - y0);
+    const bottom = [
+      [offsetX - hw, y0, offsetZ - hd],
+      [offsetX + hw, y0, offsetZ - hd],
+      [offsetX + hw, y0, offsetZ + hd],
+      [offsetX - hw, y0, offsetZ + hd]
+    ];
+    const top = [
+      [offsetX - tw + shift, y1, offsetZ - td],
+      [offsetX + tw + shift, y1, offsetZ - td],
+      [offsetX + tw + shift, y1, offsetZ + td],
+      [offsetX - tw + shift, y1, offsetZ + td]
+    ];
+    const centerY = (y0 + y1) / 2;
+    for (let index = 0; index < 4; index++) {
+      const next = (index + 1) % 4;
+      this.quad([bottom[index], bottom[next], top[next], top[index]], centerY);
+    }
+    this.quad(top, y0 - 1e3);
+  }
+  // Box whose roof is cut by a tilted plane: a broken top.
+  brokenBox(width, depth, y0, yLeft, yRight, offsetX = 0) {
+    const hw = width / 2;
+    const hd = depth / 2;
+    const centerY = (y0 + Math.min(yLeft, yRight)) / 2;
+    const l = offsetX - hw;
+    const r = offsetX + hw;
+    const notch = (yLeft + yRight) / 2 - Math.abs(yLeft - yRight) * 0.6;
+    const mid = offsetX + hw * 0.1;
+    for (const z of [hd, -hd]) {
+      this.quad([[l, y0, z], [mid, y0, z], [mid, notch, z], [l, yLeft, z]], centerY);
+      this.quad([[mid, y0, z], [r, y0, z], [r, yRight, z], [mid, notch, z]], centerY);
+    }
+    this.quad([[l, y0, -hd], [l, y0, hd], [l, yLeft, hd], [l, yLeft, -hd]], centerY);
+    this.quad([[r, y0, -hd], [r, y0, hd], [r, yRight, hd], [r, yRight, -hd]], centerY);
+    this.quad([[l, yLeft, -hd], [mid, notch, -hd], [mid, notch, hd], [l, yLeft, hd]], y0 - 1e3);
+    this.quad([[mid, notch, -hd], [r, yRight, -hd], [r, yRight, hd], [mid, notch, hd]], y0 - 1e3);
+  }
+  cylinder(radiusBottom, radiusTop, y0, y1, segments, offsetX = 0, offsetZ = 0) {
+    this.lathe([[radiusBottom, y0], [radiusTop, y1]], segments, offsetX, offsetZ, true);
+  }
+  // Surface of revolution through (radius, y) profile points.
+  lathe(profile, segments, offsetX = 0, offsetZ = 0, capTop = false) {
+    const centerY = (profile[0][1] + profile[profile.length - 1][1]) / 2;
+    for (let segment = 0; segment < segments; segment++) {
+      const a0 = segment / segments * Math.PI * 2;
+      const a1 = (segment + 1) / segments * Math.PI * 2;
+      for (let index = 0; index < profile.length - 1; index++) {
+        const [r0, y0] = profile[index];
+        const [r1, y1] = profile[index + 1];
+        this.quad([
+          [offsetX + Math.cos(a0) * r0, y0, offsetZ + Math.sin(a0) * r0],
+          [offsetX + Math.cos(a1) * r0, y0, offsetZ + Math.sin(a1) * r0],
+          [offsetX + Math.cos(a1) * r1, y1, offsetZ + Math.sin(a1) * r1],
+          [offsetX + Math.cos(a0) * r1, y1, offsetZ + Math.sin(a0) * r1]
+        ], centerY);
+      }
+      if (capTop) {
+        const [rt, yt] = profile[profile.length - 1];
+        this.tri(
+          offsetX,
+          yt,
+          offsetZ,
+          offsetX + Math.cos(a0) * rt,
+          yt,
+          offsetZ + Math.sin(a0) * rt,
+          offsetX + Math.cos(a1) * rt,
+          yt,
+          offsetZ + Math.sin(a1) * rt,
+          yt - 1e3
+        );
+      }
+    }
+  }
+  // Faceted landform patch on a local grid: height(u, v) with u across [-1, 1] and v
+  // front-to-back [-1, 1]. The outer ring of vertices sits at `base`, which keeps
+  // the mass closed against the haze.
+  landform(width, depth, base, columns, rows, height) {
+    const point = (column, row) => {
+      const u = column / columns * 2 - 1;
+      const v = row / rows * 2 - 1;
+      const edge = column === 0 || row === 0 || column === columns || row === rows;
+      return [u * width / 2, edge ? base : base + Math.max(0, height(u, v)), v * depth / 2];
+    };
+    for (let row = 0; row < rows; row++) {
+      for (let column = 0; column < columns; column++) {
+        this.quad([point(column, row), point(column + 1, row), point(column + 1, row + 1), point(column, row + 1)], base - 1e3);
+      }
+    }
+  }
+  // Front-facing window grid on a box face at local z = faceZ.
+  windows(width, y0, y1, faceZ, columns, spacing, litRatio, random, offsetX = 0) {
+    const previousGlow = this.glow;
+    this.glow = GLOW_WINDOW;
+    const cell = width / columns;
+    for (let y = y0 + spacing * 0.6; y < y1 - spacing * 0.4; y += spacing) {
+      for (let column = 0; column < columns; column++) {
+        if (random() > litRatio) continue;
+        const x = offsetX - width / 2 + cell * (column + 0.5);
+        const hw = cell * 0.3;
+        const hh = spacing * 0.28;
+        const z = faceZ + 0.15;
+        this.quad([[x - hw, y - hh, z], [x + hw, y - hh, z], [x + hw, y + hh, z], [x - hw, y + hh, z]], y - 1e3);
+      }
+    }
+    this.glow = previousGlow;
+  }
+  beacon(x, y, z, size) {
+    const previousGlow = this.glow;
+    this.glow = GLOW_BEACON;
+    this.box(size, size, y, y + size, 1, x, z);
+    this.glow = previousGlow;
+  }
+  build() {
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.Float32BufferAttribute(this.positions, 3));
+    geometry.setAttribute("normal", new THREE.Float32BufferAttribute(this.normals, 3));
+    geometry.setAttribute("farStyle", new THREE.Float32BufferAttribute(this.attributes, 3));
+    geometry.computeBoundingSphere();
+    return geometry;
+  }
+}
+const DEG = Math.PI / 180;
+const SPAN = 118 * DEG;
+function scatter(random, minStep, maxStep, visit) {
+  let azimuth = -SPAN + random() * minStep;
+  let index = 0;
+  while (azimuth < SPAN) {
+    visit(azimuth, index);
+    azimuth += (minStep + random() * (maxStep - minStep)) * DEG;
+    index += 1;
+  }
+}
+const centerDamp = (azimuth) => THREE.MathUtils.lerp(0.62, 1, THREE.MathUtils.smoothstep(Math.abs(azimuth), 3 * DEG, 14 * DEG));
+function buildCity(builder, random) {
+  scatter(random, 3.2, 5.6, (azimuth) => {
+    const radius = 178 + random() * 8;
+    builder.place(azimuth, radius);
+    const width = 9 + random() * 10;
+    const depth = 9 + random() * 8;
+    const height = (16 + random() * 26) * centerDamp(azimuth);
+    const tone = random() * 0.6;
+    builder.style(tone, 0.66);
+    builder.box(width, depth, -2, height);
+    if (random() < 0.6) {
+      const crown = height + 3 + random() * 7;
+      builder.box(width * 0.62, depth * 0.62, height - 0.5, crown, 1, (random() - 0.5) * width * 0.2);
+      if (random() < 0.35) {
+        builder.box(0.8, 0.8, crown, crown + 5 + random() * 5);
+        builder.style(tone, 0.5).beacon(0, crown + 9, 0, 1.2);
+      }
+    }
+    builder.style(tone, 0.62).windows(width * 0.86, 3, height - 1, depth / 2, 4, 3.4, 0.42, random);
+  });
+  scatter(random, 7, 13, (azimuth) => {
+    if (Math.abs(azimuth) < 9 * DEG) return;
+    const radius = 146 + random() * 12;
+    builder.place(azimuth, radius);
+    const width = 11 + random() * 9;
+    const depth = 10 + random() * 8;
+    const height = 24 + random() * 20;
+    const tone = 0.3 + random() * 0.7;
+    builder.style(tone, 0.5);
+    builder.box(width, depth, -2, height * 0.55);
+    builder.box(width * 0.8, depth * 0.8, height * 0.55 - 0.4, height, 0.96);
+    builder.box(width * 0.5, depth * 0.5, height - 0.3, height + 2.4);
+    builder.style(tone, 0.44).windows(width * 0.84, 3, height * 0.55 - 1, depth / 2, 5, 3.2, 0.5, random);
+    builder.style(tone, 0.44).windows(width * 0.68, height * 0.55 + 1, height - 1, depth * 0.4, 4, 3.2, 0.5, random);
+    if (random() < 0.4) builder.style(tone, 0.4).beacon(0, height + 2.4, 0, 1.3);
+  });
+}
+function buildFactory(builder, random) {
+  scatter(random, 3, 6, (azimuth) => {
+    builder.place(azimuth, 176 + random() * 8);
+    const tone = random() * 0.5;
+    builder.style(tone, 0.64);
+    const height = 7 + random() * 9;
+    builder.box(16 + random() * 16, 12 + random() * 10, -2, height);
+    if (random() < 0.4) builder.box(6, 6, height - 0.5, height + 3 + random() * 4, 0.9, (random() - 0.5) * 8);
+    if (random() < 0.5) builder.style(tone, 0.6).windows(14, 2, height - 1, 7, 5, 2.6, 0.35, random);
+  });
+  scatter(random, 9, 17, (azimuth, index) => {
+    if (Math.abs(azimuth) < 4 * DEG) return;
+    const radius = 150 + random() * 30;
+    const haze = radius > 168 ? 0.6 : 0.5;
+    builder.place(azimuth, radius);
+    const tone = 0.2 + random() * 0.6;
+    const kind = index % 4;
+    if (kind === 0 || kind === 2) {
+      const count = 1 + Math.floor(random() * 3);
+      for (let stack = 0; stack < count; stack++) {
+        const offset = (stack - (count - 1) / 2) * 6.5;
+        const height = (34 + random() * 22) * centerDamp(azimuth);
+        const radiusBottom = 1.5 + random() * 1.2;
+        builder.style(tone, haze);
+        builder.cylinder(radiusBottom, radiusBottom * 0.72, -2, height, 8, offset);
+        builder.style(1 - tone, haze).cylinder(radiusBottom * 0.78, radiusBottom * 0.76, height - 3.2, height - 1.8, 8, offset);
+        builder.style(tone, haze - 0.08).beacon(offset, height, 0, 1.1);
+      }
+    } else if (kind === 1) {
+      const height = 26 + random() * 12;
+      const base = 11 + random() * 4;
+      builder.style(0.85, haze + 0.04);
+      builder.lathe([[base, -2], [base * 0.82, height * 0.35], [base * 0.62, height * 0.72], [base * 0.66, height]], 12);
+    } else {
+      const height = 30 + random() * 14;
+      const jib = 22 + random() * 10;
+      const side = random() < 0.5 ? -1 : 1;
+      builder.style(0.1 + random() * 0.3, haze);
+      builder.box(1.6, 1.6, -2, height);
+      builder.box(jib, 1.2, height, height + 1.4, 1, side * jib * 0.38);
+      builder.box(3.6, 3, height + 1.4, height + 6, 0.2);
+      builder.box(6, 2.2, height - 2.6, height, 1, -side * 5);
+      builder.style(0.1, haze - 0.08).beacon(0, height + 6, 0, 0.9);
+    }
+  });
+}
+function buildDesert(builder, random) {
+  scatter(random, 10, 22, (azimuth) => {
+    const radius = 178 + random() * 8;
+    builder.place(azimuth, radius);
+    const width = 50 + random() * 70;
+    const height = (15 + random() * 16) * centerDamp(azimuth);
+    const tone = random() * 0.4;
+    builder.style(tone, 0.68);
+    builder.box(width, 30, -3, height * 0.42, 0.78);
+    builder.style(tone + 0.25, 0.68).box(width * 0.7, 20, height * 0.42 - 0.3, height * 0.8, 0.96);
+    builder.style(tone + 0.1, 0.68).box(width * 0.66, 19, height * 0.8 - 0.2, height, 0.97);
+  });
+  scatter(random, 14, 26, (azimuth) => {
+    if (Math.abs(azimuth) < 6 * DEG) return;
+    const radius = 150 + random() * 14;
+    builder.place(azimuth, radius);
+    const tone = 0.3 + random() * 0.5;
+    if (random() < 0.3) {
+      const height2 = 18 + random() * 12;
+      builder.style(tone, 0.52).box(7, 7, -3, height2 * 0.3, 0.7);
+      builder.style(tone + 0.2, 0.52).box(4.6, 4.6, height2 * 0.3 - 0.2, height2, 0.8);
+      return;
+    }
+    const width = 22 + random() * 30;
+    const height = 12 + random() * 12;
+    builder.style(tone, 0.54).box(width, 18, -3, height * 0.4, 0.74);
+    builder.style(tone + 0.22, 0.54).box(width * 0.64, 12, height * 0.4 - 0.2, height, 0.95);
+  });
+}
+function buildRuin(builder, random) {
+  scatter(random, 3.6, 6.2, (azimuth) => {
+    builder.place(azimuth, 176 + random() * 9);
+    const width = 9 + random() * 9;
+    const depth = 9 + random() * 7;
+    const height = (14 + random() * 24) * centerDamp(azimuth);
+    const tone = random() * 0.6;
+    builder.style(tone, 0.66);
+    if (random() < 0.55) {
+      const drop = 3 + random() * 9;
+      const leftHigh = random() < 0.5;
+      builder.brokenBox(width, depth, -2, leftHigh ? height : height - drop, leftHigh ? height - drop : height);
+    } else {
+      builder.box(width, depth, -2, height, 1, 0, 0, (random() - 0.5) * 0.08);
+    }
+    if (random() < 0.12) builder.style(tone, 0.55).windows(width * 0.8, 3, height * 0.6, depth / 2, 3, 3.4, 0.08, random);
+  });
+  scatter(random, 9, 16, (azimuth) => {
+    if (Math.abs(azimuth) < 8 * DEG) return;
+    builder.place(azimuth, 148 + random() * 12);
+    const tone = 0.3 + random() * 0.6;
+    const height = 18 + random() * 18;
+    const width = 12 + random() * 8;
+    builder.style(tone, 0.52);
+    builder.box(width, 10, -2, height * 0.5);
+    for (let column = 0; column < 4; column++) {
+      if (random() < 0.3) continue;
+      const x = -width / 2 + width * (column / 3);
+      builder.box(0.9, 0.9, height * 0.5, height * (0.62 + random() * 0.38), 1, x);
+    }
+    builder.box(width, 0.7, height * 0.72, height * 0.72 + 0.7, 1, 0, 0, 0.02);
+    builder.style(0.95, 0.56).landform(width * 2.2, 22, -2, 6, 3, (u, v) => (1 - u * u) * (1 - v * v) * 6);
+  });
+}
+function buildCoast(builder, random, seaSide) {
+  const sea = -2.2 - 4.2;
+  let azimuth = 6 * DEG + random() * 4 * DEG;
+  while (azimuth < SPAN) {
+    const radius = 150 + random() * 34;
+    builder.place(seaSide * azimuth, radius);
+    const width = 40 + random() * 80;
+    const height = 8 + random() * 14;
+    const peaks = 1 + Math.floor(random() * 3);
+    const phase = random() * Math.PI * 2;
+    builder.style(0.3 + random() * 0.5, radius > 170 ? 0.66 : 0.52);
+    builder.landform(width, 34, sea, 10, 4, (u, v) => {
+      const ridge = Math.pow(Math.max(0, 1 - u * u), 0.7) * (1 - v * v);
+      const crest = 0.72 + 0.28 * Math.sin(u * Math.PI * peaks + phase);
+      const cliff = v > 0.2 ? 1 - (v - 0.2) * 0.4 : 1;
+      return ridge * crest * cliff * (height + 4.2);
+    });
+    azimuth += width / radius + (6 + random() * 16) * DEG;
+  }
+  for (const [radius, haze, minH, maxH] of [[180, 0.64, 18, 32], [152, 0.52, 10, 20]]) {
+    let landAzimuth = (radius > 170 ? 2 : 10) * DEG;
+    while (landAzimuth < SPAN) {
+      const width = 60 + random() * 70;
+      builder.place(-seaSide * landAzimuth, radius + random() * 6);
+      const height = minH + random() * (maxH - minH);
+      const phase = random() * Math.PI * 2;
+      builder.style(random() * 0.6, haze);
+      builder.landform(width, 40, -2.4, 12, 4, (u, v) => {
+        const body = Math.pow(Math.max(0, 1 - u * u), 0.55) * (1 - v * v * 0.8);
+        return body * height * (0.8 + 0.2 * Math.sin(u * 5 + phase));
+      });
+      landAzimuth += width * 0.8 / radius;
+    }
+  }
+}
+class FarSilhouettes {
+  constructor() {
+    __publicField(this, "mesh");
+    __publicField(this, "material");
+    __publicField(this, "yaw", 0);
+    __publicField(this, "elevation", 0);
+    __publicField(this, "key", "");
+    this.material = new THREE.ShaderMaterial({
+      name: "aftertrace_far_silhouettes",
+      uniforms: THREE.UniformsUtils.merge([
+        THREE.UniformsLib.fog,
+        {
+          uToneA: { value: new THREE.Color() },
+          uToneB: { value: new THREE.Color() },
+          uGlowColor: { value: new THREE.Color() },
+          uBeaconColor: { value: new THREE.Color() },
+          // glow amount, shade depth, weather haze, base fade height
+          uParams: { value: new THREE.Vector4(0, 0.18, 0, 9) },
+          uBaseY: { value: 0 },
+          uLightDirection: { value: new THREE.Vector3(-0.3, 0.4, -0.9).normalize() }
+        }
+      ]),
+      vertexShader: (
+        /* glsl */
+        `
+                attribute vec3 farStyle;
+                varying vec3 vFarStyle;
+                varying vec3 vFarNormal;
+                varying float vFarHeight;
+                void main() {
+                    vFarStyle = farStyle;
+                    vFarNormal = normal;
+                    vFarHeight = position.y;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+                }
+            `
+      ),
+      fragmentShader: (
+        /* glsl */
+        `
+                #include <common>
+                #include <fog_pars_fragment>
+                uniform vec3 uToneA;
+                uniform vec3 uToneB;
+                uniform vec3 uGlowColor;
+                uniform vec3 uBeaconColor;
+                uniform vec4 uParams;
+                uniform float uBaseY;
+                uniform vec3 uLightDirection;
+                varying vec3 vFarStyle;
+                varying vec3 vFarNormal;
+                varying float vFarHeight;
+
+                void main() {
+                    vec3 normal = normalize( vFarNormal );
+                    float facing = dot( normal, uLightDirection ) * 0.5 + 0.5;
+                    float skyLit = max( normal.y, 0.0 );
+                    vec3 color = mix( uToneA, uToneB, clamp( vFarStyle.x, 0.0, 1.0 ) );
+                    color *= mix( 1.0 - uParams.y, 1.0 + uParams.y * 0.35, facing ) + skyLit * 0.08;
+                    float window = step( 0.25, vFarStyle.z ) * ( 1.0 - step( 0.75, vFarStyle.z ) );
+                    float beacon = step( 0.75, vFarStyle.z );
+                    float glow = ( window + beacon ) * uParams.x;
+                    // Unlit panes read as dark glazing; lit ones take the glow colour.
+                    color = mix( color, color * 0.72, window * ( 1.0 - uParams.x ) );
+                    color = mix( color, window > 0.5 ? uGlowColor : uBeaconColor, glow );
+                    gl_FragColor = vec4( color, 1.0 );
+                    #include <tonemapping_fragment>
+                    #include <colorspace_fragment>
+                    #ifdef USE_FOG
+                        float haze = clamp( vFarStyle.y + uParams.z, 0.0, 1.0 );
+                        float baseFade = 1.0 - smoothstep( uBaseY, uBaseY + uParams.w, vFarHeight );
+                        haze = haze + ( 1.0 - haze ) * baseFade;
+                        // Lit windows and beacons cut through the haze more than walls do.
+                        haze *= 1.0 - glow * 0.55;
+                        gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, haze );
+                    #endif
+                }
+            `
+      ),
+      side: THREE.DoubleSide,
+      fog: true
+    });
+    this.mesh = new THREE.Mesh(new THREE.BufferGeometry(), this.material);
+    this.mesh.name = "aftertrace_far_silhouettes";
+    this.mesh.renderOrder = -90;
+    this.mesh.frustumCulled = false;
+  }
+  // Rebuilds only when the biome, stage seed or coast shoreline side changes.
+  build(biome, stage, coastSeaSide) {
+    const key = `${biome}:${stage}:${coastSeaSide}`;
+    if (key === this.key) return;
+    this.key = key;
+    const random = createRandom(stage * 97 + biome.length * 13 + (coastSeaSide > 0 ? 7 : 0));
+    const builder = new SilhouetteBuilder();
+    if (biome === "city") buildCity(builder, random);
+    else if (biome === "factory") buildFactory(builder, random);
+    else if (biome === "desert") buildDesert(builder, random);
+    else if (biome === "abandonedCity") buildRuin(builder, random);
+    else buildCoast(builder, random, coastSeaSide);
+    this.mesh.geometry.dispose();
+    this.mesh.geometry = builder.build();
+    this.material.uniforms.uBaseY.value = biome === "coast" ? -4.2 - 2 : -1;
+  }
+  setLook(biome, theme, weather, lightDirection) {
+    const palette = PALETTES[biome][theme];
+    const uniforms = this.material.uniforms;
+    uniforms.uToneA.value.setHex(palette.toneA);
+    uniforms.uToneB.value.setHex(palette.toneB);
+    uniforms.uGlowColor.value.setHex(palette.glow);
+    uniforms.uBeaconColor.value.setHex(palette.beacon);
+    const glowAmount = weather === "clear" ? palette.glowAmount : palette.glowAmount * 0.6;
+    uniforms.uParams.value.set(glowAmount, palette.shade, WEATHER_HAZE[weather], biome === "coast" ? 7 : 9);
+    uniforms.uLightDirection.value.copy(lightDirection).normalize();
+  }
+  // Anchored to the camera in x/z, to the road level in y, turned with the dome.
+  update(delta, yaw, roadLevel, cameraPosition) {
+    this.yaw = yaw;
+    this.elevation = THREE.MathUtils.damp(this.elevation, roadLevel, 1.6, delta);
+    this.mesh.rotation.y = this.yaw;
+    if (cameraPosition) this.mesh.position.set(cameraPosition.x, this.elevation, cameraPosition.z);
+    else this.mesh.position.y = this.elevation;
+  }
+  anchor(position) {
+    this.mesh.position.set(position.x, this.elevation, position.z);
+  }
+  dispose() {
+    this.mesh.removeFromParent();
+    this.mesh.geometry.dispose();
+    this.material.dispose();
+  }
+}
+const DAY_HAZE = { hazeTop: 4.5, hazeLiftTop: 15, hazeLift: 0.2 };
+const NIGHT_HAZE = { hazeTop: 3.5, hazeLiftTop: 12, hazeLift: 0.16 };
+const look = (values, haze = DAY_HAZE) => ({
+  mid: null,
+  midHeight: 8,
+  ...values,
+  ...haze
+});
+const SKY_LOOKS = {
+  city: {
+    // A crisper blue than the other biomes so the white city keeps a coloured
+    // counterweight in the top of the frame, over a pale blue haze (the city day
+    // fog) and the only cloud band in the game. The haze runs a little higher than
+    // DAY_HAZE so gaps in the far skyline show haze rather than a saturated band.
+    day: look({ zenith: 2056128, mid: 9418982, midHeight: 7, power: 0.3, body: 16774890, glow: 0.3, glowPower: 48, aureole: 0.1, aureolePower: 3, disc: 1.3, discRadius: 1.6, moon: false, clouds: 1 }, { hazeTop: 6.5, hazeLiftTop: 14, hazeLift: 0.1 }),
+    sunset: look({ zenith: 7171983, power: 0.6, body: 16762245, glow: 0.55, glowPower: 22, aureole: 0.38, aureolePower: 2.4, disc: 1.7, discRadius: 1.9, moon: false, clouds: 0 }),
+    night: look({ zenith: 463130, power: 0.7, body: 14477554, glow: 0.08, glowPower: 60, aureole: 0.04, aureolePower: 4, disc: 0.92, discRadius: 1.25, moon: true, clouds: 0 }, NIGHT_HAZE)
+  },
+  factory: {
+    day: look({ zenith: 8492707, power: 0.7, body: 16773336, glow: 0.22, glowPower: 30, aureole: 0.14, aureolePower: 2.6, disc: 1.1, discRadius: 1.8, moon: false, clouds: 0 }),
+    // A dusk violet over the rust haze. The low amber disc sits in the plant's
+    // smoke band, so it is broader and softer than the city's.
+    sunset: look({ zenith: 6050404, mid: 13602143, midHeight: 5, power: 0.66, body: 16758380, glow: 0.52, glowPower: 18, aureole: 0.36, aureolePower: 2.1, disc: 1.6, discRadius: 2.2, moon: false, clouds: 0 }),
+    night: look({ zenith: 527373, power: 0.7, body: 14275523, glow: 0.05, glowPower: 60, aureole: 0.03, aureolePower: 4, disc: 0.7, discRadius: 1.2, moon: true, clouds: 0 }, NIGHT_HAZE)
+  },
+  desert: {
+    // Dust-warm band over the red haze, then a pale desert blue. Without the band
+    // the ramp from the orange fog to blue passed through a dull lavender.
+    day: look({ zenith: 7906248, mid: 15716267, midHeight: 7.5, power: 0.7, body: 16773328, glow: 0.34, glowPower: 40, aureole: 0.22, aureolePower: 3, disc: 1.35, discRadius: 1.7, moon: false, clouds: 0 }),
+    sunset: look({ zenith: 5985392, power: 0.6, body: 16756842, glow: 0.55, glowPower: 18, aureole: 0.4, aureolePower: 2.2, disc: 1.7, discRadius: 2, moon: false, clouds: 0 }),
+    night: look({ zenith: 329487, power: 0.7, body: 14477554, glow: 0.1, glowPower: 50, aureole: 0.05, aureolePower: 4, disc: 1, discRadius: 1.3, moon: true, clouds: 0 }, NIGHT_HAZE)
+  },
+  abandonedCity: {
+    // Overcast by design: a veiled, broad sun and a flat grey-green vault.
+    day: look({ zenith: 8096397, power: 0.85, body: 15921638, glow: 0.12, glowPower: 12, aureole: 0.08, aureolePower: 2, disc: 0.34, discRadius: 2.6, moon: false, clouds: 0 }),
+    sunset: look({ zenith: 7037554, power: 0.7, body: 16757635, glow: 0.4, glowPower: 16, aureole: 0.3, aureolePower: 2.2, disc: 1.2, discRadius: 2.2, moon: false, clouds: 0 }),
+    night: look({ zenith: 527634, power: 0.7, body: 14083310, glow: 0.08, glowPower: 60, aureole: 0.04, aureolePower: 4, disc: 0.9, discRadius: 1.25, moon: true, clouds: 0 }, NIGHT_HAZE)
+  },
+  coast: {
+    // Zenith and glow lobes mirror COAST_PALETTES so the analytic reflection on the
+    // water and the dome above it describe the same sky. The dome's disc is crisper
+    // than the reflected one on purpose: the water blurs it, the sky does not.
+    day: look({ zenith: 7315398, power: 0.42, body: 16771528, glow: 0.1, glowPower: 12, aureole: 0.14, aureolePower: 3, disc: 1.3, discRadius: 1.5, moon: false, clouds: 0 }),
+    sunset: look({ zenith: 9077401, power: 0.42, body: 16763274, glow: 0.36, glowPower: 10, aureole: 0.28, aureolePower: 2.5, disc: 1.9, discRadius: 2, moon: false, clouds: 0 }),
+    night: look({ zenith: 2308940, power: 0.42, body: 12376304, glow: 0.07, glowPower: 14, aureole: 0.04, aureolePower: 4, disc: 0.9, discRadius: 1.2, moon: true, clouds: 0 }, NIGHT_HAZE)
+  }
+};
+const scratchColor = new THREE.Color();
+const scratchBackground = new THREE.Color();
+function resolveSkyLook(biome, theme, weather, target) {
+  Object.assign(target, SKY_LOOKS[biome][theme]);
+  if (weather === "overcast") {
+    target.power = 1.15;
+    target.glow *= 0.22;
+    target.aureole *= 0.5;
+    target.disc = 0;
+    target.clouds = 0;
+    target.hazeTop += 5;
+  } else if (weather === "rain") {
+    target.power = 1.35;
+    target.glow *= 0.08;
+    target.aureole *= 0.25;
+    target.disc = 0;
+    target.clouds = 0;
+    target.hazeTop += 7;
+  } else if (weather === "snow") {
+    target.power = 1.2;
+    target.glow *= 0.18;
+    target.aureole *= 0.4;
+    target.disc = 0;
+    target.clouds = 0;
+    target.hazeTop += 6;
+  } else if (weather === "sandstorm") {
+    target.power = 0.95;
+    target.glow *= 0.6;
+    target.disc *= 0.42;
+    target.discRadius *= 1.7;
+    target.clouds = 0;
+    target.hazeTop += 4;
+  }
+  return target;
+}
+function resolveZenith(look2, weather, background, target) {
+  target.setHex(look2.zenith);
+  if (weather === "clear") return target;
+  scratchBackground.setHex(background);
+  const settings = weather === "overcast" ? [0.86, 0.82] : weather === "rain" ? [0.76, 0.9] : weather === "snow" ? [0.94, 0.85] : [0.82, 0.7];
+  scratchColor.copy(scratchBackground).multiplyScalar(settings[0]);
+  return target.lerp(scratchColor, settings[1]);
+}
+const SKY_RADIUS = 150;
+const CLOUD_BAND_TOP = 27;
+class SkyDome {
+  constructor() {
+    __publicField(this, "mesh");
+    __publicField(this, "material");
+    __publicField(this, "cloudTexture");
+    __publicField(this, "look", { ...SKY_LOOKS.city.day });
+    __publicField(this, "bodyDirection", new THREE.Vector3(0, 0.3, -1).normalize());
+    __publicField(this, "moonRight", new THREE.Vector3());
+    __publicField(this, "moonUp", new THREE.Vector3());
+    __publicField(this, "cloudDrift", 0);
+    this.cloudTexture = this.createCloudTexture();
+    const uniforms = THREE.UniformsUtils.merge([
+      THREE.UniformsLib.fog,
+      {
+        uZenith: { value: new THREE.Color() },
+        // rgb band colour (linear), w band peak as sine of elevation (0 = none)
+        uMid: { value: new THREE.Vector4() },
+        uPower: { value: 0.55 },
+        uBodyDirection: { value: new THREE.Vector3() },
+        uBodyColor: { value: new THREE.Color() },
+        // cos inner, cos outer, intensity, moon flag
+        uDisc: { value: new THREE.Vector4() },
+        // glow strength, glow power, aureole strength, aureole power
+        uGlow: { value: new THREE.Vector4() },
+        // haze top, lift top (both sine of elevation), lift amount
+        uHaze: { value: new THREE.Vector3() },
+        uMoonRight: { value: new THREE.Vector3() },
+        uMoonUp: { value: new THREE.Vector3() },
+        // coverage, drift, band top (sine)
+        uCloud: { value: new THREE.Vector3() },
+        uCloudShadow: { value: new THREE.Color() },
+        uCloudLit: { value: new THREE.Color() },
+        uCloudMap: { value: null }
+      }
+    ]);
+    uniforms.uCloudMap.value = this.cloudTexture;
+    this.material = new THREE.ShaderMaterial({
+      name: "aftertrace_sky_dome",
+      uniforms,
+      vertexShader: (
+        /* glsl */
+        `
+                varying vec3 vSkyDirection;
+                void main() {
+                    vSkyDirection = position;
+                    vec4 viewPosition = modelViewMatrix * vec4( position, 1.0 );
+                    gl_Position = projectionMatrix * viewPosition;
+                }
+            `
+      ),
+      fragmentShader: (
+        /* glsl */
+        `
+                #include <common>
+                #include <fog_pars_fragment>
+                uniform vec3 uZenith;
+                uniform vec4 uMid;
+                uniform float uPower;
+                uniform vec3 uBodyDirection;
+                uniform vec3 uBodyColor;
+                uniform vec4 uDisc;
+                uniform vec4 uGlow;
+                uniform vec3 uHaze;
+                uniform vec3 uMoonRight;
+                uniform vec3 uMoonUp;
+                uniform vec3 uCloud;
+                uniform vec3 uCloudShadow;
+                uniform vec3 uCloudLit;
+                uniform sampler2D uCloudMap;
+                varying vec3 vSkyDirection;
+
+                void main() {
+                    vec3 direction = normalize( vSkyDirection );
+                    float elevation = direction.y;
+                    float above = clamp( elevation, 0.0, 1.0 );
+                    #ifdef USE_FOG
+                        vec3 horizon = fogColor;
+                    #else
+                        vec3 horizon = vec3( 0.85 );
+                    #endif
+                    // uMid.w is the band's peak in sine of elevation, or zero when the
+                    // look has no band, which reduces this to a plain two-stop ramp.
+                    vec3 sky;
+                    if ( uMid.w > 0.0 ) {
+                        vec3 low = mix( horizon, uMid.rgb, smoothstep( 0.0, uMid.w, above ) );
+                        float upper = clamp( ( above - uMid.w * 0.4 ) / ( 1.0 - uMid.w * 0.4 ), 0.0, 1.0 );
+                        sky = mix( low, uZenith, pow( upper, uPower ) );
+                    } else {
+                        sky = mix( horizon, uZenith, pow( above, uPower ) );
+                    }
+
+                    float facing = dot( direction, uBodyDirection );
+                    float lit = max( facing, 0.0 );
+                    sky += uBodyColor * ( uGlow.x * pow( lit, uGlow.y )
+                        + uGlow.z * pow( lit, uGlow.w ) * ( 1.0 - above ) );
+
+                    // Disc. The moon gets limb darkening and three soft maria in its own
+                    // tangent frame; the sun is a flat bright coin with a soft rim.
+                    float disc = smoothstep( uDisc.y, uDisc.x, facing );
+                    if ( uDisc.z > 0.0 && disc > 0.0 ) {
+                        vec3 body = uBodyColor * uDisc.z;
+                        if ( uDisc.w > 0.5 ) {
+                            float radius = sqrt( max( 0.0, 1.0 - uDisc.x * uDisc.x ) );
+                            vec2 local = vec2( dot( direction, uMoonRight ), dot( direction, uMoonUp ) ) / max( radius, 1e-4 );
+                            float rim = clamp( length( local ), 0.0, 1.0 );
+                            float maria = smoothstep( 0.42, 0.12, length( local - vec2( -0.28, 0.2 ) ) ) * 0.2
+                                + smoothstep( 0.3, 0.08, length( local - vec2( 0.3, 0.26 ) ) ) * 0.14
+                                + smoothstep( 0.34, 0.1, length( local - vec2( 0.12, -0.34 ) ) ) * 0.16;
+                            body *= ( 1.0 - maria ) * ( 1.0 - 0.22 * rim * rim );
+                        }
+                        sky = mix( sky, body, disc );
+                    }
+
+                    if ( uCloud.x > 0.0 ) {
+                        float azimuth = atan( direction.x, -direction.z );
+                        vec2 cloudUv = vec2(
+                            azimuth * 0.3183099 + uCloud.y,
+                            pow( clamp( elevation / uCloud.z, 0.0, 1.0 ), 0.78 )
+                        );
+                        vec4 cloud = texture2D( uCloudMap, cloudUv );
+                        vec3 cloudColor = mix( uCloudShadow, uCloudLit, cloud.r );
+                        cloudColor += uBodyColor * uGlow.x * 0.8 * pow( lit, 6.0 );
+                        sky = mix( sky, cloudColor, cloud.a * uCloud.x * step( 0.0, elevation ) );
+                    }
+
+                    gl_FragColor = vec4( sky, 1.0 );
+                    #include <tonemapping_fragment>
+                    #include <colorspace_fragment>
+                    #ifdef USE_FOG
+                        float hazeBand = 1.0 - smoothstep( 0.0, uHaze.x, elevation );
+                        float hazeLift = uHaze.z * pow( 1.0 - clamp( elevation / uHaze.y, 0.0, 1.0 ), 2.0 );
+                        gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, clamp( hazeBand + ( 1.0 - hazeBand ) * hazeLift, 0.0, 1.0 ) );
+                    #endif
+                }
+            `
+      ),
+      side: THREE.BackSide,
+      depthWrite: false,
+      fog: true
+    });
+    this.mesh = new THREE.Mesh(new THREE.SphereGeometry(SKY_RADIUS, 32, 16), this.material);
+    this.mesh.name = "aftertrace_sky_dome";
+    this.mesh.renderOrder = -100;
+    this.mesh.frustumCulled = false;
+  }
+  // Direction is dome-local. The dome's yaw (setYaw) turns the body with it.
+  setLook(biome, theme, weather, background, bodyDirection) {
+    const lookValues = resolveSkyLook(biome, theme, weather, this.look);
+    const uniforms = this.material.uniforms;
+    resolveZenith(lookValues, weather, background, uniforms.uZenith.value);
+    uniforms.uPower.value = lookValues.power;
+    const mid = uniforms.uMid.value;
+    if (lookValues.mid === null) {
+      mid.set(0, 0, 0, 0);
+    } else {
+      scratchColor.setHex(lookValues.mid);
+      if (weather !== "clear") scratchColor.lerp(scratchBackground.setHex(background), 0.75);
+      mid.set(scratchColor.r, scratchColor.g, scratchColor.b, Math.sin(THREE.MathUtils.degToRad(lookValues.midHeight)));
+    }
+    this.bodyDirection.copy(bodyDirection).normalize();
+    uniforms.uBodyDirection.value.copy(this.bodyDirection);
+    uniforms.uBodyColor.value.setHex(lookValues.body);
+    const radius = THREE.MathUtils.degToRad(lookValues.discRadius);
+    const edge = radius * (lookValues.moon ? 0.08 : 0.14);
+    uniforms.uDisc.value.set(
+      Math.cos(Math.max(1e-4, radius - edge)),
+      Math.cos(radius + edge),
+      lookValues.disc,
+      lookValues.moon ? 1 : 0
+    );
+    uniforms.uGlow.value.set(
+      lookValues.glow,
+      lookValues.glowPower,
+      lookValues.aureole,
+      lookValues.aureolePower
+    );
+    uniforms.uHaze.value.set(
+      Math.sin(THREE.MathUtils.degToRad(lookValues.hazeTop)),
+      Math.sin(THREE.MathUtils.degToRad(lookValues.hazeLiftTop)),
+      lookValues.hazeLift
+    );
+    this.moonRight.set(0, 1, 0).cross(this.bodyDirection).normalize();
+    this.moonUp.copy(this.bodyDirection).cross(this.moonRight).normalize();
+    uniforms.uMoonRight.value.copy(this.moonRight);
+    uniforms.uMoonUp.value.copy(this.moonUp);
+    const cloud = uniforms.uCloud.value;
+    cloud.set(lookValues.clouds, this.cloudDrift, Math.sin(THREE.MathUtils.degToRad(CLOUD_BAND_TOP)));
+    uniforms.uCloudShadow.value.setHex(background).lerp(uniforms.uZenith.value, 0.5).multiplyScalar(0.78);
+    uniforms.uCloudLit.value.setHex(lookValues.body).multiplyScalar(0.98);
+  }
+  setClouds(amount) {
+    this.material.uniforms.uCloud.value.x = amount;
+  }
+  setYaw(yaw) {
+    this.mesh.rotation.y = yaw;
+  }
+  update(delta) {
+    const cloud = this.material.uniforms.uCloud.value;
+    if (cloud.x <= 0) return;
+    this.cloudDrift = (this.cloudDrift + delta * 11e-4) % 1;
+    cloud.y = this.cloudDrift;
+  }
+  dispose() {
+    this.mesh.removeFromParent();
+    this.mesh.geometry.dispose();
+    this.material.dispose();
+    this.cloudTexture.dispose();
+  }
+  // Flat-based cumulus in two tones (red = lit fraction, alpha = coverage), drawn
+  // once. Soft edges come from a small blur so the band magnifies without stair steps.
+  createCloudTexture() {
+    const width = 1024;
+    const height = 256;
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d");
+    if (context) {
+      let seed = 1592594996;
+      const random = () => {
+        seed = seed * 1664525 + 1013904223 >>> 0;
+        return seed / 4294967295;
+      };
+      context.clearRect(0, 0, width, height);
+      context.filter = "blur(2px)";
+      const clusters = 17;
+      for (let index = 0; index < clusters; index++) {
+        const centerX = (index + random() * 0.7) / clusters * width;
+        const baseV = 0.12 + random() * 0.3;
+        const baseY = height * (1 - baseV);
+        const scale = 0.55 + random() * 0.9 * (1 - baseV);
+        const puffs = 4 + Math.floor(random() * 5);
+        const spread = 60 * scale + random() * 50;
+        for (let copy = -1; copy <= 1; copy++) {
+          const offsetX = copy * width;
+          context.save();
+          context.beginPath();
+          context.rect(offsetX + centerX - spread * 2, 0, spread * 4, baseY);
+          context.clip();
+          for (let puff = 0; puff < puffs; puff++) {
+            const progress = puffs > 1 ? puff / (puffs - 1) : 0.5;
+            const radius = (14 + random() * 22) * scale * (1 - Math.abs(progress - 0.5) * 0.8);
+            const x = offsetX + centerX + (progress - 0.5) * spread * 1.6 + (random() - 0.5) * 10;
+            const y = baseY - radius * (0.35 + random() * 0.4);
+            const gradient = context.createLinearGradient(0, y - radius, 0, y + radius);
+            gradient.addColorStop(0, "rgba(255,0,0,1)");
+            gradient.addColorStop(0.55, "rgba(200,0,0,1)");
+            gradient.addColorStop(1, "rgba(90,0,0,1)");
+            context.fillStyle = gradient;
+            context.beginPath();
+            context.ellipse(x, y, radius * 1.35, radius, 0, 0, Math.PI * 2);
+            context.fill();
+          }
+          context.restore();
+        }
+      }
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.NoColorSpace;
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.ClampToEdgeWrapping;
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.generateMipmaps = false;
+    return texture;
+  }
+}
 const RAIN_STREAK_COUNT = 220;
 const SNOW_PARTICLE_COUNT = 220;
 const SANDSTORM_PARTICLE_COUNT = 240;
@@ -20978,15 +22919,19 @@ const RAIN_RIPPLE_RATE = 34;
 const RAIN_RIPPLE_SURFACE_LIFT = 0.055;
 const STREETLIGHT_COUNT = 16;
 const STAR_COUNT = 160;
-const DESERT_MOON_OFFSET = new THREE.Vector3(-28, 15, -86);
-const CITY_CLEAR_SKY_RADIUS = 118;
-const CITY_CLEAR_SKY_PLATE_TOP = 30;
-const CITY_CLEAR_SKY_WRAPS = 2;
-const CITY_CLEAR_SKY_SWAY_RATE = 53e-4;
-const CITY_CLEAR_SKY_SWAY_LIMIT = 0.34;
-const CITY_CLEAR_SKY_HAZE_TOP = 7;
-const CITY_CLEAR_SKY_HAZE_LIFT = 0.13;
-const CITY_CLEAR_SKY_HAZE_LIFT_TOP = 18;
+const FAR_YAW_SAMPLE_Z = -70;
+const FAR_YAW_FOLLOW = 0.8;
+const FAR_YAW_RATE = 0.7;
+const ROAD_DETAIL_FADE = 118;
+const ROAD_DETAIL = {
+  city: { day: [-0.045, 0.05, 0.15], sunset: [-0.045, 0.05, 0.15], night: [-0.05, 0.05, 0.16] },
+  factory: { day: [0.05, 0.06, 0.18], sunset: [0.05, 0.06, 0.18], night: [-0.05, 0.06, 0.2] },
+  desert: { day: [-0.045, 0.05, 0.16], sunset: [-0.045, 0.05, 0.16], night: [-0.05, 0.05, 0.16] },
+  abandonedCity: { day: [0.035, 0.08, 0.26], sunset: [0.035, 0.08, 0.26], night: [-0.04, 0.07, 0.26] },
+  coast: { day: [-0.04, 0.05, 0.15], sunset: [-0.04, 0.05, 0.15], night: [-0.05, 0.05, 0.15] }
+};
+const CITY_GROUND_DETAIL = { amount: 0.05, patch: 0.035, grime: 0.07 };
+const STRUCTURE_AO = { strength: 0.26, height: 0.9 };
 const MAX_ROAD_HEADING = 0.115;
 const FORWARD_VISIBILITY_SCALE = 1.4;
 const FINISH_STRAIGHT_LENGTH = 96;
@@ -20997,6 +22942,23 @@ const FINISH_S_EDGE_EASE = 0.1;
 const JUMP_GAP_VISUAL_WIDTH = 132;
 const JUMP_GAP_WALL_HEIGHT = 96;
 const JUMP_GAP_ROADSIDE_MARGIN = 10;
+const JUMP_GAP_ROADSIDE_MARGIN_WITH_APRON = 4.8;
+const JUMP_GAP_APRON_LENGTH = 11;
+const JUMP_GAP_APRON_HALF_WIDTH = 34;
+const JUMP_GAP_APRON_TOP = {
+  city: -0.035,
+  factory: -0.035,
+  desert: -0.056,
+  abandonedCity: -0.035,
+  coast: -0.056
+};
+const JUMP_GAP_APRON_COLOR = {
+  city: { day: 11120300, sunset: 11120300, night: 4543323 },
+  factory: { day: 6052951, sunset: 6052951, night: 4146241 },
+  desert: { day: 11096885, sunset: 11096885, night: 4860199 },
+  abandonedCity: { day: 6054495, sunset: 7035469, night: 3160383 },
+  coast: { day: 14206106, sunset: 13674616, night: 3949648 }
+};
 const ROAD_PATTERN_TEMPLATES = [
   { id: "straight-charge", length: 64, mirrorable: false, headingPoints: [[0, 0], [1, 0]] },
   { id: "committed-turn", length: 96, headingPoints: [[0, 0], [0.14, 0], [0.72, 0.1], [1, 0.1]] },
@@ -21013,6 +22975,7 @@ const createRoadPatternRecipe = (template, direction) => ({
   headingPoints: template.headingPoints.map(([distance, headingDelta]) => [distance, headingDelta * direction])
 });
 const easeRoadPoint = (value) => value * value * (3 - 2 * value);
+const LANDMARK_LAP_PERIOD = 3;
 const ROAD_DECK_SURFACE_Y = -0.018;
 const ROAD_DECK_CURB_INNER = ROAD_WIDTH / 2 + 0.11;
 const ROAD_DECK_CURB_OUTER = ROAD_WIDTH / 2 + 0.25;
@@ -21045,12 +23008,87 @@ const ROAD_DECK_SURFACE_PROFILE = [
 ];
 const ROAD_DECK_TRIM_PROFILES = [
   roadDeckEdgeProfile(-ROAD_WIDTH / 2),
-  roadDeckEdgeProfile(ROAD_WIDTH / 2),
-  roadDeckCurbProfile(-1),
-  roadDeckCurbProfile(1)
+  roadDeckEdgeProfile(ROAD_WIDTH / 2)
 ];
 const ROAD_DASH_PERIOD = 4;
 const ROAD_DASH_LATERALS = [-ROAD_DIVIDER_OFFSET, ROAD_DIVIDER_OFFSET];
+const mirroredShoulder = (points) => [
+  [...points].reverse().map(([x, y]) => [-x, y]),
+  points
+];
+const SHOULDER_STYLES = {
+  // The living city keeps its dark precast curb.
+  city: [{ material: "dark", profiles: [roadDeckCurbProfile(-1), roadDeckCurbProfile(1)] }],
+  // Industrial kerb: a wider chamfered concrete block with a painted safety edge.
+  factory: [
+    {
+      material: "a",
+      profiles: mirroredShoulder([
+        [ROAD_DECK_CURB_INNER, ROAD_DECK_CURB_BOTTOM],
+        [ROAD_DECK_CURB_INNER, 0.1],
+        [ROAD_DECK_CURB_INNER + 0.07, 0.16],
+        [ROAD_DECK_CURB_INNER + 0.36, 0.16],
+        [ROAD_DECK_CURB_INNER + 0.36, ROAD_DECK_CURB_BOTTOM]
+      ])
+    },
+    {
+      material: "b",
+      profiles: mirroredShoulder([
+        [ROAD_DECK_CURB_INNER + 0.08, 0.158],
+        [ROAD_DECK_CURB_INNER + 0.08, 0.166],
+        [ROAD_DECK_CURB_INNER + 0.2, 0.166],
+        [ROAD_DECK_CURB_INNER + 0.2, 0.158]
+      ])
+    }
+  ],
+  // No kerb in the desert: a low gravel lip rolls off the deck into the verge, and a
+  // continuous runoff wash meanders beyond the gravel strip.
+  desert: [
+    {
+      material: "a",
+      // Rises straight off the deck surface and dies into the gravel strip (top
+      // 0.015), so neither end needs a vertical face.
+      profiles: mirroredShoulder([
+        [ROAD_DECK_CURB_INNER, ROAD_DECK_SURFACE_Y],
+        [ROAD_DECK_CURB_INNER + 0.22, 0.055],
+        [ROAD_DECK_CURB_INNER + 0.6, 0.045],
+        [ROAD_DECK_CURB_INNER + 0.95, 0.01]
+      ])
+    },
+    {
+      material: "b",
+      meander: true,
+      // Two faces rising out of the sand (top -0.05) to a shallow crown.
+      profiles: mirroredShoulder([
+        [7.18, -0.054],
+        [7.55, -0.03],
+        [7.92, -0.054]
+      ])
+    }
+  ],
+  // The ruined city keeps a curb, weathered and broken away in stretches.
+  abandonedCity: [{ material: "a", chipped: true, profiles: [roadDeckCurbProfile(-1), roadDeckCurbProfile(1)] }],
+  // Salt-worn light concrete, lower and wider than the city curb.
+  coast: [
+    {
+      material: "a",
+      profiles: mirroredShoulder([
+        [ROAD_DECK_CURB_INNER, ROAD_DECK_CURB_BOTTOM],
+        [ROAD_DECK_CURB_INNER, 0.08],
+        [ROAD_DECK_CURB_INNER + 0.08, 0.105],
+        [ROAD_DECK_CURB_INNER + 0.3, 0.105],
+        [ROAD_DECK_CURB_INNER + 0.3, ROAD_DECK_CURB_BOTTOM]
+      ])
+    }
+  ]
+};
+const SHOULDER_COLORS = {
+  city: { day: [3159610, 3159610], sunset: [3159610, 3159610], night: [2569276, 2569276] },
+  factory: { day: [7302760, 12095025], sunset: [7302760, 12095025], night: [4869963, 10452017] },
+  desert: { day: [8142637, 6434847], sunset: [8142637, 6434847], night: [3482406, 2890526] },
+  abandonedCity: { day: [5659477, 5659477], sunset: [6247239, 6247239], night: [2765366, 2765366] },
+  coast: { day: [13224900, 13224900], sunset: [12563620, 12563620], night: [5528929, 5528929] }
+};
 const hash01 = (seed) => {
   const value = Math.sin(seed) * 43758.5453;
   return value - Math.floor(value);
@@ -21060,6 +23098,7 @@ const CITY_LAYOUTS = [
   [[11, 11], [4, 4], [6, 6], [0, 0], [4, 5], [4, 4], [4, 4], [11, 11], [9, 9], [4, 4], [8, 6], [0, 0]],
   [[0, 0], [4, 4], [4, 4], [11, 11], [5, 4], [4, 4], [6, 6], [0, 0], [9, 9], [4, 4], [6, 8], [11, 11]]
 ];
+const getCityLayoutIndex = (stage) => Math.abs(Math.floor(stage) - 1) % CITY_LAYOUTS.length;
 class Environment {
   constructor(scene) {
     __publicField(this, "scene");
@@ -21069,6 +23108,15 @@ class Environment {
     // are swept instead: consecutive rows share the exact same route sample, so the
     // deck is continuous by construction and needs no recycling.
     __publicField(this, "roadDeckBands", []);
+    // Per-biome road interface (SHOULDER_STYLES). All are built once; only the current
+    // biome's bands are visible and swept each frame.
+    __publicField(this, "shoulderBands", /* @__PURE__ */ new Map());
+    __publicField(this, "shoulderMaterialA", new THREE.MeshStandardMaterial({ color: 7302760, roughness: 0.94, metalness: 0 }));
+    __publicField(this, "shoulderMaterialB", new THREE.MeshStandardMaterial({ color: 12095025, roughness: 0.84, metalness: 0.08 }));
+    __publicField(this, "roadRowMeanderLeft");
+    __publicField(this, "roadRowMeanderRight");
+    __publicField(this, "roadRowChipLeft");
+    __publicField(this, "roadRowChipRight");
     __publicField(this, "roadDashes");
     __publicField(this, "roadRowZ");
     __publicField(this, "roadRowCenter");
@@ -21088,13 +23136,21 @@ class Environment {
     __publicField(this, "roadsideNearestPoint", new THREE.Vector3());
     __publicField(this, "roadsideProps", []);
     __publicField(this, "destructibleProps", []);
-    __publicField(this, "cityClearSkyTexture");
-    __publicField(this, "cityClearSky");
-    // Shared with the sky dome's patched program so the haze band always resolves
-    // to the exact colour scene fog resolves to.
-    __publicField(this, "cityClearSkyHazeColor", { value: new THREE.Color(15855336) });
     __publicField(this, "stars");
-    __publicField(this, "moon");
+    // Gradient vault, sun, moon and (city clear day) the stylised cloud band for every
+    // biome, theme and weather.
+    __publicField(this, "skyDome", new SkyDome());
+    __publicField(this, "skyBodyDirection", new THREE.Vector3());
+    __publicField(this, "farSilhouettes", new FarSilhouettes());
+    __publicField(this, "skyYaw", 0);
+    __publicField(this, "roadDetail");
+    // Route-space heightfield beyond the roadside rows (environment/farTerrain.ts).
+    __publicField(this, "farTerrain", new FarTerrain());
+    // Distance at which the current roadside rows were laid out; the far terrain reads
+    // the row loop phase from it to keep open water clear beside coast crossings.
+    __publicField(this, "roadsideOrigin", 0);
+    // Soft blob contact shadows under buildings, tanks and rock masses (T8).
+    __publicField(this, "contactShadows");
     __publicField(this, "rain");
     __publicField(this, "rainPositions", new Float32Array(RAIN_STREAK_COUNT * 6));
     __publicField(this, "snow");
@@ -21121,13 +23177,15 @@ class Environment {
     __publicField(this, "desertLayoutIndex", -1);
     __publicField(this, "abandonedCityLayoutIndex", -1);
     __publicField(this, "coastLayoutIndex", -1);
+    __publicField(this, "cityLayoutIndex", 0);
+    // Counts scheduled chasms since the route reset; seeds the landing drop.
+    __publicField(this, "jumpGapCount", 0);
     __publicField(this, "theme", "day");
     __publicField(this, "currentWeather", "clear");
     __publicField(this, "streetLights", []);
     __publicField(this, "streetLightPools", []);
     __publicField(this, "streetLightPoolTexture", this.createStreetLightPoolTexture());
     __publicField(this, "starTexture", this.createStarTexture());
-    __publicField(this, "moonTexture", this.createMoonTexture());
     __publicField(this, "jumpGapWallTexture", this.createJumpGapWallTexture());
     __publicField(this, "distance", 0);
     __publicField(this, "weatherElapsed", 0);
@@ -21155,6 +23213,10 @@ class Environment {
     __publicField(this, "coastKit", new CoastEnvironmentKit());
     __publicField(this, "coastSea");
     __publicField(this, "bodyMaterial", new THREE.MeshStandardMaterial({ color: 14341838, roughness: 0.86 }));
+    // City kerbside walkway. By day it is concrete paving a step below the white
+    // architecture (a lit white strip along the road read as a snow bank); at night it
+    // takes the body tone, so the night look is unchanged.
+    __publicField(this, "sidewalkMaterial", new THREE.MeshStandardMaterial({ color: 12567489, roughness: 0.9 }));
     __publicField(this, "darkMaterial", new THREE.MeshStandardMaterial({ color: 2829875, roughness: 0.72 }));
     __publicField(this, "cyanMaterial", new THREE.MeshBasicMaterial({ color: 2084834, toneMapped: false }));
     __publicField(this, "laneDividerMaterial", new THREE.MeshBasicMaterial({
@@ -21176,7 +23238,13 @@ class Environment {
     __publicField(this, "serviceRoadMaterial", new THREE.MeshBasicMaterial({ color: 8751239 }));
     __publicField(this, "edgeMaterial", new THREE.LineBasicMaterial({ color: 3422012, transparent: true, opacity: 0.76 }));
     __publicField(this, "roadSurfaceMaterial", new THREE.MeshBasicMaterial({ color: 15263199 }));
-    __publicField(this, "gapVoidMaterial", new THREE.MeshBasicMaterial({ color: 66052, fog: false }));
+    // The chasm floor resolves into the depth haze and then the scene fog, instead of
+    // a pure black that ignored the fog (T11).
+    __publicField(this, "gapVoidMaterial", new THREE.MeshBasicMaterial({ color: 66052 }));
+    __publicField(this, "gapHazeColor", { value: new THREE.Color(3817284) });
+    // Rim ground for biomes whose roadside slab is a lit material (city uses its own
+    // unlit pavement material instead, swapped in by setJumpGapFacePose).
+    __publicField(this, "gapApronMaterial", new THREE.MeshStandardMaterial({ color: 6052951, roughness: 1, metalness: 0 }));
     __publicField(this, "gapCliffMaterial", new THREE.MeshStandardMaterial({ color: 2370092, roughness: 0.96, metalness: 0.04 }));
     __publicField(this, "gapConcreteMaterial", new THREE.MeshStandardMaterial({
       color: 13684682,
@@ -21201,7 +23269,8 @@ class Environment {
       metalness: 0
     }));
     __publicField(this, "scheduleJumpGap", (distanceAhead, length) => {
-      const landingDrop = [0, 4, 8][Math.floor(Math.random() * 3)];
+      const landingDrop = [0, 4, 8][Math.floor(hash01(this.stage * 31.7 + this.jumpGapCount * 7.13 + 0.5) * 3) % 3];
+      this.jumpGapCount += 1;
       this.jumpGap = {
         start: this.distance + distanceAhead,
         end: this.distance + distanceAhead + length,
@@ -21246,7 +23315,7 @@ class Environment {
       let nearestObject = null;
       let nearestDistance = distance + 1;
       for (const prop of this.destructibleProps) {
-        if (prop.userData.destroyed || prop.userData.hiddenByJumpGap) continue;
+        if (prop.userData.destroyed || prop.userData.hiddenByJumpGap || prop.userData.hiddenByLap) continue;
         const localBounds = this.getRoadsideLocalBounds(prop);
         prop.updateWorldMatrix(true, false);
         this.roadsideWorldBounds.copy(localBounds).applyMatrix4(prop.matrixWorld).expandByScalar(0.08);
@@ -21264,6 +23333,24 @@ class Environment {
       return { object: nearestObject, point: this.roadsideNearestPoint.clone() };
     });
     this.scene = scene;
+    this.contactShadows = new ContactShadows(this.streetLightPoolTexture);
+    const [wear, patch, crack] = ROAD_DETAIL.city.day;
+    this.roadDetail = applySurfaceDetail(this.roadSurfaceMaterial, {
+      road: { wear, patch, crack, fade: ROAD_DETAIL_FADE }
+    });
+    applySurfaceDetail(this.pavementMaterial, { ground: CITY_GROUND_DETAIL });
+    applySurfaceDetail(this.serviceRoadMaterial, { ground: CITY_GROUND_DETAIL });
+    applySurfaceDetail(this.bodyMaterial, { ao: STRUCTURE_AO });
+    applySurfaceDetail(this.sidewalkMaterial, { ground: CITY_GROUND_DETAIL, ao: STRUCTURE_AO });
+    applySurfaceDetail(this.darkMaterial, { ao: STRUCTURE_AO });
+    applySurfaceDetail(this.gapApronMaterial, { ground: GROUND_DETAIL_DEFAULT });
+    for (const material of [
+      this.gapConcreteMaterial,
+      this.gapMetalMaterial,
+      this.gapCliffMaterial,
+      this.gapDesertMaterial,
+      this.gapDesertBandMaterial
+    ]) applyDepthHaze(material, this.gapHazeColor);
     this.coastSea = this.coastKit.createSeaSurface();
     this.coastSea.visible = false;
     scene.add(this.coastSea);
@@ -21278,29 +23365,56 @@ class Environment {
     this.roadRowCos = new Float32Array(roadRowCount);
     this.roadRowSin = new Float32Array(roadRowCount);
     this.roadRowInGap = new Uint8Array(roadRowCount);
+    this.roadRowMeanderLeft = new Float32Array(roadRowCount);
+    this.roadRowMeanderRight = new Float32Array(roadRowCount);
+    this.roadRowChipLeft = new Float32Array(roadRowCount);
+    this.roadRowChipRight = new Float32Array(roadRowCount);
+    applySurfaceDetail(this.shoulderMaterialA, { ground: CITY_GROUND_DETAIL, ao: STRUCTURE_AO });
     this.roadDeckBands = [
       this.createRoadDeckBand(this.roadSurfaceMaterial, [ROAD_DECK_SURFACE_PROFILE]),
       this.createRoadDeckBand(this.darkMaterial, ROAD_DECK_TRIM_PROFILES)
     ];
+    for (const [biome, specs] of Object.entries(SHOULDER_STYLES)) {
+      const bands = specs.map((spec) => {
+        const material = spec.material === "dark" ? this.darkMaterial : spec.material === "a" ? this.shoulderMaterialA : this.shoulderMaterialB;
+        const band = this.createRoadDeckBand(material, spec.profiles);
+        band.meander = spec.meander;
+        band.chipped = spec.chipped;
+        band.mesh.name = `road_shoulder_${biome}`;
+        band.mesh.visible = biome === this.biome;
+        return band;
+      });
+      this.shoulderBands.set(biome, bands);
+      this.roadDeckBands.push(...bands);
+    }
     for (const band of this.roadDeckBands) scene.add(band.mesh);
     this.roadDashes = this.createRoadDashes();
     scene.add(this.roadDashes);
     this.updateRoadDeck();
     this.createRoadsideField();
-    this.cityClearSkyTexture = this.createCityClearSkyTexture();
-    this.cityClearSky = this.createCityClearSky();
     this.stars = this.createStars();
-    this.moon = this.createMoon();
     this.rain = this.createRain();
     this.snowTexture = this.createSnowTexture();
     this.snow = this.createSnow();
     this.sandstorm = this.createSandstorm();
-    scene.add(this.cityClearSky, this.stars, this.moon, this.rain, this.snow, this.sandstorm);
+    this.farSilhouettes.build(this.biome, this.stage, this.getCoastSeaSide());
+    this.updateFarTerrainMask();
+    scene.add(
+      this.skyDome.mesh,
+      this.farSilhouettes.mesh,
+      this.farTerrain.mesh,
+      this.contactShadows.mesh,
+      this.stars,
+      this.rain,
+      this.snow,
+      this.sandstorm
+    );
     this.createRainRipples();
     this.setWeather("clear");
   }
   resetRoadRoute() {
     this.finishRoute = null;
+    this.jumpGapCount = 0;
     this.roadOriginSample = Number.NaN;
     this.jumpGap = null;
     this.roadLevelOffset = 0;
@@ -21549,9 +23663,13 @@ class Environment {
     dashes.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     return dashes;
   }
-  writeRoadDeckCorner(positions, normals, cursor, face, row, atProfileEnd) {
-    const lateral = atProfileEnd ? face.bx : face.ax;
-    const height = atProfileEnd ? face.by : face.ay;
+  writeRoadDeckCorner(positions, normals, cursor, face, row, atProfileEnd, band) {
+    let lateral = atProfileEnd ? face.bx : face.ax;
+    let height = atProfileEnd ? face.by : face.ay;
+    if (band == null ? void 0 : band.meander) lateral += lateral < 0 ? this.roadRowMeanderLeft[row] : this.roadRowMeanderRight[row];
+    if ((band == null ? void 0 : band.chipped) && height > 0.05) {
+      height -= (lateral < 0 ? this.roadRowChipLeft[row] : this.roadRowChipRight[row]) * (height - 0.025);
+    }
     const cos = this.roadRowCos[row];
     const sin = this.roadRowSin[row];
     positions[cursor] = this.roadRowCenter[row] + lateral * cos;
@@ -21573,8 +23691,15 @@ class Environment {
       this.roadRowCos[row] = Math.cos(heading);
       this.roadRowSin[row] = Math.sin(heading);
       this.roadRowInGap[row] = this.jumpGap !== null && sample >= this.jumpGap.start && sample <= this.jumpGap.end ? 1 : 0;
+      this.roadRowMeanderLeft[row] = Math.sin(sample * 0.019) * 0.34 + Math.sin(sample * 0.051 + 1.7) * 0.18;
+      this.roadRowMeanderRight[row] = Math.sin(sample * 0.017 + 2.1) * 0.34 + Math.sin(sample * 0.047 + 0.4) * 0.18;
+      const chipLeft = 0.5 + Math.sin(sample * 0.31) * 0.35 + Math.sin(sample * 0.113 + 2.2) * 0.25;
+      const chipRight = 0.5 + Math.sin(sample * 0.29 + 1.1) * 0.35 + Math.sin(sample * 0.127 + 0.6) * 0.25;
+      this.roadRowChipLeft[row] = THREE.MathUtils.smoothstep(chipLeft, 0.74, 0.94);
+      this.roadRowChipRight[row] = THREE.MathUtils.smoothstep(chipRight, 0.74, 0.94);
     }
     for (const band of this.roadDeckBands) {
+      if (!band.mesh.visible) continue;
       const positions = band.position.array;
       const normals = band.normal.array;
       let cursor = 0;
@@ -21593,10 +23718,10 @@ class Environment {
             }
             continue;
           }
-          cursor = this.writeRoadDeckCorner(positions, normals, cursor, face, quad, false);
-          cursor = this.writeRoadDeckCorner(positions, normals, cursor, face, quad, true);
-          cursor = this.writeRoadDeckCorner(positions, normals, cursor, face, far, true);
-          cursor = this.writeRoadDeckCorner(positions, normals, cursor, face, far, false);
+          cursor = this.writeRoadDeckCorner(positions, normals, cursor, face, quad, false, band);
+          cursor = this.writeRoadDeckCorner(positions, normals, cursor, face, quad, true, band);
+          cursor = this.writeRoadDeckCorner(positions, normals, cursor, face, far, true, band);
+          cursor = this.writeRoadDeckCorner(positions, normals, cursor, face, far, false, band);
         }
       }
       band.position.needsUpdate = true;
@@ -21764,7 +23889,7 @@ class Environment {
       [0, -0.34, 0]
     );
     const pierMaterial = factory ? this.gapCliffMaterial : this.gapConcreteMaterial;
-    const pierPositions = [-60, -48, -36, -24, -12, 0, 12, 24, 36, 48, 60];
+    const pierPositions = [-60, -48, -36, -24, -12, 0, 12, 24, 36, 48, 60].map((x, index) => x + (hash01(index * 12.9898 + (factory ? 4.1 : 0)) - 0.5) * 3.4);
     this.addJumpGapBoxInstances(
       group,
       [factory ? 1.8 : 2.2, 16, 3.1],
@@ -21809,7 +23934,7 @@ class Environment {
       galleryLevels.map((y) => ({ position: [0, y + 1.45, 0] }))
     );
     const serviceBayColumns = [-54, -42, -30, -18, -6, 6, 18, 30, 42, 54];
-    const serviceBays = [-11.6, -33, -54.5].flatMap((y) => serviceBayColumns.map((x) => [x, y]));
+    const serviceBays = [-11.6, -33, -54.5].flatMap((y, level) => serviceBayColumns.filter((x) => hash01(x * 0.731 + level * 17.3 + (factory ? 9.7 : 0)) > 0.34).map((x) => [x, y]));
     this.addJumpGapServiceBays(group, serviceBays, factory);
     const outlets = new THREE.InstancedMesh(
       new THREE.CylinderGeometry(factory ? 0.62 : 0.72, factory ? 0.62 : 0.72, 1.4, 12),
@@ -21846,13 +23971,44 @@ class Environment {
     }
     return group;
   }
-  createJumpGapFace() {
+  // chasmSide is the local z direction the chasm lies in from this face: -1 for the
+  // near face (the chasm is further down the road), +1 for the far face.
+  createJumpGapFace(chasmSide) {
     const group = new THREE.Group();
     const cityLayer = this.createJumpGapWallLayer(false);
     const factoryLayer = this.createJumpGapWallLayer(true);
     const desertLayer = this.createDesertJumpGapWallLayer();
-    group.add(cityLayer, factoryLayer, desertLayer);
-    return { group, cityLayer, factoryLayer, desertLayer };
+    const apronGeometry = new THREE.BoxGeometry(JUMP_GAP_APRON_HALF_WIDTH * 2, 0.16, JUMP_GAP_APRON_LENGTH);
+    apronGeometry.translate(0, -0.08, -chasmSide * JUMP_GAP_APRON_LENGTH / 2);
+    const apron = new THREE.Mesh(apronGeometry, this.gapApronMaterial);
+    apron.name = "jump_gap_rim_apron";
+    const lipCount = 26;
+    const lips = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), this.gapConcreteMaterial, lipCount);
+    const rebar = new THREE.InstancedMesh(new THREE.BoxGeometry(0.05, 1, 0.05), this.gapMetalMaterial, lipCount);
+    const dummy = new THREE.Object3D();
+    for (let index = 0; index < lipCount; index++) {
+      const side = index % 2 === 0 ? -1 : 1;
+      const seed = index * 7.13 + (chasmSide > 0 ? 3.7 : 0);
+      const lateral = 4.9 + Math.pow(hash01(seed), 1.6) * 34;
+      const width = 1.3 + hash01(seed + 1.1) * 2.2;
+      const depth = 0.9 + hash01(seed + 2.3) * 1.5;
+      const thickness = 0.28 + hash01(seed + 3.9) * 0.34;
+      dummy.position.set(side * lateral, -0.2 - hash01(seed + 5.2) * 0.35, chasmSide * (0.35 + depth * 0.32));
+      dummy.rotation.set(chasmSide * (0.18 + hash01(seed + 6.1) * 0.42), (hash01(seed + 7.7) - 0.5) * 0.5, side * (hash01(seed + 8.3) - 0.5) * 0.3);
+      dummy.scale.set(width, thickness, depth);
+      dummy.updateMatrix();
+      lips.setMatrixAt(index, dummy.matrix);
+      const barVisible = hash01(seed + 9.4) > 0.35;
+      dummy.position.set(side * (lateral + (hash01(seed + 10.2) - 0.5) * width * 0.6), -0.1, chasmSide * (0.3 + depth * 0.7));
+      dummy.rotation.set(chasmSide * (0.9 + hash01(seed + 11.8) * 0.5), 0, (hash01(seed + 12.6) - 0.5) * 0.6);
+      dummy.scale.set(1, barVisible ? 0.7 + hash01(seed + 13.1) * 0.8 : 0, 1);
+      dummy.updateMatrix();
+      rebar.setMatrixAt(index, dummy.matrix);
+    }
+    lips.name = "jump_gap_rim_lips";
+    rebar.name = "jump_gap_rim_rebar";
+    group.add(cityLayer, factoryLayer, desertLayer, apron, lips, rebar);
+    return { group, cityLayer, factoryLayer, desertLayer, apron, lips, rebar };
   }
   createDesertJumpGapWallLayer() {
     const group = new THREE.Group();
@@ -21914,8 +24070,8 @@ class Environment {
     root.visible = false;
     const floor = new THREE.Mesh(new THREE.BoxGeometry(1, 0.5, 1), this.gapVoidMaterial);
     floor.name = "jump_gap_depth_floor";
-    const nearFace = this.createJumpGapFace();
-    const farFace = this.createJumpGapFace();
+    const nearFace = this.createJumpGapFace(-1);
+    const farFace = this.createJumpGapFace(1);
     root.add(floor, nearFace.group, farFace.group);
     return { root, floor, nearFace, farFace };
   }
@@ -21930,6 +24086,13 @@ class Environment {
     face.cityLayer.visible = this.biome === "city" || this.biome === "abandonedCity" || this.biome === "coast";
     face.factoryLayer.visible = this.biome === "factory";
     face.desertLayer.visible = this.biome === "desert";
+    const apron = this.biome !== "coast";
+    face.apron.visible = apron;
+    face.apron.material = this.biome === "city" ? this.pavementMaterial : this.gapApronMaterial;
+    face.apron.position.y = JUMP_GAP_APRON_TOP[this.biome] - 0.04;
+    face.lips.visible = apron;
+    face.lips.material = this.biome === "desert" ? this.gapDesertBandMaterial : this.biome === "factory" ? this.gapCliffMaterial : this.gapConcreteMaterial;
+    face.rebar.visible = apron && this.biome !== "desert";
   }
   updateJumpGapVisual() {
     const visual = this.jumpGapVisual;
@@ -21955,7 +24118,8 @@ class Environment {
   }
   updateRoadsideGapPresentation(group) {
     const sample = this.distance - group.position.z;
-    const inGap = this.jumpGap !== null && sample >= this.jumpGap.start - JUMP_GAP_ROADSIDE_MARGIN && sample <= this.jumpGap.end + JUMP_GAP_ROADSIDE_MARGIN;
+    const margin = this.biome === "coast" ? JUMP_GAP_ROADSIDE_MARGIN : JUMP_GAP_ROADSIDE_MARGIN_WITH_APRON;
+    const inGap = this.jumpGap !== null && sample >= this.jumpGap.start - margin && sample <= this.jumpGap.end + margin;
     if (inGap) {
       if (!group.userData.hiddenByJumpGap) {
         group.traverse((child) => {
@@ -21973,6 +24137,7 @@ class Environment {
     }
   }
   createRoadsideField() {
+    this.roadsideOrigin = this.distance;
     if (this.biome === "factory") {
       this.createFactoryRoadsideField();
       return;
@@ -21992,7 +24157,7 @@ class Environment {
     this.createCityRoadsideField();
   }
   createCityRoadsideField() {
-    const layout = CITY_LAYOUTS[Math.floor(Math.random() * CITY_LAYOUTS.length)];
+    const layout = CITY_LAYOUTS[getCityLayoutIndex(this.stage)];
     for (let row = 0; row < this.roadsideRowCount; row++) {
       for (const side of [-1, 1]) {
         const sideIndex = side === 1 ? 1 : 0;
@@ -22000,6 +24165,7 @@ class Environment {
         if (type === null) continue;
         const group = this.createCityBlock(type, side, row);
         const rotor = group.getObjectByName("roadside_rotor") ?? void 0;
+        this.collectContactAnchors(group, this.roadsideProps.length);
         this.batchStaticCityBlock(group, rotor);
         group.position.z = -8 - row * this.roadsideSpacing;
         this.roadsideProps.push({ group, side, shoulder: 0, rotor });
@@ -22079,11 +24245,18 @@ class Environment {
           this.scene.add(open);
           continue;
         }
-        const built = this.factoryKit.createModule(type, side, row, this.factoryLayoutIndex);
-        built.group.position.z = -8 - row * this.roadsideSpacing;
-        this.roadsideProps.push({ group: built.group, side, shoulder: 0 });
-        this.destructibleProps.push(...built.destructibles);
-        this.scene.add(built.group);
+        const addModule = (kind) => {
+          const built = this.factoryKit.createModule(kind, side, row, this.factoryLayoutIndex);
+          this.collectContactAnchors(built.group, this.roadsideProps.length);
+          built.group.position.z = -8 - row * this.roadsideSpacing;
+          const prop = { group: built.group, side, shoulder: 0 };
+          this.roadsideProps.push(prop);
+          this.destructibleProps.push(...built.destructibles);
+          this.scene.add(built.group);
+          return prop;
+        };
+        const landmark = addModule(type);
+        if (type === "crane-landmark") this.pairLapModules(landmark, addModule("utility-yard"));
       }
     }
     this.createFactoryFloodlightField();
@@ -22101,11 +24274,18 @@ class Environment {
           this.scene.add(open);
           continue;
         }
-        const built = this.desertKit.createModule(type, side, row, this.desertLayoutIndex);
-        built.group.position.z = -8 - row * this.roadsideSpacing;
-        this.roadsideProps.push({ group: built.group, side, shoulder: 0 });
-        this.destructibleProps.push(...built.destructibles);
-        this.scene.add(built.group);
+        const addModule = (kind) => {
+          const built = this.desertKit.createModule(kind, side, row, this.desertLayoutIndex);
+          this.collectContactAnchors(built.group, this.roadsideProps.length);
+          built.group.position.z = -8 - row * this.roadsideSpacing;
+          const prop = { group: built.group, side, shoulder: 0 };
+          this.roadsideProps.push(prop);
+          this.destructibleProps.push(...built.destructibles);
+          this.scene.add(built.group);
+          return prop;
+        };
+        const landmark = addModule(type);
+        if (type === "canyon-gate") this.pairLapModules(landmark, addModule("rock-shelf"));
       }
     }
   }
@@ -22117,18 +24297,27 @@ class Environment {
         const type = layout[row][sideIndex];
         if (type === null) {
           const open = this.abandonedCityKit.createGroundOnlyModule(side, row, this.abandonedCityLayoutIndex);
-          const nearDetails2 = this.abandonedCityKit.optimizeModule(open);
+          const nearDetails = this.abandonedCityKit.optimizeModule(open);
           open.position.z = -8 - row * this.roadsideSpacing;
-          this.roadsideProps.push({ group: open, side, shoulder: 0, nearDetails: nearDetails2 });
+          this.roadsideProps.push({ group: open, side, shoulder: 0, nearDetails });
           this.scene.add(open);
           continue;
         }
-        const built = this.abandonedCityKit.createModule(type, side, row, this.abandonedCityLayoutIndex);
-        const nearDetails = this.abandonedCityKit.optimizeModule(built.group, built.destructibles);
-        built.group.position.z = -8 - row * this.roadsideSpacing;
-        this.roadsideProps.push({ group: built.group, side, shoulder: 0, nearDetails });
-        this.destructibleProps.push(...built.destructibles);
-        this.scene.add(built.group);
+        const addModule = (kind) => {
+          const built = this.abandonedCityKit.createModule(kind, side, row, this.abandonedCityLayoutIndex);
+          this.collectContactAnchors(built.group, this.roadsideProps.length);
+          const nearDetails = this.abandonedCityKit.optimizeModule(built.group, built.destructibles);
+          built.group.position.z = -8 - row * this.roadsideSpacing;
+          const prop = { group: built.group, side, shoulder: 0, nearDetails };
+          this.roadsideProps.push(prop);
+          this.destructibleProps.push(...built.destructibles);
+          this.scene.add(built.group);
+          return prop;
+        };
+        const landmark = addModule(type);
+        if (type === "transit-wreck" || type === "concrete-megablock") {
+          this.pairLapModules(landmark, addModule("silent-avenue"));
+        }
       }
     }
   }
@@ -22139,6 +24328,7 @@ class Environment {
         const sideIndex = side === 1 ? 1 : 0;
         const type = layout[row][sideIndex];
         const built = type === null ? { group: this.coastKit.createGroundOnlyModule(side, row, this.coastLayoutIndex), destructibles: [] } : this.coastKit.createModule(type, side, row, this.coastLayoutIndex);
+        this.collectContactAnchors(built.group, this.roadsideProps.length);
         this.coastKit.optimizeModule(built.group, built.destructibles);
         built.group.position.z = -8 - row * this.roadsideSpacing;
         this.roadsideProps.push({ group: built.group, side, shoulder: 0 });
@@ -22146,6 +24336,26 @@ class Environment {
         this.scene.add(built.group);
       }
     }
+  }
+  collectContactAnchors(group, propIndex) {
+    this.contactShadows.collect(group, propIndex);
+  }
+  // Landmark and alternate share the row. The landmark shows on the first lap and every
+  // LANDMARK_LAP_PERIOD laps after; the alternate fills the laps in between.
+  pairLapModules(landmark, alternate) {
+    landmark.lapRole = "landmark";
+    alternate.lapRole = "alternate";
+    landmark.lap = 0;
+    alternate.lap = 0;
+    this.setLapHidden(landmark, false);
+    this.setLapHidden(alternate, true);
+  }
+  setLapHidden(prop, hidden) {
+    prop.lapHidden = hidden;
+    prop.group.traverse((child) => {
+      if (child.userData.destructible) child.userData.hiddenByLap = hidden;
+    });
+    if (hidden) prop.group.visible = false;
   }
   createStreetlightField() {
     const cityLength = this.roadsideRowCount * this.roadsideSpacing;
@@ -22236,19 +24446,41 @@ class Environment {
     const nextDesertLayout = biome === "desert" ? getDesertLayoutIndex(stage) : -1;
     const nextAbandonedCityLayout = biome === "abandonedCity" ? getAbandonedCityLayoutIndex(stage) : -1;
     const nextCoastLayout = biome === "coast" ? getCoastLayoutIndex(stage) : -1;
-    const rebuild = biome !== this.biome || nextFactoryLayout !== this.factoryLayoutIndex || nextDesertLayout !== this.desertLayoutIndex || nextAbandonedCityLayout !== this.abandonedCityLayoutIndex || nextCoastLayout !== this.coastLayoutIndex;
+    const nextCityLayout = biome === "city" ? getCityLayoutIndex(stage) : -1;
+    const rebuild = biome !== this.biome || nextFactoryLayout !== this.factoryLayoutIndex || nextDesertLayout !== this.desertLayoutIndex || nextAbandonedCityLayout !== this.abandonedCityLayoutIndex || nextCoastLayout !== this.coastLayoutIndex || nextCityLayout !== this.cityLayoutIndex;
     this.biome = biome;
     this.stage = stage;
     this.factoryLayoutIndex = nextFactoryLayout;
     this.desertLayoutIndex = nextDesertLayout;
     this.abandonedCityLayoutIndex = nextAbandonedCityLayout;
     this.coastLayoutIndex = nextCoastLayout;
+    this.cityLayoutIndex = nextCityLayout;
     this.coastSea.visible = biome === "coast";
+    this.farSilhouettes.build(biome, stage, this.getCoastSeaSide());
     if (!rebuild) return;
     this.clearRoadsideField();
     this.createRoadsideField();
+    this.updateFarTerrainMask();
+  }
+  // Layouts 0 and 2 put the sea on the left, layout 1 mirrors it (COAST_LAYOUTS).
+  getCoastSeaSide() {
+    return this.coastLayoutIndex === 1 ? 1 : -1;
+  }
+  // The far terrain belongs to land. On the coast it stays out of every row side that
+  // is open water, which includes both sides of a crossing.
+  updateFarTerrainMask() {
+    if (this.biome !== "coast") {
+      this.farTerrain.setRowMask(() => true);
+      return;
+    }
+    const layout = getCoastLayout(this.stage);
+    this.farTerrain.setRowMask((row, side) => {
+      const kind = layout[row % layout.length][side === 1 ? 1 : 0];
+      return kind === null || kind === "shore-flat" || kind === "cliff-shelf" || kind === "fishing-frontage";
+    });
   }
   clearRoadsideField() {
+    this.contactShadows.clear();
     for (const pool of this.streetLightPools) pool.material.dispose();
     for (const prop of this.roadsideProps) this.disposeObject(prop.group);
     this.roadsideProps = [];
@@ -22272,7 +24504,7 @@ class Environment {
     group.add(ground);
     const sidewalk = new THREE.Mesh(
       new THREE.BoxGeometry(2.15, 0.08, ROADSIDE_STRIP_LENGTH),
-      this.bodyMaterial
+      this.sidewalkMaterial
     );
     sidewalk.position.set(side * (roadEdge + 1.05), 0.015, 0);
     group.add(sidewalk);
@@ -22295,7 +24527,7 @@ class Environment {
     if (featureType === 6 || featureType === 8) {
       const facilityPad = new THREE.Mesh(
         new THREE.BoxGeometry(2, 0.12, 2),
-        this.bodyMaterial
+        this.sidewalkMaterial
       );
       facilityPad.position.set(side * featureOffset, -0.015, featureZ);
       group.add(facilityPad);
@@ -22318,7 +24550,9 @@ class Environment {
       const midRise = this.createCityBuilding(
         side,
         2.8 + row % 3 * 0.65,
-        3.6 + row % 4 * 0.8,
+        // T6: storeys and doors were about two thirds of real scale next to the
+        // vehicle. Heights, storey pitch and entries are lifted about 1.3x.
+        4.7 + row % 4 * 1,
         5.2,
         row
       );
@@ -22329,7 +24563,7 @@ class Environment {
     const tower = this.createCityBuilding(
       side,
       3.2 + (row + 1) % 3 * 0.55,
-      7.2 + (row * 3 + (side === 1 ? 2 : 0)) % 5 * 1.05,
+      9.4 + (row * 3 + (side === 1 ? 2 : 0)) % 5 * 1.35,
       3.6 + row % 2 * 0.8,
       row + 7
     );
@@ -22345,9 +24579,11 @@ class Environment {
   addCityBackdrop(group, side, row, roadEdge) {
     const parity = row + (side === 1 ? 1 : 0);
     const massSpecs = [
-      { lateral: 18.4, width: 8.2, depth: 6.4, height: 10.6, z: -2.4 },
-      { lateral: 24, width: 9.6, depth: 7.6, height: 12.6, z: 2.1 },
-      { lateral: 21.2, width: 6.2, depth: 5.2, height: 8.4, z: 3.6 }
+      // Lifted 1.2x with the T6 scale pass; the tall skyline itself now lives in
+      // the camera-fixed far silhouettes, so these stay a mid layer.
+      { lateral: 18.4, width: 8.2, depth: 6.4, height: 12.7, z: -2.4 },
+      { lateral: 24, width: 9.6, depth: 7.6, height: 15.1, z: 2.1 },
+      { lateral: 21.2, width: 6.2, depth: 5.2, height: 10.1, z: 3.6 }
     ];
     const carried = [
       [0, 1],
@@ -22400,7 +24636,7 @@ class Environment {
       return mesh;
     };
     const style = Math.abs(variant) % 4;
-    const podiumHeight = THREE.MathUtils.clamp(height * 0.18, 0.88, 1.42);
+    const podiumHeight = THREE.MathUtils.clamp(height * 0.18, 1.3, 1.72);
     const shaftDepth = depth * (0.78 + style % 3 * 0.035);
     const shaftWidth = width * (0.82 + style * 0.018);
     const shaftX = -side * (depth - shaftDepth) * (style === 1 ? 0.18 : 0.32);
@@ -22421,9 +24657,9 @@ class Environment {
       true
     );
     const windowColumns = shaftWidth > 4 ? 4 : 3;
-    const floorCount = Math.max(3, Math.floor((shaftHeight - 0.5) / 0.86));
-    const floorSpacing = Math.max(0.68, (shaftHeight - 1.15) / Math.max(1, floorCount - 1));
-    const firstFloorY = shaftBottom + 0.66;
+    const floorCount = Math.max(3, Math.floor((shaftHeight - 0.6) / 1.12));
+    const floorSpacing = Math.max(0.9, (shaftHeight - 1.4) / Math.max(1, floorCount - 1));
+    const firstFloorY = shaftBottom + 0.8;
     const topFloorY = firstFloorY + (floorCount - 1) * floorSpacing;
     const fieldHalfZ = shaftWidth * 0.28;
     const slotSpan = fieldHalfZ * 2 / windowColumns;
@@ -22433,7 +24669,7 @@ class Environment {
     const bayCenterY = (bayTopY + bayBottomY) / 2;
     const bayWidthZ = fieldHalfZ * 2 + 0.1;
     addBox(0.045, bayTopY - bayBottomY, bayWidthZ, this.darkMaterial, facadeX, bayCenterY, 0);
-    const windowGeometry = new THREE.BoxGeometry(0.038, 0.22, paneWidth);
+    const windowGeometry = new THREE.BoxGeometry(0.038, 0.3, paneWidth);
     const litRatio = 0.4 + hash01(variant * 7.31 + side * 3.7) * 0.3;
     const litMatrices = [];
     const dimMatrices = [];
@@ -22467,10 +24703,10 @@ class Environment {
       addBox(0.11, 0.065, bayWidthZ + 0.14, this.bodyMaterial, facadeX - side * 0.055, y - 0.21, 0);
     }
     const entryZ = style % 2 === 0 ? -shaftWidth * 0.2 : shaftWidth * 0.2;
-    addBox(0.05, 0.76, 0.66, this.darkMaterial, podiumFacadeX, 0.54, entryZ);
-    addBox(0.38, 0.09, 1.18, this.darkMaterial, podiumFacadeX - side * 0.17, 0.98, entryZ);
+    addBox(0.05, 1.04, 0.74, this.darkMaterial, podiumFacadeX, 0.66, entryZ);
+    addBox(0.38, 0.09, 1.24, this.darkMaterial, podiumFacadeX - side * 0.17, 1.26, entryZ);
     for (const zOffset of [-0.48, 0.48]) {
-      addBox(0.09, 0.975, 0.09, this.darkMaterial, podiumFacadeX - side * 0.3, 0.4475, entryZ + zOffset);
+      addBox(0.09, 1.255, 0.09, this.darkMaterial, podiumFacadeX - side * 0.3, 0.5875, entryZ + zOffset);
     }
     addBox(0.045, 0.42, width * 0.24, this.darkMaterial, podiumFacadeX, 0.48, -entryZ);
     const serviceZ = (style < 2 ? -1 : 1) * (shaftWidth / 2 + 0.045);
@@ -22657,67 +24893,6 @@ class Environment {
     }
     return group;
   }
-  createCityClearSkyTexture() {
-    const texture = new THREE.TextureLoader().load(
-      `${"./"}textures/city-clear-sky.webp`
-    );
-    texture.colorSpace = THREE.SRGBColorSpace;
-    texture.minFilter = THREE.LinearMipmapLinearFilter;
-    texture.magFilter = THREE.LinearFilter;
-    texture.anisotropy = 4;
-    texture.wrapS = THREE.MirroredRepeatWrapping;
-    texture.wrapT = THREE.ClampToEdgeWrapping;
-    const plateSpan = CITY_CLEAR_SKY_PLATE_TOP / 180;
-    texture.repeat.set(CITY_CLEAR_SKY_WRAPS, 1 / plateSpan);
-    texture.offset.set(0, -0.5 / plateSpan);
-    return texture;
-  }
-  createCityClearSky() {
-    const hazeTop = CITY_CLEAR_SKY_HAZE_TOP / CITY_CLEAR_SKY_PLATE_TOP;
-    const hazeLiftTop = CITY_CLEAR_SKY_HAZE_LIFT_TOP / CITY_CLEAR_SKY_PLATE_TOP;
-    const material = new THREE.MeshBasicMaterial({
-      map: this.cityClearSkyTexture,
-      side: THREE.BackSide,
-      depthWrite: false,
-      fog: false
-    });
-    material.onBeforeCompile = (shader) => {
-      shader.uniforms.hazeColor = this.cityClearSkyHazeColor;
-      shader.fragmentShader = shader.fragmentShader.replace(
-        "#include <common>",
-        [
-          "#include <common>",
-          "uniform vec3 hazeColor;"
-        ].join("\n")
-      ).replace(
-        "#include <fog_fragment>",
-        [
-          "// The mapped V carries elevation as a fraction of the plate span,",
-          "// so anything at or below 0.0 is at or below the horizon.",
-          "float skyElevation = vMapUv.y;",
-          `float hazeBand = 1.0 - smoothstep( 0.0, ${hazeTop.toFixed(4)}, skyElevation );`,
-          "// A little pallor carried above the band keeps the transition from",
-          "// reading as a drawn edge across the low sky.",
-          `float hazeLift = ${CITY_CLEAR_SKY_HAZE_LIFT.toFixed(3)} * pow( 1.0 - clamp( skyElevation / ${hazeLiftTop.toFixed(4)}, 0.0, 1.0 ), 2.0 );`,
-          "float hazeAmount = clamp( hazeBand + ( 1.0 - hazeBand ) * hazeLift, 0.0, 1.0 );",
-          "gl_FragColor.rgb = mix( gl_FragColor.rgb, hazeColor, hazeAmount );"
-        ].join("\n")
-      );
-    };
-    material.customProgramCacheKey = () => "aftertrace-city-clear-sky-haze";
-    const sky = new THREE.Mesh(
-      // A denser band count keeps the mapped elevation, and therefore the haze
-      // ramp, from stepping across the shallow angles the camera actually sees.
-      new THREE.SphereGeometry(CITY_CLEAR_SKY_RADIUS, 64, 40),
-      material
-    );
-    sky.name = "city_clear_day_sky";
-    sky.rotation.y = 0;
-    sky.renderOrder = -100;
-    sky.frustumCulled = false;
-    sky.visible = false;
-    return sky;
-  }
   createStars() {
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(STAR_COUNT * 3);
@@ -22845,53 +25020,6 @@ class Environment {
       context.fillStyle = ray;
       context.fillRect(4, 15.55, 24, 0.9);
       context.restore();
-    }
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.colorSpace = THREE.SRGBColorSpace;
-    return texture;
-  }
-  createMoon() {
-    const moon = new THREE.Sprite(new THREE.SpriteMaterial({
-      map: this.moonTexture,
-      color: 14477554,
-      transparent: true,
-      opacity: 0.92,
-      depthWrite: false,
-      depthTest: true,
-      fog: false,
-      toneMapped: false
-    }));
-    moon.name = "desert_moon";
-    moon.scale.set(9.5, 9.5, 1);
-    moon.renderOrder = -1;
-    return moon;
-  }
-  createMoonTexture() {
-    const canvas = document.createElement("canvas");
-    canvas.width = 256;
-    canvas.height = 256;
-    const context = canvas.getContext("2d");
-    if (context) {
-      const glow = context.createRadialGradient(128, 128, 42, 128, 128, 122);
-      glow.addColorStop(0, "rgba(205, 225, 242, 0.34)");
-      glow.addColorStop(0.48, "rgba(175, 207, 232, 0.12)");
-      glow.addColorStop(1, "rgba(150, 190, 225, 0)");
-      context.fillStyle = glow;
-      context.fillRect(0, 0, 256, 256);
-      const disc = context.createRadialGradient(112, 105, 8, 128, 128, 49);
-      disc.addColorStop(0, "rgba(250, 250, 238, 1)");
-      disc.addColorStop(0.72, "rgba(218, 228, 229, 1)");
-      disc.addColorStop(1, "rgba(176, 196, 207, 0.96)");
-      context.fillStyle = disc;
-      context.beginPath();
-      context.arc(128, 128, 49, 0, Math.PI * 2);
-      context.fill();
-      context.fillStyle = "rgba(126, 151, 163, 0.16)";
-      for (const [x, y, radius] of [[110, 111, 8], [145, 99, 5], [151, 137, 9], [119, 151, 5]]) {
-        context.beginPath();
-        context.arc(x, y, radius, 0, Math.PI * 2);
-        context.fill();
-      }
     }
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
@@ -23208,12 +25336,13 @@ class Environment {
       this.gapMetalMaterial.color.setHex(9869976);
     } else {
       this.bodyMaterial.color.setHex(night ? 6451578 : 14804195);
+      this.sidewalkMaterial.color.setHex(night ? 6451578 : 12567489);
       this.darkMaterial.color.setHex(night ? 2569276 : 3159610);
       this.backdropMaterial.color.setHex(night ? 2900301 : 14673382);
       this.backdropCapMaterial.color.setHex(night ? 2241341 : 12831951);
-      this.pavementMaterial.color.setHex(night ? 4543323 : 13751764);
-      this.serviceRoadMaterial.color.setHex(night ? 3424842 : 9871007);
-      this.roadSurfaceMaterial.color.setHex(night ? 2832706 : 15264488);
+      this.pavementMaterial.color.setHex(night ? 4543323 : 11120300);
+      this.serviceRoadMaterial.color.setHex(night ? 3424842 : 8094598);
+      this.roadSurfaceMaterial.color.setHex(night ? 2832706 : 5660776);
       this.windowMaterial.color.setHex(night ? 7986409 : 7511461);
       this.windowMaterial.opacity = night ? 0.78 : 0.52;
       this.windowDimMaterial.color.setHex(night ? 2573899 : 3360586);
@@ -23222,12 +25351,21 @@ class Environment {
       this.edgeMaterial.color.setHex(night ? 8295325 : 3422012);
       this.edgeMaterial.opacity = night ? 0.56 : 0.66;
       this.cyanMaterial.color.setHex(night ? 4646898 : 2084834);
-      this.laneDividerMaterial.color.setHex(night ? 5560286 : 5683908);
-      this.laneDividerMaterial.opacity = night ? 0.88 : 0.72;
+      this.laneDividerMaterial.color.setHex(night ? 5560286 : 6477021);
+      this.laneDividerMaterial.opacity = night ? 0.88 : 0.86;
       this.gapCliffMaterial.color.setHex(2370092);
       this.gapConcreteMaterial.color.setHex(13684682);
       this.gapMetalMaterial.color.setHex(9869976);
     }
+    const [roadWear, roadPatch, roadCrack] = ROAD_DETAIL[this.biome][theme];
+    this.roadDetail.setRoad(roadWear, roadPatch, roadCrack, ROAD_DETAIL_FADE);
+    for (const [biome, bands] of this.shoulderBands) {
+      for (const band of bands) band.mesh.visible = biome === this.biome;
+    }
+    this.gapApronMaterial.color.setHex(JUMP_GAP_APRON_COLOR[this.biome][theme]);
+    const [shoulderA, shoulderB] = SHOULDER_COLORS[this.biome][theme];
+    this.shoulderMaterialA.color.setHex(shoulderA);
+    this.shoulderMaterialB.color.setHex(shoulderB);
     this.updateStreetlightIllumination();
     const lit = night || factory && theme === "sunset";
     for (const pool of this.streetLightPools) {
@@ -23247,7 +25385,13 @@ class Environment {
     const desert = this.biome === "desert";
     const abandonedCity = this.biome === "abandonedCity";
     const coast = this.biome === "coast";
-    const profiles = coast ? this.theme === "sunset" ? {
+    const profiles = coast ? this.theme === "night" ? {
+      clear: { background: 1056555, fogNear: 38, fogFar: 122 },
+      overcast: { background: 1911860, fogNear: 26, fogFar: 94 },
+      rain: { background: 1582638, fogNear: 23, fogFar: 88 },
+      snow: { background: 1911860, fogNear: 26, fogFar: 94 },
+      sandstorm: { background: 1911860, fogNear: 26, fogFar: 94 }
+    } : this.theme === "sunset" ? {
       clear: { background: 14196850, fogNear: 32, fogFar: 106 },
       overcast: { background: 11900032, fogNear: 26, fogFar: 88 },
       rain: { background: 9405816, fogNear: 21, fogFar: 78 },
@@ -23302,7 +25446,9 @@ class Environment {
       snow: { background: 3294028, fogNear: 23, fogFar: 86 },
       sandstorm: { background: 2241083, fogNear: 23, fogFar: 86 }
     } : {
-      clear: { background: 15725298, fogNear: 31, fogFar: 100 },
+      // Pale blue aerial haze rather than a white wall: distance reads as
+      // clear air, and the sky dome's horizon takes the same colour.
+      clear: { background: 13229035, fogNear: 31, fogFar: 100 },
       overcast: { background: 12174280, fogNear: 27, fogFar: 88 },
       rain: { background: 10069934, fogNear: 22, fogFar: 78 },
       snow: { background: 14081246, fogNear: 24, fogFar: 84 },
@@ -23315,14 +25461,19 @@ class Environment {
       profile.fogNear,
       profile.fogFar * FORWARD_VISIBILITY_SCALE
     );
-    this.cityClearSkyHazeColor.value.set(profile.background);
+    this.gapHazeColor.value.set(profile.background).multiplyScalar(this.theme === "night" ? 0.72 : 0.42);
+    this.gapVoidMaterial.color.copy(this.gapHazeColor.value);
     this.coastKit.setSkyHorizon(profile.background);
     this.rain.visible = weather === "rain";
     this.snow.visible = weather === "snow";
     this.sandstorm.visible = weather === "sandstorm";
-    this.cityClearSky.visible = this.biome === "city" && this.theme === "day" && weather === "clear";
+    if (this.biome === "coast") this.coastKit.getSunDirection(this.skyBodyDirection);
+    else getSkyBodyDirection(this.biome, this.theme, this.skyBodyDirection);
+    this.skyDome.setLook(this.biome, this.theme, weather, profile.background, this.skyBodyDirection);
+    this.farSilhouettes.setLook(this.biome, this.theme, weather, this.skyBodyDirection);
+    this.farTerrain.setLook(this.biome, this.theme, weather);
+    this.contactShadows.setLook(this.biome, this.theme, weather);
     this.stars.visible = this.theme === "night" && weather === "clear";
-    this.moon.visible = (desert || abandonedCity) && this.theme === "night" && weather === "clear";
     const rainMaterial = this.rain.material;
     rainMaterial.color.setHex(factory ? this.theme === "night" ? 9550002 : 11902860 : abandonedCity ? this.theme === "night" ? 10006450 : 8887191 : coast ? this.theme === "sunset" ? 14205102 : 11061454 : this.theme === "night" ? 11066341 : 8829637);
     rainMaterial.opacity = 0.56;
@@ -23338,11 +25489,27 @@ class Environment {
     }
   }
   update(delta, speed, boosted = false) {
+    var _a, _b;
     this.distance += speed * delta;
     this.weatherElapsed += delta;
-    if (this.cityClearSky.visible) {
-      this.cityClearSky.rotation.y = Math.sin(this.weatherElapsed * CITY_CLEAR_SKY_SWAY_RATE) * CITY_CLEAR_SKY_SWAY_LIMIT;
-    }
+    updateRouteUniforms(
+      this.distance,
+      this.getRoadOffset,
+      this.getRoadElevation,
+      ((_a = this.jumpGap) == null ? void 0 : _a.start) ?? null,
+      ((_b = this.jumpGap) == null ? void 0 : _b.end) ?? null
+    );
+    this.skyDome.update(delta);
+    this.skyYaw = THREE.MathUtils.damp(
+      this.skyYaw,
+      -this.getRoadHeading(FAR_YAW_SAMPLE_Z) * FAR_YAW_FOLLOW,
+      FAR_YAW_RATE,
+      delta
+    );
+    this.skyDome.setYaw(this.skyYaw);
+    this.farSilhouettes.update(delta, this.skyYaw, this.getRoadElevation(-150), null);
+    this.farTerrain.update(this.distance - this.roadsideOrigin);
+    if (this.biome === "coast") this.coastKit.setSunYaw(this.skyYaw);
     this.updateRoadDeck();
     if (this.biome === "coast") this.coastKit.update(delta, speed, this.getRoadElevation(0));
     if (this.jumpGap && this.distance > this.jumpGap.end + this.rearRoadExtent) {
@@ -23358,6 +25525,11 @@ class Environment {
       prop.group.position.z += speed * delta;
       if (prop.group.position.z > 10) {
         prop.group.position.z -= propWrap;
+        if (prop.lapRole) {
+          prop.lap = (prop.lap ?? 0) + 1;
+          const landmarkLap = prop.lap % LANDMARK_LAP_PERIOD === 0;
+          this.setLapHidden(prop, prop.lapRole === "landmark" ? !landmarkLap : landmarkLap);
+        }
         prop.group.traverse((child) => {
           if (!child.userData.destructible) return;
           child.userData.destroyed = false;
@@ -23368,12 +25540,14 @@ class Environment {
       prop.group.position.y = this.getRoadElevation(prop.group.position.z);
       prop.group.rotation.y = -this.getRoadHeading(prop.group.position.z);
       this.updateRoadsideGapPresentation(prop.group);
-      const available = !prop.group.userData.hiddenByJumpGap && !prop.group.userData.destroyed;
+      const available = !prop.group.userData.hiddenByJumpGap && !prop.group.userData.destroyed && !prop.lapHidden;
+      if (prop.lapHidden) prop.group.visible = false;
       const withinFog = prop.group.position.z >= roadsideCullZ && prop.group.position.z <= 12;
       if (available) prop.group.visible = withinFog;
       if (prop.nearDetails) prop.nearDetails.visible = withinFog && prop.group.position.z >= detailCullZ;
       if (prop.rotor) prop.rotor.rotation.z += delta * (boosted ? 8 : 3.2);
     }
+    this.contactShadows.update(this.roadsideProps);
     this.updateStreetlightIllumination();
     if (this.stars.visible) {
       const starsMaterial = this.stars.material;
@@ -23489,9 +25663,9 @@ class Environment {
     }
   }
   anchorSky(position) {
-    this.cityClearSky.position.copy(position);
+    this.skyDome.mesh.position.copy(position);
+    this.farSilhouettes.anchor(position);
     this.stars.position.copy(position);
-    this.moon.position.copy(position).add(DESERT_MOON_OFFSET);
     const starsMaterial = this.stars.material;
     starsMaterial.uniforms.pointScale.value = Math.min(window.innerHeight, 1200) * Math.min(window.devicePixelRatio, 2) * 0.72;
   }
@@ -23510,12 +25684,10 @@ class Environment {
     this.disposeObject(this.stars);
     this.stars.material.dispose();
     this.starTexture.dispose();
-    this.disposeObject(this.cityClearSky);
-    this.cityClearSky.material.dispose();
-    this.cityClearSkyTexture.dispose();
-    this.moon.removeFromParent();
-    this.moon.material.dispose();
-    this.moonTexture.dispose();
+    this.skyDome.dispose();
+    this.farSilhouettes.dispose();
+    this.farTerrain.dispose();
+    this.contactShadows.dispose();
     this.rain.material.dispose();
     this.snow.material.dispose();
     this.sandstorm.material.dispose();
@@ -23527,6 +25699,7 @@ class Environment {
       this.disposeObject(ripple.group);
     }
     this.bodyMaterial.dispose();
+    this.sidewalkMaterial.dispose();
     this.darkMaterial.dispose();
     this.cyanMaterial.dispose();
     this.laneDividerMaterial.dispose();
@@ -23540,7 +25713,10 @@ class Environment {
     this.serviceRoadMaterial.dispose();
     this.edgeMaterial.dispose();
     this.roadSurfaceMaterial.dispose();
+    this.shoulderMaterialA.dispose();
+    this.shoulderMaterialB.dispose();
     this.gapVoidMaterial.dispose();
+    this.gapApronMaterial.dispose();
     this.gapCliffMaterial.dispose();
     this.gapConcreteMaterial.dispose();
     this.gapMetalMaterial.dispose();
@@ -30385,6 +32561,7 @@ const BEAM_RANGES = [32, 50, 72, 104];
 const BEAM_DAMAGE = [1, 1.5, 2, 6];
 const BEAM_VELOCITIES = [72, 90, 108, 124];
 const BEAM_FIRE_INTERVAL = 0.085;
+const HELD_LANE_REPEAT_DELAY = 0.16;
 const SPEED_DISTORTION_SHADER = {
   name: "AFTERTRACESpeedDistortion",
   uniforms: {
@@ -30541,7 +32718,7 @@ class Game {
       if (event.pointerType !== "mouse") {
         this.heldPointerId = event.pointerId;
         this.heldPointerDirection = direction;
-        this.heldPointerTimer = 0.3;
+        this.heldPointerTimer = HELD_LANE_REPEAT_DELAY;
       }
     });
     __publicField(this, "onPointerRelease", (event) => {
@@ -30564,7 +32741,7 @@ class Game {
         else this.player.moveRight();
       }
       this.heldDirection = direction;
-      this.heldMoveTimer = 0.16;
+      this.heldMoveTimer = HELD_LANE_REPEAT_DELAY;
     });
     __publicField(this, "onKeyUp", (event) => {
       const releaseLeft = event.key === "ArrowLeft" || event.key === "a" || event.key === "A";
@@ -30839,7 +33016,7 @@ class Game {
     this.resizeRenderer(container.clientWidth, container.clientHeight, true);
     this.hemisphereLight = new THREE.HemisphereLight(16777215, 6582658, 2.5);
     this.keyLight = new THREE.DirectionalLight(16777215, 2.1);
-    this.keyLight.position.set(-3, 8, 5);
+    this.keyLight.position.copy(KEY_LIGHT_POSITION);
     this.scene.add(this.hemisphereLight, this.keyLight);
     this.player = new Player(this.scene);
     this.environment = new Environment(this.scene);
@@ -31037,49 +33214,12 @@ class Game {
     this.environment.setStageEnvironment(this.stageDefinition.biome, this.stageDefinition.stage);
     this.environment.setStageTheme(this.stageDefinition.theme);
     this.obstacleManager.configureStage(this.stageDefinition);
-    const night = this.stageDefinition.theme === "night";
-    const sunset = this.stageDefinition.theme === "sunset";
-    const factory = this.stageDefinition.biome === "factory";
-    const desert = this.stageDefinition.biome === "desert";
-    const abandonedCity = this.stageDefinition.biome === "abandonedCity";
-    const coast = this.stageDefinition.biome === "coast";
-    const sandstorm = weather === "sandstorm";
-    if (desert) {
-      this.hemisphereLight.color.setHex(night ? 10135741 : 16765089);
-      this.hemisphereLight.groundColor.setHex(night ? 3087394 : 8205861);
-      this.hemisphereLight.intensity = sandstorm ? night ? 2.35 : 2.25 : night ? 2.55 : 2.45;
-      this.keyLight.color.setHex(night ? 13031935 : 16756845);
-      this.keyLight.intensity = sandstorm ? night ? 2.05 : 2.12 : night ? 2.2 : 2.3;
-      this.renderer.toneMappingExposure = sandstorm ? night ? 1.07 : 1 : night ? 1.1 : 1.04;
-    } else if (factory) {
-      this.hemisphereLight.color.setHex(night ? 12372934 : 14736853);
-      this.hemisphereLight.groundColor.setHex(night ? 2107429 : 4999749);
-      this.hemisphereLight.intensity = night ? 2.5 : 2.55;
-      this.keyLight.color.setHex(night ? 16766371 : 16757622);
-      this.keyLight.intensity = night ? 2.2 : 1.65;
-      this.renderer.toneMappingExposure = night ? 1.1 : 1.02;
-    } else if (abandonedCity) {
-      this.hemisphereLight.color.setHex(night ? 13230309 : 12634306);
-      this.hemisphereLight.groundColor.setHex(night ? 2636099 : 4015938);
-      this.hemisphereLight.intensity = night ? 2.6 : 2.25;
-      this.keyLight.color.setHex(night ? 14873846 : 14475480);
-      this.keyLight.intensity = night ? 2.3 : 1.65;
-      this.renderer.toneMappingExposure = night ? 1.11 : 1;
-    } else if (coast) {
-      this.hemisphereLight.color.setHex(sunset ? 15780269 : 14478575);
-      this.hemisphereLight.groundColor.setHex(sunset ? 5984585 : 4413011);
-      this.hemisphereLight.intensity = sunset ? 2.55 : 2.45;
-      this.keyLight.color.setHex(sunset ? 16758905 : 16773591);
-      this.keyLight.intensity = sunset ? 2.15 : 1.9;
-      this.renderer.toneMappingExposure = sunset ? 1.04 : 1.02;
-    } else {
-      this.hemisphereLight.color.setHex(night ? 13230309 : 16317435);
-      this.hemisphereLight.groundColor.setHex(night ? 2636099 : 6846078);
-      this.hemisphereLight.intensity = night ? 2.35 : 2.4;
-      this.keyLight.color.setHex(night ? 14873846 : 16774374);
-      this.keyLight.intensity = night ? 2.15 : sunset ? 2.35 : 2;
-      this.renderer.toneMappingExposure = night ? 1.1 : 1.02;
-    }
+    applyBiomeLighting(
+      { hemisphere: this.hemisphereLight, key: this.keyLight, renderer: this.renderer },
+      this.stageDefinition.biome,
+      this.stageDefinition.theme,
+      weather
+    );
     this.applyWeather(weather);
   }
   finish(status) {

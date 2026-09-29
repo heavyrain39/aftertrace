@@ -977,6 +977,10 @@
     overscroll-behavior: contain;
   }
 
+  .rounded {
+    border-radius: .25rem;
+  }
+
   .rounded-full {
     border-radius: 3.40282e38px;
   }
