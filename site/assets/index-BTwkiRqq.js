@@ -31203,7 +31203,7 @@ class Player {
   }
   loadBlenderVehicle() {
     const loader = new GLTFLoader();
-    loader.load(`${"./"}models/twin_rail_vector.glb`, (gltf) => {
+    loader.load(`${"./"}models/twin_rail_vector.glb?v=4.2`, (gltf) => {
       if (this.disposed) return;
       const importedRoot = gltf.scene.getObjectByName("twin_rail_vector");
       const leftRail = gltf.scene.getObjectByName("left_rail_assembly");
